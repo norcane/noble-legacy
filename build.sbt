@@ -12,7 +12,10 @@ licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
 scalaVersion in Global := "2.11.8"
 
-libraryDependencies ++= Seq(jdbc, cache, ws, specs2 % Test)
+libraryDependencies ++= Seq(
+  jdbc, cache, ws, specs2 % Test,
+  "org.typelevel" %% "cats" % "0.6.0"
+)
 
 unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
 
