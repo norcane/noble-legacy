@@ -14,7 +14,7 @@ scalaVersion in Global := "2.11.8"
 
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
-  "org.typelevel" %% "cats" % "0.6.0"
+  "org.typelevel" %% "cats" % "0.6.1"
 )
 
 unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
