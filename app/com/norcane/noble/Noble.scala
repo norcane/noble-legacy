@@ -24,11 +24,13 @@ import akka.actor.{ActorRef, ActorSystem}
 import cats.data.Xor
 import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.models.{BlogConfig, BlogDefinition}
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Logger}
 
 @Singleton
 class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
                       environment: Environment) {
+
+  private val logger: Logger = Logger(getClass)
 
   lazy val blogs: Seq[BlogDefinition] = {
     val blogsConfigKey: String = s"${Keys.ConfigPrefix}.blogs"
@@ -45,7 +47,7 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
         val blogDefinitionXor: Xor[String, BlogDefinition] = for {
           blogCfg <- blogCfgXor
           blogConfig <- BlogConfig.fromConfig(blogCfg)
-        } yield BlogDefinition(blogConfig, blogActor)
+        } yield BlogDefinition(blogName, blogConfig, blogActor)
 
         blogDefinitionXor.fold(
           error => throw InvalidBlogConfigError(s"cannot initialize blog '$blogName': $error"),

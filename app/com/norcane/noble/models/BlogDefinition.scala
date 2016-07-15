@@ -20,5 +20,5 @@ package com.norcane.noble.models
 
 import akka.actor.ActorRef
 
-case class BlogDefinition(config: BlogConfig, actor: ActorRef)
+case class BlogDefinition(name: String, config: BlogConfig, actor: ActorRef)
 

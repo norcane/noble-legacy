@@ -37,7 +37,7 @@ class BlogsRouter @Inject()(noble: Noble) extends SimpleRouter {
 
     blogRouters
       .map(_.routes)
-      .foldLeft(PartialFunction.empty[RequestHeader, Handler])((r1, r2) => r1.orElse(r2))
+      .foldLeft(PartialFunction.empty[RequestHeader, Handler])(_ orElse _)
   }
 
   override def withPrefix(prefix: String): Router = {
@@ -62,8 +62,8 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
       override def routes: Routes = {
         val p: String = if (prefix.endsWith("/")) prefix else prefix + "/"
         val prefixed: PartialFunction[RequestHeader, RequestHeader] = {
-          case rh: RequestHeader if rh.path.startsWith(p) || rh.path.equals(prefix) =>
-            rh.copy(path = rh.path.drop(p.length - 1))
+          case header: RequestHeader if header.path.startsWith(p) || header.path.equals(prefix) =>
+            header.copy(path = header.path.drop(p.length - 1))
         }
         Function.unlift(prefixed.lift andThen (_ flatMap self.routes.lift))
       }
