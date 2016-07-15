@@ -39,13 +39,17 @@ class BlogConfigSpec extends Specification {
   private val testValue: String = "testValue"
 
   private def initTestBlogConfig: BlogConfig = BlogConfig(
-    path = testPath, storageConfig = StorageConfig(
-      storageType = testType, config = Some(Configuration("testKey" -> testValue))
+    path = testPath,
+    postsConfig = PostsConfig(testType, None),
+    storageConfig = StorageConfig(testType, Some(Configuration("testKey" -> testValue))
     )
   )
 
   private def initTestConfiguration: Configuration = Configuration(
     "path" -> testPath,
+    "posts" -> Map(
+      "type" -> testType
+    ),
     "storage" -> Map(
       "type" -> testType,
       "config" -> Map(

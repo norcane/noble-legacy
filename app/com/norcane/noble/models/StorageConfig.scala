@@ -21,9 +21,33 @@ package com.norcane.noble.models
 import cats.data.Xor
 import play.api.Configuration
 
+/**
+  * Model class representing the configuration of blog's storage (i.e. place from blog posts
+  * and assets are loaded). The main idea is to provide modular architecture for adding support for
+  * various blog storage types (e.g. ''Git'' repository, local filesystem, database, cloud storage)
+  * using the 3rd party modules. Each blog storage configuration consists of  `format` field,
+  * specifying uniquely the exact blog storage type (using this field the appropriate blog storage
+  * provider will be loaded) and optional configuration block, which will be passed to the selected
+  * blog storage provider.
+  *
+  * @param storageType blog storage type
+  * @param config      blog storage provider optional configuration
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
 case class StorageConfig(storageType: String, config: Option[Configuration])
 
+/**
+  * Companion object for the [[StorageConfig]] model class.
+  */
 object StorageConfig {
+
+  /**
+    * Constructs new instance of [[StorageConfig]] based on the given configuration object. The root
+    * of this configuration must be the blog storage config configuration block.
+    *
+    * @param config configuration to parse
+    * @return instance of [[StorageConfig]] or error message in case of failure
+    */
   def fromConfig(config: Configuration): String Xor StorageConfig = {
     val storageTypeXor: String Xor String = Xor.fromOption(config.getString("type"),
       "missing storage type configuration")

@@ -21,17 +21,40 @@ package com.norcane.noble.models
 import cats.data.Xor
 import play.api.Configuration
 
-case class BlogConfig(path: String, storageConfig: StorageConfig)
+/**
+  * Model class representing the configuration of one blog.
+  *
+  * @param path          the path of the blog
+  * @param postsConfig   configuration of blog posts
+  * @param storageConfig configuration of blog storage
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
+case class BlogConfig(path: String, postsConfig: PostsConfig, storageConfig: StorageConfig)
 
+/**
+  * Companion object for the [[BlogConfig]] model class.
+  */
 object BlogConfig {
+
+  /**
+    * Constructs new instance of [[BlogConfig]] based on the given configuration object. The root
+    * of this configuration must be the blog config configuration block.
+    *
+    * @param config configuration to parse
+    * @return instance of [[BlogConfig]] or error message in case of failure
+    */
   def fromConfig(config: Configuration): String Xor BlogConfig = {
     val path: String = config.getString("path").getOrElse("/blog")
+    val postsCfgXor: String Xor Configuration = Xor.fromOption(config.getConfig("posts"),
+      "missing blog posts configuration")
     val storageCfgXor: String Xor Configuration = Xor.fromOption(config.getConfig("storage"),
       "missing storage configuration")
 
     for {
       storageCfg <- storageCfgXor
+      postsCfg <- postsCfgXor
       storageConfig <- StorageConfig.fromConfig(storageCfg)
-    } yield BlogConfig(path, storageConfig)
+      postsConfig <- PostsConfig.fromConfig(postsCfg)
+    } yield BlogConfig(path, postsConfig, storageConfig)
   }
 }

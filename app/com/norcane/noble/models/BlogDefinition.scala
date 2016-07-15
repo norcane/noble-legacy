@@ -20,5 +20,14 @@ package com.norcane.noble.models
 
 import akka.actor.ActorRef
 
+/**
+  * Collects all the data about properly configured and loaded blog, such as blog name,
+  * configuration, storage and post format provider, etc.
+  *
+  * @param name   blog name
+  * @param config blog configuration
+  * @param actor  blog actor used to load and access blog posts and assets
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
 case class BlogDefinition(name: String, config: BlogConfig, actor: ActorRef)
 
