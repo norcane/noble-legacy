@@ -33,6 +33,7 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
   private val logger: Logger = Logger(getClass)
 
   lazy val blogs: Seq[BlogDefinition] = {
+    logger.info("Loading blog configurations")
     val blogsConfigKey: String = s"${Keys.ConfigPrefix}.blogs"
     val blogsConfigXor: String Xor Configuration = Xor.fromOption(
       configuration.getConfig(s"${Keys.ConfigPrefix}.blogs"),
