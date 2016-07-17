@@ -19,7 +19,7 @@
 package com.norcane.noble
 
 import cats.data.Xor
-import com.norcane.api.models.{BlogConfig, PostsConfig, StorageConfig}
+import com.norcane.api.models.{BlogConfig, StorageConfig}
 import com.typesafe.config.Config
 import play.api.Configuration
 
@@ -46,21 +46,6 @@ object ConfigParser {
   }
 
   /**
-    * Constructs new instance of [[PostsConfig]] based on the given configuration object. The root
-    * of this configuration must be the blog posts config configuration block.
-    *
-    * @param config configuration to parse
-    * @return instance of [[PostsConfig]] or error message in case of failure
-    */
-  def parsePostsConfig(config: Configuration): String Xor PostsConfig = {
-    val postTypeXor: String Xor String = Xor.fromOption(config.getString("type"),
-      "missing blog posts type configuration")
-    val postsConfig: Option[Config] = config.getConfig("config") map (_.underlying)
-
-    for (postType <- postTypeXor) yield PostsConfig(postType, postsConfig)
-  }
-
-  /**
     * Constructs new instance of [[BlogConfig]] based on the given configuration object. The root
     * of this configuration must be the blog config configuration block.
     *
@@ -69,16 +54,12 @@ object ConfigParser {
     */
   def parseBlogConfig(blogName: String, config: Configuration): String Xor BlogConfig = {
     val path: String = config.getString("path").getOrElse("/blog")
-    val postsCfgXor: String Xor Configuration = Xor.fromOption(config.getConfig("posts"),
-      "missing blog posts configuration")
     val storageCfgXor: String Xor Configuration = Xor.fromOption(config.getConfig("storage"),
       "missing storage configuration")
 
     for {
       storageCfg <- storageCfgXor
-      postsCfg <- postsCfgXor
       storageConfig <- parseStorageConfig(storageCfg)
-      postsConfig <- parsePostsConfig(postsCfg)
-    } yield BlogConfig(blogName, path, postsConfig, storageConfig)
+    } yield BlogConfig(blogName, path, storageConfig)
   }
 }

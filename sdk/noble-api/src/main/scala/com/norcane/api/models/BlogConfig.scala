@@ -23,9 +23,7 @@ package com.norcane.api.models
   *
   * @param name          internal name of the blog
   * @param path          the path of the blog
-  * @param postsConfig   configuration of blog posts
   * @param storageConfig configuration of blog storage
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class BlogConfig(name: String, path: String, postsConfig: PostsConfig,
-                      storageConfig: StorageConfig)
+case class BlogConfig(name: String, path: String, storageConfig: StorageConfig)

@@ -19,7 +19,7 @@
 package com.norcane.noble.models
 
 import cats.data.Xor
-import com.norcane.api.models.{BlogConfig, PostsConfig, StorageConfig}
+import com.norcane.api.models.{BlogConfig, StorageConfig}
 import com.norcane.noble.ConfigParser
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
@@ -48,16 +48,12 @@ class ConfigParserSpec extends mutable.Specification with Matchers {
   private val testValue: String = "testValue"
 
   private def initTestBlogConfig: BlogConfig = BlogConfig(
-    name = testName, path = testPath,
-    postsConfig = PostsConfig(testType, None),
-    storageConfig = StorageConfig(testType, Some(Configuration("testKey" -> testValue).underlying))
+    name = testName, path = testPath, storageConfig = StorageConfig(
+      testType, Some(Configuration("testKey" -> testValue).underlying))
   )
 
   private def initTestConfiguration: Configuration = Configuration(
     "path" -> testPath,
-    "posts" -> Map(
-      "type" -> testType
-    ),
     "storage" -> Map(
       "type" -> testType,
       "config" -> Map(
