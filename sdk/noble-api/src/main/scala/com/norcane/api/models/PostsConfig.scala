@@ -16,10 +16,9 @@
  * the License.
  */
 
-package com.norcane.noble.models
+package com.norcane.api.models
 
-import cats.data.Xor
-import play.api.Configuration
+import com.typesafe.config.Config
 
 /**
   * Model class representing the configuration of blog's posts (e.g. post format type, etc). The
@@ -33,25 +32,4 @@ import play.api.Configuration
   * @param config blog post format provider optional configuration
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class PostsConfig(format: String, config: Option[Configuration])
-
-/**
-  * Companion object for the [[PostsConfig]] model class.
-  */
-object PostsConfig {
-
-  /**
-    * Constructs new instance of [[PostsConfig]] based on the given configuration object. The root
-    * of this configuration must be the blog posts config configuration block.
-    *
-    * @param config configuration to parse
-    * @return instance of [[PostsConfig]] or error message in case of failure
-    */
-  def fromConfig(config: Configuration): String Xor PostsConfig = {
-    val postTypeXor: String Xor String = Xor.fromOption(config.getString("type"),
-      "missing blog posts type configuration")
-    val postsConfig: Option[Configuration] = config.getConfig("config")
-
-    for (postType <- postTypeXor) yield PostsConfig(postType, postsConfig)
-  }
-}
+case class PostsConfig(format: String, config: Option[Config])

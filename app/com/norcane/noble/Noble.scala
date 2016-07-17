@@ -23,7 +23,7 @@ import javax.inject.{Inject, Singleton}
 import akka.actor.{ActorRef, ActorSystem}
 import cats.data.Xor
 import com.norcane.noble.actors.BlogActor
-import com.norcane.noble.models.{BlogConfig, BlogDefinition}
+import com.norcane.noble.models.{BlogDefinition}
 import play.api.{Configuration, Environment, Logger}
 
 @Singleton
@@ -47,8 +47,8 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
 
         val blogDefinitionXor: Xor[String, BlogDefinition] = for {
           blogCfg <- blogCfgXor
-          blogConfig <- BlogConfig.fromConfig(blogCfg)
-        } yield BlogDefinition(blogName, blogConfig, blogActor)
+          blogConfig <- ConfigParser.parseBlogConfig(blogName, blogCfg)
+        } yield BlogDefinition(blogConfig, blogActor)
 
         blogDefinitionXor.fold(
           error => throw InvalidBlogConfigError(s"cannot initialize blog '$blogName': $error"),

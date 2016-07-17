@@ -16,10 +16,9 @@
  * the License.
  */
 
-package com.norcane.noble.models
+package com.norcane.api.models
 
-import cats.data.Xor
-import play.api.Configuration
+import com.typesafe.config.Config
 
 /**
   * Model class representing the configuration of blog's storage (i.e. place from blog posts
@@ -34,25 +33,4 @@ import play.api.Configuration
   * @param config      blog storage provider optional configuration
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class StorageConfig(storageType: String, config: Option[Configuration])
-
-/**
-  * Companion object for the [[StorageConfig]] model class.
-  */
-object StorageConfig {
-
-  /**
-    * Constructs new instance of [[StorageConfig]] based on the given configuration object. The root
-    * of this configuration must be the blog storage config configuration block.
-    *
-    * @param config configuration to parse
-    * @return instance of [[StorageConfig]] or error message in case of failure
-    */
-  def fromConfig(config: Configuration): String Xor StorageConfig = {
-    val storageTypeXor: String Xor String = Xor.fromOption(config.getString("type"),
-      "missing storage type configuration")
-    val storageConfig: Option[Configuration] = config.getConfig("config")
-
-    for (storageType <- storageTypeXor) yield StorageConfig(storageType, storageConfig)
-  }
-}
+case class StorageConfig(storageType: String, config: Option[Config])

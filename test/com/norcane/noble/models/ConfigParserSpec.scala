@@ -19,30 +19,38 @@
 package com.norcane.noble.models
 
 import cats.data.Xor
-import org.specs2.mutable.Specification
+import com.norcane.api.models.{BlogConfig, PostsConfig, StorageConfig}
+import com.norcane.noble.ConfigParser
+import org.specs2.matcher.Matchers
+import org.specs2.mutable
 import play.api.Configuration
 
-class BlogConfigSpec extends Specification {
-
-  val className: String = BlogConfig.getClass.getSimpleName
+/**
+  * ''Specs2'' specification for the [[ConfigParser]].
+  *
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
+class ConfigParserSpec extends mutable.Specification with Matchers {
+  val className: String = ConfigParser.getClass.getSimpleName
 
   s"This is the specification for the $className".txt
 
   s"The $className should" >> {
-    "properly initialize itself from configuration" >> {
-      BlogConfig.fromConfig(initTestConfiguration) must beEqualTo(Xor.right(initTestBlogConfig))
+    s"properly initialize ${BlogConfig.getClass.getSimpleName} from configuration" >> {
+      ConfigParser.parseBlogConfig(testName, initTestConfiguration) must
+        beEqualTo(Xor.right(initTestBlogConfig))
     }
   }
 
+  private val testName: String = "testName"
   private val testPath: String = "testPath"
   private val testType: String = "testType"
   private val testValue: String = "testValue"
 
   private def initTestBlogConfig: BlogConfig = BlogConfig(
-    path = testPath,
+    name = testName, path = testPath,
     postsConfig = PostsConfig(testType, None),
-    storageConfig = StorageConfig(testType, Some(Configuration("testKey" -> testValue))
-    )
+    storageConfig = StorageConfig(testType, Some(Configuration("testKey" -> testValue).underlying))
   )
 
   private def initTestConfiguration: Configuration = Configuration(
@@ -57,4 +65,5 @@ class BlogConfigSpec extends Specification {
       )
     )
   )
+
 }

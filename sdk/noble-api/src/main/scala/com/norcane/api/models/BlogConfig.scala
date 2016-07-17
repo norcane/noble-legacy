@@ -16,18 +16,16 @@
  * the License.
  */
 
-package com.norcane.noble.models
-
-import akka.actor.ActorRef
-import com.norcane.api.models.BlogConfig
+package com.norcane.api.models
 
 /**
-  * Collects all the data about properly configured and loaded blog, such as blog name,
-  * configuration, storage and post format provider, etc.
+  * Model class representing the configuration of one blog.
   *
-  * @param config blog configuration
-  * @param actor  blog actor used to load and access blog posts and assets
+  * @param name          internal name of the blog
+  * @param path          the path of the blog
+  * @param postsConfig   configuration of blog posts
+  * @param storageConfig configuration of blog storage
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class BlogDefinition(config: BlogConfig, actor: ActorRef)
-
+case class BlogConfig(name: String, path: String, postsConfig: PostsConfig,
+                      storageConfig: StorageConfig)
