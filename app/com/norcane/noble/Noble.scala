@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.{ActorRef, ActorSystem}
 import cats.data.Xor
-import com.norcane.api.{BlogPostTypeFactory, BlogStorageFactory}
+import com.norcane.api.BlogStorageFactory
 import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.models.BlogDefinition
 import play.api.{Configuration, Environment, Logger}
@@ -31,8 +31,7 @@ import scala.collection.immutable
 
 @Singleton
 class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
-                      environment: Environment, storages: immutable.Set[BlogStorageFactory],
-                      postTypes: immutable.Set[BlogPostTypeFactory]) {
+                      environment: Environment, storages: immutable.Set[BlogStorageFactory]) {
 
   private val logger: Logger = Logger(getClass)
 

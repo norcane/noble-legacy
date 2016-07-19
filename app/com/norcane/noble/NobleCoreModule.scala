@@ -18,7 +18,7 @@
 
 package com.norcane.noble
 
-import com.norcane.api.{BlogPostTypeFactory, BlogStorageFactory, NobleModule}
+import com.norcane.api.{BlogStorageFactory, NobleModule}
 import net.codingwell.scalaguice.ScalaMultibinder
 
 /**
@@ -31,6 +31,5 @@ class NobleCoreModule extends NobleModule {
 
   override def configure(): Unit = {
     ScalaMultibinder.newSetBinder[BlogStorageFactory](binder)
-    ScalaMultibinder.newSetBinder[BlogPostTypeFactory](binder)
   }
 }
