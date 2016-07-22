@@ -20,9 +20,10 @@ package com.norcane.noble
 
 import javax.inject.{Inject, Singleton}
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import cats.data.Xor
 import com.norcane.api.BlogStorageFactory
+import com.norcane.api.models.StorageConfig
 import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.models.BlogDefinition
 import play.api.{Configuration, Environment, Logger}
@@ -48,12 +49,13 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
       blogsConfig.subKeys.toSeq map { blogName =>
         val blogCfgXor: String Xor Configuration = Xor.fromOption(
           blogsConfig.getConfig(blogName), s"invalid configuration for blog '$blogName'")
-        val blogActor: ActorRef = actorSystem.actorOf(BlogActor.props)
 
         val blogDefinitionXor: Xor[String, BlogDefinition] = for {
           blogCfg <- blogCfgXor
           blogConfig <- ConfigParser.parseBlogConfig(blogName, blogCfg)
-        } yield BlogDefinition(blogConfig, blogActor)
+          storageFactory <- findStorageFactory(blogConfig.storageConfig)
+        } yield BlogDefinition(blogConfig, storageFactory,
+          actorSystem.actorOf(BlogActor.props(storageFactory)))
 
         blogDefinitionXor.fold(
           error => throw InvalidBlogConfigError(s"cannot initialize blog '$blogName': $error"),
@@ -66,6 +68,16 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
       logger.info(s"Following blogs were successfully loaded: ${blogNames.mkString(",")}")
       definitions
     })
+  }
+
+  private def findStorageFactory(config: StorageConfig): String Xor BlogStorageFactory = {
+    def storageTypes: String = if (storages.nonEmpty)
+      storages.map(_.storageType).mkString(",")
+    else "-no storages registered-"
+
+    Xor.fromOption(storages.find(factory => factory.storageType == config.storageType),
+      s"""Cannot find any registered blog storage factory for type '${config.storageType}'
+          |(available types are: $storageTypes)""".stripMargin.replaceAll("\n", " "))
   }
 }
 

@@ -19,6 +19,7 @@
 package com.norcane.noble.models
 
 import akka.actor.ActorRef
+import com.norcane.api.BlogStorageFactory
 import com.norcane.api.models.BlogConfig
 
 /**
@@ -29,5 +30,5 @@ import com.norcane.api.models.BlogConfig
   * @param actor  blog actor used to load and access blog posts and assets
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class BlogDefinition(config: BlogConfig, actor: ActorRef)
+case class BlogDefinition(config: BlogConfig, storageFactory: BlogStorageFactory, actor: ActorRef)
 

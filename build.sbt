@@ -15,7 +15,9 @@ scalaVersion in Global := "2.11.8"
 
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
-  "org.typelevel" %% "cats" % "0.6.1"
+  "org.typelevel" %% "cats" % "0.6.1",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.4.1.201607150455-r",
+  "org.yaml" % "snakeyaml" % "1.17"
 )
 
 unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
@@ -26,7 +28,8 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
   .settings(
     libraryDependencies ++= Seq(
       "net.codingwell" %% "scala-guice" % "4.0.1",
-      "com.typesafe" % "config" % "1.3.0"
+      "com.typesafe" % "config" % "1.3.0",
+      "org.typelevel" %% "cats" % "0.6.1"
     )
   )
 

@@ -16,25 +16,15 @@
  * the License.
  */
 
-package com.norcane.api
+package com.norcane.noble.modules
 
-import cats.data.Xor
-import com.norcane.api.models.{BlogInfo, StorageConfig}
+import com.norcane.api.{BlogStorageFactory, NobleModule}
+import com.norcane.noble.storages.GitBlogStorageFactory
+import net.codingwell.scalaguice.ScalaMultibinder
 
-trait BlogStorageFactory {
+class NobleDefaultsModule extends NobleModule {
 
-  def storageType: String
-
-  def create(config: StorageConfig): BlogStorageError Xor BlogStorage
+  override def configure(): Unit = {
+    ScalaMultibinder.newSetBinder[BlogStorageFactory](binder).addBinding.to[GitBlogStorageFactory]
+  }
 }
-
-trait BlogStorage {
-
-  def usedHash: String
-
-  def currentHash: String
-
-  def loadInfo: BlogStorageError Xor BlogInfo
-}
-
-case class BlogStorageError(message: String, cause: Option[Throwable] = None)
