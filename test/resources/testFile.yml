@@ -1,0 +1,12 @@
+## YAML test file for the YamlSpec test
+
+testString: testValue
+
+testInt: 42
+
+testList:
+  - first
+  - second
+
+testMap:
+  key1: value1

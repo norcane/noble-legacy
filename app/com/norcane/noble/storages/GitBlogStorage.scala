@@ -24,7 +24,7 @@ import javax.inject.Singleton
 import cats.data.Xor
 import com.norcane.api.models.{BlogInfo, StorageConfig}
 import com.norcane.api.{BlogStorage, BlogStorageError, BlogStorageFactory}
-import com.norcane.noble.utils.Yaml
+import com.norcane.noble.utils.{Yaml, YamlValue}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ObjectId, Repository, RepositoryBuilder}
 import org.eclipse.jgit.revwalk.{RevTree, RevWalk}
@@ -57,6 +57,8 @@ class GitBlogStorageFactory extends BlogStorageFactory {
 
 class GitBlogStorage(config: GitStorageConfig) extends BlogStorage {
 
+  import Yaml.Defaults._
+
   val ConfigFileName = "_config.yml"
 
   private val repository: Repository = new RepositoryBuilder()
@@ -74,7 +76,7 @@ class GitBlogStorage(config: GitStorageConfig) extends BlogStorage {
   override def loadInfo: BlogStorageError Xor BlogInfo = {
     val yaml: Yaml = loadContent(ConfigFileName)
       .flatMap(content => Yaml.parse(content).toOption).getOrElse(Yaml.empty)
-    def asXor[T](key: String, errMsg: String)(implicit ct: ClassTag[T]): BlogStorageError Xor T =
+    def asXor[T: YamlValue](key: String, errMsg: String): BlogStorageError Xor T =
       Xor.fromOption(yaml.get[T](key), BlogStorageError(errMsg))
 
     for {
