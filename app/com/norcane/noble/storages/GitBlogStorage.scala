@@ -33,7 +33,6 @@ import org.eclipse.jgit.treewalk.filter.{PathFilter, TreeFilter}
 import play.api.Configuration
 
 import scala.io.Source
-import scala.reflect.ClassTag
 
 
 @Singleton

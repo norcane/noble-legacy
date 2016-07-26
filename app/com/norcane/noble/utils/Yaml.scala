@@ -18,9 +18,9 @@
 
 package com.norcane.noble.utils
 
+import java.time.{LocalDate, ZoneId}
 import java.util.Date
 
-import org.joda.time.DateTime
 import play.api.Logger
 
 import scala.annotation.implicitNotFound
@@ -75,7 +75,7 @@ object Yaml {
       case string: String => string
       case number: Number => number
       case boolean: java.lang.Boolean => boolean
-      case date: Date => new DateTime(date)
+      case date: Date => date
       case null => null
       case other =>
         Logger.warn(s"unexpected YAML object of type ${other.getClass}")
@@ -126,6 +126,13 @@ object Yaml {
       */
     implicit val yamlValue: YamlValue[Yaml] = YamlValue {
       case yaml: Yaml => yaml
+    }
+
+    /**
+      * Provides support for reading Java 8's `LocalDate` date value.
+      */
+    implicit val localDateValue: YamlValue[LocalDate] = YamlValue {
+      case date: Date => date.toInstant.atZone(ZoneId.systemDefault()).toLocalDate
     }
   }
 

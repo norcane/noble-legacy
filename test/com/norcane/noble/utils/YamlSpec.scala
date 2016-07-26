@@ -18,6 +18,8 @@
 
 package com.norcane.noble.utils
 
+import java.time.LocalDate
+
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
 
@@ -37,8 +39,6 @@ class YamlSpec extends mutable.Specification with Matchers {
   private val testFile: String = "/testFile.yml"
   private val testYaml: Try[Yaml] = Yaml.parse(
     Source.fromInputStream(getClass.getResourceAsStream(testFile)).mkString)
-
-  s"This is the specification for the $className".txt
 
   s"The YAML parser should" >> {
 
@@ -61,6 +61,10 @@ class YamlSpec extends mutable.Specification with Matchers {
     "properly parse nested YAML object" >> {
       testYaml.get.get[Yaml]("testMap")
         .flatMap(yaml => yaml.get[String]("key1")) must beEqualTo(Some("value1"))
+    }
+
+    "properly parse Java8's LocalDate" >> {
+      testYaml.get.get[LocalDate]("testDate") must beEqualTo(Some(LocalDate.of(2016, 7, 26)))
     }
   }
 

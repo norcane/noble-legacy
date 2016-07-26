@@ -10,3 +10,5 @@ testList:
 
 testMap:
   key1: value1
+
+testDate: 2016-07-26

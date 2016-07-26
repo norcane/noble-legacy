@@ -33,8 +33,6 @@ import play.api.Configuration
 class ConfigParserSpec extends mutable.Specification with Matchers {
   val className: String = ConfigParser.getClass.getSimpleName
 
-  s"This is the specification for the $className".txt
-
   s"The $className should" >> {
     s"properly initialize ${BlogConfig.getClass.getSimpleName} from configuration" >> {
       ConfigParser.parseBlogConfig(testName, initTestConfiguration) must
