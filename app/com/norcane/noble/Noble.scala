@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import cats.data.Xor
-import com.norcane.api.BlogStorageFactory
+import com.norcane.api.{BlogStorageFactory, FormatSupport, FormatSupportFactory}
 import com.norcane.api.models.StorageConfig
 import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.models.BlogDefinition
@@ -32,7 +32,8 @@ import scala.collection.immutable
 
 @Singleton
 class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
-                      environment: Environment, storages: immutable.Set[BlogStorageFactory]) {
+                      environment: Environment, storages: immutable.Set[BlogStorageFactory],
+                      formatSupportFactories: immutable.Set[FormatSupportFactory]) {
 
   private val logger: Logger = Logger(getClass)
 
@@ -54,8 +55,8 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
           blogCfg <- blogCfgXor
           blogConfig <- ConfigParser.parseBlogConfig(blogName, blogCfg)
           storageFactory <- findStorageFactory(blogConfig.storageConfig)
-        } yield BlogDefinition(blogConfig, storageFactory,
-          actorSystem.actorOf(BlogActor.props(storageFactory)))
+        } yield BlogDefinition(blogConfig, storageFactory, actorSystem.actorOf(
+            BlogActor.props(storageFactory, blogConfig, formatSupports)))
 
         blogDefinitionXor.fold(
           error => throw InvalidBlogConfigError(s"cannot initialize blog '$blogName': $error"),
@@ -69,6 +70,9 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
       definitions
     })
   }
+
+  private def formatSupports: Map[String, FormatSupport] =
+    (formatSupportFactories map (factory => factory.postType -> factory.create)).toMap
 
   private def findStorageFactory(config: StorageConfig): String Xor BlogStorageFactory = {
     def storageTypes: String = if (storages.nonEmpty)

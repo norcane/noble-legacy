@@ -18,17 +18,48 @@
 
 package com.norcane.noble.actors
 
-import akka.actor.{Actor, Props}
-import com.norcane.api.BlogStorageFactory
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.norcane.api.models.{Blog, BlogConfig}
+import com.norcane.api.{BlogStorageFactory, FormatSupport}
+import com.norcane.noble.actors.BlogLoaderActor.{BlogLoaded, BlogLoadingFailed, LoadBlog}
 
-class BlogActor(storageFactory: BlogStorageFactory) extends Actor {
+class BlogActor(storageFactory: BlogStorageFactory,
+                blogConfig: BlogConfig,
+                formatSupports: Map[String, FormatSupport]) extends Actor with ActorLogging {
 
-  override def receive: Receive = PartialFunction.empty
+  private val blogLoaderActor: ActorRef = context.actorOf(
+    BlogLoaderActor.props(storageFactory, blogConfig.storageConfig, formatSupports))
+
+
+  override def preStart(): Unit = {
+    blogLoaderActor ! LoadBlog()
+  }
+
+  override def receive: Receive = notLoaded()
+
+  private def notLoaded(requests: List[(ActorRef, Any)] = Nil): Receive = {
+    case BlogLoaded(blog) =>
+      context.become(loaded(blog))
+      requests.reverse foreach {
+        case (sender, message) => self.tell(message, sender)
+      }
+    case failure@BlogLoadingFailed(message, cause) =>
+      // TODO propagate the error to client UI
+      log.error(cause.orNull, s"Error when loading blog '${blogConfig.name}': $message")
+      throw failure
+    case other =>
+      context.become(notLoaded(sender() -> other :: requests))
+  }
+
+  private def loaded(blog: Blog): Receive = PartialFunction.empty
 
 }
 
 object BlogActor {
-  def props(storageFactory: BlogStorageFactory): Props = Props(new BlogActor(storageFactory))
+  def props(storageFactory: BlogStorageFactory,
+            blogConfig: BlogConfig,
+            formatSupports: Map[String, FormatSupport]): Props =
+    Props(new BlogActor(storageFactory, blogConfig, formatSupports))
 
 
 }

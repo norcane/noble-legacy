@@ -35,6 +35,8 @@ trait BlogStorage {
   def currentHash: String
 
   def loadInfo: BlogStorageError Xor BlogInfo
+
+  //def loadBlogPosts: BlogStorageError Xor List[BlogPost]
 }
 
 case class BlogStorageError(message: String, cause: Option[Throwable] = None)

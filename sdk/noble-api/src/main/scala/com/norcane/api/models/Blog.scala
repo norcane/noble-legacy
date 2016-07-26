@@ -16,21 +16,8 @@
  * the License.
  */
 
-package com.norcane.noble.modules
+package com.norcane.api.models
 
-import com.norcane.api.{BlogStorageFactory, FormatSupport, FormatSupportFactory, NobleModule}
-import net.codingwell.scalaguice.ScalaMultibinder
+class Blog(val hash: String, info: BlogInfo) {
 
-/**
-  * This Noble module prepares the environment for another 3rd party modules and registers some of
-  * the built-in modules.
-  *
-  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
-  */
-class NobleCoreModule extends NobleModule {
-
-  override def configure(): Unit = {
-    ScalaMultibinder.newSetBinder[BlogStorageFactory](binder)
-    ScalaMultibinder.newSetBinder[FormatSupportFactory](binder)
-  }
 }

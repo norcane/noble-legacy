@@ -79,9 +79,9 @@ class GitBlogStorage(config: GitStorageConfig) extends BlogStorage {
       Xor.fromOption(yaml.get[T](key), BlogStorageError(errMsg))
 
     for {
-      title <- asXor[String]("title", "no blog title specified")
-      author <- asXor[String]("author", "no blog author specified")
-      themeName <- asXor[String]("author", "no blog theme name specified")
+      title <- asXor[String]("title", s"no blog title specified in $ConfigFileName")
+      author <- asXor[String]("author", s"no blog author specified in $ConfigFileName")
+      themeName <- asXor[String]("theme", s"no blog theme name specified in $ConfigFileName")
     } yield BlogInfo(
       title = title,
       subtitle = yaml.get[String]("subtitle"),
