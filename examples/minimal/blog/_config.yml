@@ -4,5 +4,5 @@ title: Minimal test blog
 ## Name of the blog author
 author: John Smith
 
-## (Optional) Name of used blog theme. If not specified, default bundled theme 'humane' is used.
-theme: humane
+## Name of used blog theme. This uses the default bundled theme called 'humane'.
+themfe: humane

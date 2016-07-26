@@ -49,7 +49,7 @@ class GitBlogStorageFactory extends BlogStorageFactory {
       gitRepo = new File(repoPath),
       blogPath = cfg.getString("blogPath").getOrElse("."),
       branch = cfg.getString("branch").getOrElse("master"),
-      remote = cfg.getString("remote").getOrElse("origin")
+      remote = cfg.getString("remote")
     ))) leftMap (BlogStorageError(_))
   }
 }
@@ -67,7 +67,7 @@ class GitBlogStorage(config: GitStorageConfig) extends BlogStorage {
   override val usedHash: String = currentHash
 
   override def currentHash: String = {
-    val ref: String = "refs/remotes/" + config.remote + "/" + config.branch
+    val ref: String = config.remote.map("refs/remotes/" + _ + "/").getOrElse("") + config.branch
     Option(repository.findRef(ref)).map(_.getObjectId.name()).getOrElse(
       throw new RuntimeException(s"Cannot find ref '$ref' in repository '${config.gitRepo}'"))
   }
@@ -133,4 +133,4 @@ class GitBlogStorage(config: GitStorageConfig) extends BlogStorage {
 
 }
 
-case class GitStorageConfig(gitRepo: File, blogPath: String, branch: String, remote: String)
+case class GitStorageConfig(gitRepo: File, blogPath: String, branch: String, remote: Option[String])
