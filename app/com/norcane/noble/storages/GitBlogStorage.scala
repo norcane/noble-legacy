@@ -114,7 +114,7 @@ class GitBlogStorage(config: GitStorageConfig,
       val path: String = s"$PostsDirName/$file"
       val Some(stream) = loadStream(path)
       for {
-        postRecord <- parsePostRecord(path)
+        postRecord <- parsePostRecord(file)
         formatSupport <- selectFormatSupport(postRecord.postType)
         blogPost <- formatSupport.extractPostMetadata(stream.stream, postRecord)
           .leftMap(err => BlogStorageError(err.message, err.cause))
