@@ -19,11 +19,12 @@
 package com.norcane.noble.storages
 
 import java.io.{File, InputStream}
+import java.time.LocalDate
 import javax.inject.Singleton
 
 import cats.data.Xor
-import com.norcane.api.models.{BlogInfo, StorageConfig}
-import com.norcane.api.{BlogStorage, BlogStorageError, BlogStorageFactory}
+import com.norcane.api._
+import com.norcane.api.models.{BlogInfo, BlogPost, StorageConfig}
 import com.norcane.noble.utils.{Yaml, YamlValue}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ObjectId, Repository, RepositoryBuilder}
@@ -32,14 +33,19 @@ import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.{PathFilter, TreeFilter}
 import play.api.Configuration
 
+import scala.annotation.tailrec
 import scala.io.Source
+import scala.util.Try
+import scala.util.matching.Regex
 
 
 @Singleton
 class GitBlogStorageFactory extends BlogStorageFactory {
+
   override def storageType: String = "git"
 
-  override def create(config: StorageConfig): BlogStorageError Xor BlogStorage = {
+  override def create(config: StorageConfig,
+                      formatSupports: Map[String, FormatSupport]): BlogStorageError Xor BlogStorage = {
     (for {
       cfg <- Xor.fromOption(config.config.map(Configuration(_)),
         s"no storage config for storage type '${config.storageType}")
@@ -47,18 +53,27 @@ class GitBlogStorageFactory extends BlogStorageFactory {
         s"no Git repo path found for storage type '${config.storageType}")
     } yield new GitBlogStorage(GitStorageConfig(
       gitRepo = new File(repoPath),
-      blogPath = cfg.getString("blogPath").getOrElse("."),
+      blogPath = cfg.getString("blogPath").getOrElse(""),
       branch = cfg.getString("branch").getOrElse("master"),
       remote = cfg.getString("remote")
-    ))) leftMap (BlogStorageError(_))
+    ), formatSupports)) leftMap (BlogStorageError(_))
   }
 }
 
-class GitBlogStorage(config: GitStorageConfig) extends BlogStorage {
+class GitBlogStorage(config: GitStorageConfig,
+                     formatSupports: Map[String, FormatSupport]) extends BlogStorage {
 
   import Yaml.Defaults._
 
   val ConfigFileName = "_config.yml"
+  val PostsDirName = "_posts"
+
+  private val FilenameExtractor: Regex = """(.+)\.([^\.]+)""".r
+  private val DateAndTitleExtractor: Regex = """(\d{4})-(\d{1,2})-(\d{1,2})-(.+)""".r
+
+  private object AsInt {
+    def unapply(string: String): Option[Int] = Try(string.toInt).toOption
+  }
 
   private val repository: Repository = new RepositoryBuilder()
     .setGitDir(new File(config.gitRepo, ".git")).build()
@@ -89,6 +104,59 @@ class GitBlogStorage(config: GitStorageConfig) extends BlogStorage {
       description = yaml.get[String]("description"),
       themeName = themeName
     )
+  }
+
+  override def loadBlogPosts: Xor[BlogStorageError, List[BlogPost]] = {
+    import cats.std.list._
+    import cats.syntax.traverse._
+
+    ((for (files <- allFilesInPath(PostsDirName)) yield files map { file =>
+      val path: String = s"$PostsDirName/$file"
+      val Some(stream) = loadStream(path)
+      for {
+        postRecord <- parsePostRecord(path)
+        formatSupport <- selectFormatSupport(postRecord.postType)
+        blogPost <- formatSupport.extractPostMetadata(stream.stream, postRecord)
+          .leftMap(err => BlogStorageError(err.message, err.cause))
+      } yield blogPost
+    }) getOrElse Nil).toList.sequenceU
+    // IntelliJ Idea will highlight an error here, but the code is compilable and working,
+    // issue is reported here: https://youtrack.jetbrains.com/issue/SCL-9752
+  }
+
+  private def selectFormatSupport(postType: String): BlogStorageError Xor FormatSupport =
+    Xor.fromOption(formatSupports.get(postType),
+      BlogStorageError(s"no format support available for type '$postType'"))
+
+  private def parsePostRecord(path: String): BlogStorageError Xor BlogPostRecord = {
+    def parseFilename: BlogStorageError Xor (String, String) = path match {
+      case FilenameExtractor(filename, extension) => Xor.right((filename, extension))
+      case _ => Xor.left(BlogStorageError(s"cannot parse extension for file '$path'"))
+    }
+    def parseDateAndTitle(filename: String, extension: String): BlogStorageError Xor BlogPostRecord =
+      filename match {
+        case DateAndTitleExtractor(AsInt(year), AsInt(month), AsInt(day), title) =>
+          Xor.right(BlogPostRecord(LocalDate.of(year, month, day), title, extension))
+        case _ => Xor.left(
+          BlogStorageError(s"cannot parse date and title for file '$filename.$extension'"))
+      }
+
+    for {
+      parsedFilename <- parseFilename
+      postRecord <- parseDateAndTitle(parsedFilename._1, parsedFilename._2)
+    } yield postRecord
+  }
+
+  private def allFilesInPath(path: String): Option[Seq[String]] = {
+    val prefixedPath: String = config.blogPath + path
+    scanFiles(PathFilter.create(prefixedPath)) { treeWalk =>
+      @tailrec def extract(list: List[String]): List[String] = {
+        if (!treeWalk.next())
+          list
+        else extract(treeWalk.getPathString.drop(prefixedPath.length + 1) :: list)
+      }
+      Some(extract(Nil))
+    }
   }
 
   private def loadContent(path: String): Option[String] = loadStream(path) map {

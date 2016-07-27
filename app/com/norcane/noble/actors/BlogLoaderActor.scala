@@ -48,11 +48,13 @@ class BlogLoaderActor(storageFactory: BlogStorageFactory,
 
   private def loadBlog: BlogLoadingFailed Xor (BlogStorage, Blog) = {
     for {
-      storage <- storageFactory.create(storageConfig)
+      storage <- storageFactory.create(storageConfig, formatSupports)
         .leftMap(err => BlogLoadingFailed(err.message, err.cause))
       blogInfo <- storage.loadInfo
         .leftMap(err => BlogLoadingFailed(err.message, err.cause))
-    } yield (storage, new Blog(storage.usedHash, blogInfo))
+      blogPosts <- storage.loadBlogPosts
+        .leftMap(err => BlogLoadingFailed(err.message, err.cause))
+    } yield (storage, new Blog(storage.usedHash, blogInfo, blogPosts))
   }
 }
 

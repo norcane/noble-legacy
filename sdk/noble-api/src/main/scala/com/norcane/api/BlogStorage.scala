@@ -19,13 +19,14 @@
 package com.norcane.api
 
 import cats.data.Xor
-import com.norcane.api.models.{BlogInfo, StorageConfig}
+import com.norcane.api.models.{BlogInfo, BlogPost, StorageConfig}
 
 trait BlogStorageFactory {
 
   def storageType: String
 
-  def create(config: StorageConfig): BlogStorageError Xor BlogStorage
+  def create(config: StorageConfig,
+             formatSupports: Map[String, FormatSupport]): BlogStorageError Xor BlogStorage
 }
 
 trait BlogStorage {
@@ -36,7 +37,7 @@ trait BlogStorage {
 
   def loadInfo: BlogStorageError Xor BlogInfo
 
-  //def loadBlogPosts: BlogStorageError Xor List[BlogPost]
+  def loadBlogPosts: BlogStorageError Xor Seq[BlogPost]
 }
 
 case class BlogStorageError(message: String, cause: Option[Throwable] = None)

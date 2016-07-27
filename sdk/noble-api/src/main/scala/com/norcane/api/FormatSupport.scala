@@ -21,4 +21,4 @@ trait FormatSupport {
 
 case class FormatSupportError(message: String, cause: Option[Throwable] = None)
 
-case class BlogPostRecord(date: LocalDate, title: String)
+case class BlogPostRecord(date: LocalDate, title: String, postType: String)

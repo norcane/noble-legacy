@@ -18,6 +18,5 @@
 
 package com.norcane.api.models
 
-class Blog(val hash: String, info: BlogInfo) {
-
+class Blog(val hash: String, info: BlogInfo, posts: Seq[BlogPost]) {
 }
