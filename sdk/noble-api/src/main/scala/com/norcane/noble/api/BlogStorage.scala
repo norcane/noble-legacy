@@ -16,7 +16,28 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.noble.api
 
-case class BlogInfo(title: String, subtitle: Option[String], author: String,
-                    description: Option[String], themeName: String)
+import cats.data.Xor
+import com.norcane.noble.api.models.{BlogInfo, BlogPost, StorageConfig}
+
+trait BlogStorageFactory {
+
+  def storageType: String
+
+  def create(config: StorageConfig,
+             formatSupports: Map[String, FormatSupport]): BlogStorageError Xor BlogStorage
+}
+
+trait BlogStorage {
+
+  def usedHash: String
+
+  def currentHash: String
+
+  def loadInfo: BlogStorageError Xor BlogInfo
+
+  def loadBlogPosts: BlogStorageError Xor Seq[BlogPost]
+}
+
+case class BlogStorageError(message: String, cause: Option[Throwable] = None)

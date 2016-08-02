@@ -22,8 +22,8 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import cats.data.Xor
-import com.norcane.api._
-import com.norcane.api.models.StorageConfig
+import com.norcane.noble.api._
+import com.norcane.noble.api.models.StorageConfig
 import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.models.BlogDefinition
 import play.api.{Configuration, Environment, Logger}

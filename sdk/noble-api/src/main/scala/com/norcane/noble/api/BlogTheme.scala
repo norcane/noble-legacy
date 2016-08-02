@@ -16,14 +16,28 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.noble.api
 
-/**
-  * Model class representing the configuration of one blog.
-  *
-  * @param name          internal name of the blog
-  * @param path          the path of the blog
-  * @param storageConfig configuration of blog storage
-  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
-  */
-case class BlogConfig(name: String, path: String, storageConfig: StorageConfig)
+import com.norcane.noble.api.models.{Blog, BlogPost}
+import play.api.i18n.Messages
+import play.api.mvc.{Call, RequestHeader}
+import play.twirl.api.Html
+
+
+trait BlogThemeFactory {
+  def name: String
+
+  def create: BlogTheme
+}
+
+trait BlogTheme {
+
+  def name: String
+
+  def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
+                posts: Seq[(BlogPost, String)], previous: Option[Call], next: Option[Call])
+               (implicit header: RequestHeader, messages: Messages): Html
+
+  def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost, content: String)
+              (implicit header: RequestHeader, messages: Messages): Html
+}

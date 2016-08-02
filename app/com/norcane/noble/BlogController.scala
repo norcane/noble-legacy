@@ -20,8 +20,8 @@ package com.norcane.noble
 
 import akka.actor.ActorRef
 import akka.util.Timeout
-import com.norcane.api.models.{Blog, BlogPost, Page}
-import com.norcane.api.{BlogReverseRouter, BlogTheme}
+import com.norcane.noble.api.models.{Blog, BlogPost, Page}
+import com.norcane.noble.api.{BlogReverseRouter, BlogTheme}
 import com.norcane.noble.actors.BlogActor.{GetBlog, RenderPostContent}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
@@ -49,7 +49,7 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     val perPage: Int = if (page.perPage < 1) 1 else if (page.perPage > 10) 10 else page.perPage
     val zeroBasedPageNo: Int = pageNo - 1
     val startPageNo: Int = zeroBasedPageNo * perPage
-    val posts: Seq[BlogPost] = allPosts.slice(startPageNo, startPageNo * perPage)
+    val posts: Seq[BlogPost] = allPosts.slice(startPageNo, startPageNo + perPage)
     val lastPageNo: Int = allPosts.size / perPage
     val previous: Option[Call] = if (pageNo > 1) Some(route(Page(pageNo - 1, perPage))) else None
     val next: Option[Call] = if (pageNo < lastPageNo) Some(route(Page(pageNo + 1, perPage))) else None

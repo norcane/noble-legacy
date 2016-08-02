@@ -16,21 +16,13 @@
  * the License.
  */
 
-package com.norcane.api
+package com.norcane.noble.api.models
 
-import com.norcane.api.models.Page
-import play.api.mvc.Call
+import java.time.{LocalDate, ZoneId}
 
-class BlogReverseRouter(path: => String, globalPath: => String) {
+case class BlogPost(title: String, date: LocalDate, tags: Set[String])
 
-  val defaultPage = Page(1, 5)
-
-  def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
-
-  private def withPaging(path: String, page: Page) = {
-    val queryString: String = (Nil ++
-      (if (page.pageNo != 1) Seq("page=" + page.pageNo) else Nil) ++
-      (if (page.perPage != 5) Seq("per_page=" + page.perPage) else Nil)).mkString("&")
-    if (queryString.isEmpty) path else path + "?" + queryString
-  }
+object BlogPost {
+  implicit val ordering = Ordering.by((post: BlogPost) =>
+    post.date.atStartOfDay(ZoneId.systemDefault()).toEpochSecond)
 }

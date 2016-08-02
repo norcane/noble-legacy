@@ -16,11 +16,7 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.noble.api.models
 
-class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPost]) {
-
-  private val sorted: Seq[BlogPost] = blogPosts.sorted.reverse
-
-  def posts: Seq[BlogPost] = sorted
-}
+case class BlogInfo(title: String, subtitle: Option[String], author: String,
+                    description: Option[String], themeName: String)

@@ -16,7 +16,7 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.noble.api.models
 
 import com.typesafe.config.Config
 

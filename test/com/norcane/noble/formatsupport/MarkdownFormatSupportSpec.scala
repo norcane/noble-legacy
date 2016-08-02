@@ -21,8 +21,8 @@ package com.norcane.noble.formatsupport
 import java.time.LocalDate
 
 import cats.data.Xor
-import com.norcane.api.models.BlogPost
-import com.norcane.api.{BlogPostRecord, FormatSupportError}
+import com.norcane.noble.api.models.BlogPost
+import com.norcane.noble.api.{BlogPostRecord, FormatSupportError}
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
 

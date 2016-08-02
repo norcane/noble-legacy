@@ -19,7 +19,7 @@
 package com.norcane.noble
 
 import cats.data.Xor
-import com.norcane.api.models.{BlogConfig, StorageConfig}
+import com.norcane.noble.api.models.{BlogConfig, StorageConfig}
 import com.typesafe.config.Config
 import play.api.Configuration
 

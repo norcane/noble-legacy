@@ -1,0 +1,10 @@
+@(posts: Seq[(com.norcane.noble.api.models.BlogPost, String)])
+
+<div class="posts">
+    @for((post, content) <- posts) {
+        <article>
+            <h1>@post.title</h1>
+            <div class="content">@Html(content)</div>
+        </article>
+    }
+</div>

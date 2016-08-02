@@ -23,8 +23,8 @@ import java.time.LocalDate
 import javax.inject.Singleton
 
 import cats.data.Xor
-import com.norcane.api._
-import com.norcane.api.models.{BlogInfo, BlogPost, StorageConfig}
+import com.norcane.noble.api._
+import com.norcane.noble.api.models.{BlogInfo, BlogPost, StorageConfig}
 import com.norcane.noble.utils.{Yaml, YamlValue}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ObjectId, Repository, RepositoryBuilder}

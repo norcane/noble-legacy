@@ -18,7 +18,7 @@
 
 package com.norcane.noble.modules
 
-import com.norcane.api._
+import com.norcane.noble.api._
 import net.codingwell.scalaguice.ScalaMultibinder
 
 /**

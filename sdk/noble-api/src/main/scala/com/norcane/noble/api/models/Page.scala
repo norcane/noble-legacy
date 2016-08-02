@@ -16,28 +16,21 @@
  * the License.
  */
 
-package com.norcane.api
+package com.norcane.noble.api.models
 
-import cats.data.Xor
-import com.norcane.api.models.{BlogInfo, BlogPost, StorageConfig}
+import play.api.mvc.RequestHeader
 
-trait BlogStorageFactory {
+case class Page(pageNo: Int, perPage: Int)
 
-  def storageType: String
+object Page {
 
-  def create(config: StorageConfig,
-             formatSupports: Map[String, FormatSupport]): BlogStorageError Xor BlogStorage
+  import play.api.routing.sird._
+
+  def unapply(header: RequestHeader): Option[Page] = {
+    header.queryString match {
+      case q_o"page=${int(page)}" & q_o"page=${int(perPage)}" =>
+        Some(Page(page.getOrElse(1), perPage.getOrElse(5)))
+      case _ => None
+    }
+  }
 }
-
-trait BlogStorage {
-
-  def usedHash: String
-
-  def currentHash: String
-
-  def loadInfo: BlogStorageError Xor BlogInfo
-
-  def loadBlogPosts: BlogStorageError Xor Seq[BlogPost]
-}
-
-case class BlogStorageError(message: String, cause: Option[Throwable] = None)

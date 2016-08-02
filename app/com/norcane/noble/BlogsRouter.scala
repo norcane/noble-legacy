@@ -20,8 +20,8 @@ package com.norcane.noble
 
 import javax.inject.{Inject, Singleton}
 
-import com.norcane.api.BlogReverseRouter
-import com.norcane.api.models.Page
+import com.norcane.noble.api.BlogReverseRouter
+import com.norcane.noble.api.models.Page
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Handler, RequestHeader}
 import play.api.routing.Router.Routes

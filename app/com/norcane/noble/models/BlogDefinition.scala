@@ -19,8 +19,8 @@
 package com.norcane.noble.models
 
 import akka.actor.ActorRef
-import com.norcane.api.BlogStorageFactory
-import com.norcane.api.models.BlogConfig
+import com.norcane.noble.api.BlogStorageFactory
+import com.norcane.noble.api.models.BlogConfig
 
 /**
   * Collects all the data about properly configured and loaded blog, such as blog name,

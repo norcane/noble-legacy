@@ -1,10 +1,10 @@
-package com.norcane.api
+package com.norcane.noble.api
 
 import java.io.InputStream
 import java.time.LocalDate
 
 import cats.data.Xor
-import com.norcane.api.models.BlogPost
+import com.norcane.noble.api.models.BlogPost
 
 
 trait FormatSupportFactory {

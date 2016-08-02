@@ -19,9 +19,9 @@
 package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.norcane.api.models.{Blog, BlogConfig, BlogPost}
-import com.norcane.api.{BlogStorageFactory, FormatSupport}
-import com.norcane.noble.actors.BlogActor.GetBlog
+import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPost}
+import com.norcane.noble.api.{BlogStorageFactory, FormatSupport}
+import com.norcane.noble.actors.BlogActor.{GetBlog, RenderPostContent}
 import com.norcane.noble.actors.BlogLoaderActor.{BlogLoaded, BlogLoadingFailed, LoadBlog}
 
 class BlogActor(storageFactory: BlogStorageFactory,
@@ -54,6 +54,7 @@ class BlogActor(storageFactory: BlogStorageFactory,
 
   private def loaded(blog: Blog): Receive = {
     case GetBlog => sender ! blog
+    case req: RenderPostContent => sender ! Some("FIXME implement me!") // FIXME implement me
   }
 
 }

@@ -5,8 +5,8 @@ import java.time.LocalDate
 import javax.inject.Singleton
 
 import cats.data.Xor
-import com.norcane.api.models.BlogPost
-import com.norcane.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
+import com.norcane.noble.api.models.BlogPost
+import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
 import com.norcane.noble.utils.{Yaml, YamlValue}
 
 import scala.io.Source

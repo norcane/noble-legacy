@@ -16,13 +16,16 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.noble.api
 
-import java.time.{LocalDate, ZoneId}
+import com.google.inject.AbstractModule
+import net.codingwell.scalaguice.ScalaModule
 
-case class BlogPost(title: String, date: LocalDate, tags: Set[String])
-
-object BlogPost {
-  implicit val ordering = Ordering.by((post: BlogPost) =>
-    post.date.atStartOfDay(ZoneId.systemDefault()).toEpochSecond)
-}
+/**
+  * Base trait for Noble modules. The Noble module represents the way of extending the default
+  * functionality of the Noble application, such as adding support for different blog storages,
+  * blog post formats or blog templates.
+  *
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
+trait NobleModule extends AbstractModule with ScalaModule

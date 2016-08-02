@@ -16,16 +16,11 @@
  * the License.
  */
 
-package com.norcane.api
+package com.norcane.noble.api.models
 
-import com.google.inject.AbstractModule
-import net.codingwell.scalaguice.ScalaModule
+class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPost]) {
 
-/**
-  * Base trait for Noble modules. The Noble module represents the way of extending the default
-  * functionality of the Noble application, such as adding support for different blog storages,
-  * blog post formats or blog templates.
-  *
-  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
-  */
-trait NobleModule extends AbstractModule with ScalaModule
+  private val sorted: Seq[BlogPost] = blogPosts.sorted.reverse
+
+  def posts: Seq[BlogPost] = sorted
+}

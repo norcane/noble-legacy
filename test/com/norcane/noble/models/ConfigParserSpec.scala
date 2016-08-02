@@ -19,7 +19,7 @@
 package com.norcane.noble.models
 
 import cats.data.Xor
-import com.norcane.api.models.{BlogConfig, StorageConfig}
+import com.norcane.noble.api.models.{BlogConfig, StorageConfig}
 import com.norcane.noble.ConfigParser
 import org.specs2.matcher.Matchers
 import org.specs2.mutable

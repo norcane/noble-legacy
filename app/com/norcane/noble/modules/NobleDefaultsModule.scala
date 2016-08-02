@@ -18,9 +18,10 @@
 
 package com.norcane.noble.modules
 
-import com.norcane.api.{BlogStorageFactory, FormatSupportFactory, NobleModule}
+import com.norcane.noble.api.{BlogStorageFactory, BlogThemeFactory, FormatSupportFactory, NobleModule}
 import com.norcane.noble.formatsupport.MarkdownFormatSupportFactory
 import com.norcane.noble.storages.GitBlogStorageFactory
+import com.norcane.noble.themes.HumaneThemeFactory
 import net.codingwell.scalaguice.ScalaMultibinder
 
 class NobleDefaultsModule extends NobleModule {
@@ -33,5 +34,9 @@ class NobleDefaultsModule extends NobleModule {
     // add default support for Markdown blog post/page format
     ScalaMultibinder.newSetBinder[FormatSupportFactory](binder)
       .addBinding.to[MarkdownFormatSupportFactory]
+
+    // add default theme called 'humane'
+    ScalaMultibinder.newSetBinder[BlogThemeFactory](binder)
+      .addBinding.to[HumaneThemeFactory]
   }
 }

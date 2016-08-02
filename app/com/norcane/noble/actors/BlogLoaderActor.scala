@@ -20,8 +20,8 @@ package com.norcane.noble.actors
 
 import akka.actor.{Actor, Props}
 import cats.data.Xor
-import com.norcane.api.models.{Blog, StorageConfig}
-import com.norcane.api.{BlogStorage, BlogStorageFactory, FormatSupport}
+import com.norcane.noble.api.models.{Blog, StorageConfig}
+import com.norcane.noble.api.{BlogStorage, BlogStorageFactory, FormatSupport}
 
 import scala.concurrent.blocking
 

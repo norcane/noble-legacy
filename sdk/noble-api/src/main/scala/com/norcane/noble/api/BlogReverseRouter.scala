@@ -16,21 +16,21 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.noble.api
 
-import play.api.mvc.RequestHeader
+import com.norcane.noble.api.models.Page
+import play.api.mvc.Call
 
-case class Page(pageNo: Int, perPage: Int)
+class BlogReverseRouter(path: => String, globalPath: => String) {
 
-object Page {
+  val defaultPage = Page(1, 5)
 
-  import play.api.routing.sird._
+  def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
 
-  def unapply(header: RequestHeader): Option[Page] = {
-    header.queryString match {
-      case q_o"page=${int(page)}" & q_o"page=${int(perPage)}" =>
-        Some(Page(page.getOrElse(1), perPage.getOrElse(5)))
-      case _ => None
-    }
+  private def withPaging(path: String, page: Page) = {
+    val queryString: String = (Nil ++
+      (if (page.pageNo != 1) Seq("page=" + page.pageNo) else Nil) ++
+      (if (page.perPage != 5) Seq("per_page=" + page.perPage) else Nil)).mkString("&")
+    if (queryString.isEmpty) path else path + "?" + queryString
   }
 }
