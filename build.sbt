@@ -17,7 +17,8 @@ libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
   "org.typelevel" %% "cats" % "0.6.1",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.4.1.201607150455-r",
-  "org.yaml" % "snakeyaml" % "1.17"
+  "org.yaml" % "snakeyaml" % "1.17",
+  "org.pegdown" % "pegdown" % "1.6.0"
 )
 
 unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")

@@ -17,6 +17,8 @@ trait FormatSupport {
 
   def extractPostMetadata(is: InputStream, record: BlogPostRecord): FormatSupportError Xor BlogPost
 
+  def extractPostContent(is: InputStream, post: BlogPost): FormatSupportError Xor String
+
 }
 
 case class FormatSupportError(message: String, cause: Option[Throwable] = None)

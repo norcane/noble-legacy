@@ -8,6 +8,7 @@ import cats.data.Xor
 import com.norcane.noble.api.models.BlogPost
 import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
 import com.norcane.noble.utils.{Yaml, YamlValue}
+import org.pegdown.PegDownProcessor
 
 import scala.io.Source
 import scala.util.{Failure, Success}
@@ -23,6 +24,7 @@ class MarkdownFormatSupportFactory extends FormatSupportFactory {
 class MarkdownFormatSupport extends FormatSupport {
 
   private val FrontMatterSeparator: String = "---"
+  private val processor: PegDownProcessor = new PegDownProcessor()
 
   private implicit class IteratorOps[T](iterator: Iterator[T]) {
     def nextOption = if (iterator.hasNext) Option(iterator.next()) else None
@@ -34,6 +36,22 @@ class MarkdownFormatSupport extends FormatSupport {
       frontMatter <- extractFrontMatter(is, record.title)
       blogPost <- extractBlogPost(frontMatter, record)
     } yield blogPost
+  }
+
+  override def extractPostContent(is: InputStream, post: BlogPost): FormatSupportError Xor String = {
+    for (content <- extractContent(is, post.title)) yield markdownToHtml(content)
+  }
+
+  private def markdownToHtml(input: String): String = processor.markdownToHtml(input)
+
+  private def extractContent(is: InputStream, title: String): FormatSupportError Xor String = {
+    val lines: Iterator[String] = Source.fromInputStream(is).getLines()
+      .map(_.trim).dropWhile(_.isEmpty)
+    lines.nextOption match {
+      case Some(FrontMatterSeparator) =>
+        Xor.right(lines.dropWhile(_ != FrontMatterSeparator).drop(1).mkString("\n"))
+      case _ => Xor.left(FormatSupportError(s"Cannot extract content for blog post '$title'"))
+    }
   }
 
   private def extractBlogPost(yaml: Yaml,
