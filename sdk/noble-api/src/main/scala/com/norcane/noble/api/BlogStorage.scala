@@ -31,13 +31,11 @@ trait BlogStorageFactory {
 
 trait BlogStorage {
 
-  def usedHash: String
-
   def currentHash: String
 
-  def loadInfo: BlogStorageError Xor BlogInfo
+  def loadInfo(hash: String): BlogStorageError Xor BlogInfo
 
-  def loadBlogPosts: BlogStorageError Xor Seq[BlogPost]
+  def loadBlogPosts(hash: String): BlogStorageError Xor Seq[BlogPost]
 }
 
 case class BlogStorageError(message: String, cause: Option[Throwable] = None)

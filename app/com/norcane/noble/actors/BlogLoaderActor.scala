@@ -20,50 +20,40 @@ package com.norcane.noble.actors
 
 import akka.actor.{Actor, Props}
 import cats.data.Xor
-import com.norcane.noble.api.models.{Blog, StorageConfig}
-import com.norcane.noble.api.{BlogStorage, BlogStorageFactory, FormatSupport}
+import com.norcane.noble.api.models.Blog
+import com.norcane.noble.api.{BlogStorage, FormatSupport}
 
 import scala.concurrent.blocking
 
-class BlogLoaderActor(storageFactory: BlogStorageFactory,
-                      storageConfig: StorageConfig,
-                      formatSupports: Map[String, FormatSupport]) extends Actor {
+class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSupport])
+  extends Actor {
 
   import BlogLoaderActor._
 
-  override def receive: Receive = notLoaded
-
-  private def notLoaded: Receive = {
+  override def receive: Receive = {
     case LoadBlog() => blocking {
       loadBlog match {
         case Xor.Left(err) => sender ! err
-        case Xor.Right((storage, blog)) =>
-          context.become(loaded(storage, blog.hash))
-          sender ! BlogLoaded(blog)
+        case Xor.Right(blog) => sender ! BlogLoaded(blog)
       }
     }
   }
 
-  private def loaded(storage: BlogStorage, usedHash: String): Receive = PartialFunction.empty
-
-  private def loadBlog: BlogLoadingFailed Xor (BlogStorage, Blog) = {
+  private def loadBlog: BlogLoadingFailed Xor Blog = {
+    val hash: String = storage.currentHash
     for {
-      storage <- storageFactory.create(storageConfig, formatSupports)
+      blogInfo <- storage.loadInfo(hash)
         .leftMap(err => BlogLoadingFailed(err.message, err.cause))
-      blogInfo <- storage.loadInfo
+      blogPosts <- storage.loadBlogPosts(hash)
         .leftMap(err => BlogLoadingFailed(err.message, err.cause))
-      blogPosts <- storage.loadBlogPosts
-        .leftMap(err => BlogLoadingFailed(err.message, err.cause))
-    } yield (storage, new Blog(storage.usedHash, blogInfo, blogPosts))
+    } yield new Blog(hash, blogInfo, blogPosts)
   }
 }
 
 object BlogLoaderActor {
 
-  def props(storageFactory: BlogStorageFactory,
-            storageConfig: StorageConfig,
-            formatSupports: Map[String, FormatSupport]): Props =
-    Props(new BlogLoaderActor(storageFactory, storageConfig, formatSupports))
+  def props(storage: BlogStorage, formatSupports: Map[String, FormatSupport]): Props =
+    Props(new BlogLoaderActor(storage, formatSupports))
 
   case class LoadBlog()
 

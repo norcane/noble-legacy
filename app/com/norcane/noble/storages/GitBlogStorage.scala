@@ -79,16 +79,14 @@ class GitBlogStorage(config: GitStorageConfig,
     .setGitDir(new File(config.gitRepo, ".git")).build()
   private val git: Git = new Git(repository)
 
-  override val usedHash: String = currentHash
-
   override def currentHash: String = {
     val ref: String = config.remote.map("refs/remotes/" + _ + "/").getOrElse("") + config.branch
     Option(repository.findRef(ref)).map(_.getObjectId.name()).getOrElse(
       throw new RuntimeException(s"Cannot find ref '$ref' in repository '${config.gitRepo}'"))
   }
 
-  override def loadInfo: BlogStorageError Xor BlogInfo = {
-    val yaml: Yaml = loadContent(ConfigFileName)
+  override def loadInfo(hash: String): BlogStorageError Xor BlogInfo = {
+    val yaml: Yaml = loadContent(hash, ConfigFileName)
       .flatMap(content => Yaml.parse(content).toOption).getOrElse(Yaml.empty)
     def asXor[T: YamlValue](key: String, errMsg: String): BlogStorageError Xor T =
       Xor.fromOption(yaml.get[T](key), BlogStorageError(errMsg))
@@ -106,13 +104,13 @@ class GitBlogStorage(config: GitStorageConfig,
     )
   }
 
-  override def loadBlogPosts: Xor[BlogStorageError, List[BlogPost]] = {
+  override def loadBlogPosts(hash: String): Xor[BlogStorageError, List[BlogPost]] = {
     import cats.std.list._
     import cats.syntax.traverse._
 
-    ((for (files <- allFilesInPath(PostsDirName)) yield files map { file =>
+    ((for (files <- allFilesInPath(hash, PostsDirName)) yield files map { file =>
       val path: String = s"$PostsDirName/$file"
-      val Some(stream) = loadStream(path)
+      val Some(stream) = loadStream(hash, path)
       for {
         postRecord <- parsePostRecord(file)
         formatSupport <- selectFormatSupport(postRecord.postType)
@@ -147,9 +145,9 @@ class GitBlogStorage(config: GitStorageConfig,
     } yield postRecord
   }
 
-  private def allFilesInPath(path: String): Option[Seq[String]] = {
+  private def allFilesInPath(hash: String, path: String): Option[Seq[String]] = {
     val prefixedPath: String = config.blogPath + path
-    scanFiles(PathFilter.create(prefixedPath)) { treeWalk =>
+    scanFiles(hash, PathFilter.create(prefixedPath)) { treeWalk =>
       @tailrec def extract(list: List[String]): List[String] = {
         if (!treeWalk.next())
           list
@@ -159,7 +157,7 @@ class GitBlogStorage(config: GitStorageConfig,
     }
   }
 
-  private def loadContent(path: String): Option[String] = loadStream(path) map {
+  private def loadContent(hash: String, path: String): Option[String] = loadStream(hash, path) map {
     case ContentStream(stream, length) => try {
       Source.fromInputStream(stream).mkString
     } finally {
@@ -167,8 +165,8 @@ class GitBlogStorage(config: GitStorageConfig,
     }
   }
 
-  private def loadStream(path: String): Option[ContentStream] = {
-    scanFiles(PathFilter.create(config.blogPath + path)) { treeWalk =>
+  private def loadStream(hash: String, path: String): Option[ContentStream] = {
+    scanFiles(hash, PathFilter.create(config.blogPath + path)) { treeWalk =>
       if (!treeWalk.next()) {
         None
       } else {
@@ -178,11 +176,11 @@ class GitBlogStorage(config: GitStorageConfig,
     }
   }
 
-  private def scanFiles[T](filter: TreeFilter)(block: TreeWalk => Option[T]): Option[T] = {
+  private def scanFiles[T](hash: String, filter: TreeFilter)(block: TreeWalk => Option[T]): Option[T] = {
     val revWalk: RevWalk = new RevWalk(repository)
 
     try {
-      val tree: RevTree = revWalk.parseCommit(ObjectId.fromString(usedHash)).getTree
+      val tree: RevTree = revWalk.parseCommit(ObjectId.fromString(hash)).getTree
       val treeWalk: TreeWalk = new TreeWalk(repository)
       try {
         treeWalk.addTree(tree)

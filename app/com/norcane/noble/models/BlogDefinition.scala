@@ -19,16 +19,17 @@
 package com.norcane.noble.models
 
 import akka.actor.ActorRef
-import com.norcane.noble.api.BlogStorageFactory
+import com.norcane.noble.api.BlogStorage
 import com.norcane.noble.api.models.BlogConfig
 
 /**
   * Collects all the data about properly configured and loaded blog, such as blog name,
   * configuration, storage and post format provider, etc.
   *
-  * @param config blog configuration
-  * @param actor  blog actor used to load and access blog posts and assets
+  * @param config  blog configuration
+  * @param storage blog storage
+  * @param actor   blog actor used to load and access blog posts and assets
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class BlogDefinition(config: BlogConfig, storageFactory: BlogStorageFactory, actor: ActorRef)
+case class BlogDefinition(config: BlogConfig, storage: BlogStorage, actor: ActorRef)
 

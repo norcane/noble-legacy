@@ -22,9 +22,9 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import cats.data.Xor
+import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.api._
 import com.norcane.noble.api.models.StorageConfig
-import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.models.BlogDefinition
 import play.api.{Configuration, Environment, Logger}
 
@@ -32,7 +32,7 @@ import scala.collection.immutable
 
 @Singleton
 class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
-                      environment: Environment, storages: immutable.Set[BlogStorageFactory],
+                      environment: Environment, storageFactories: immutable.Set[BlogStorageFactory],
                       formatSupportFactories: immutable.Set[FormatSupportFactory],
                       themeFactories: immutable.Set[BlogThemeFactory]) {
 
@@ -58,9 +58,9 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
         val blogDefinitionXor: Xor[String, BlogDefinition] = for {
           blogCfg <- blogCfgXor
           blogConfig <- ConfigParser.parseBlogConfig(blogName, blogCfg)
-          storageFactory <- findStorageFactory(blogConfig.storageConfig)
-        } yield BlogDefinition(blogConfig, storageFactory, actorSystem.actorOf(
-          BlogActor.props(storageFactory, blogConfig, formatSupports)))
+          storage <- findStorage(blogConfig.storageConfig)
+        } yield BlogDefinition(blogConfig, storage, actorSystem.actorOf(
+          BlogActor.props(storage, blogConfig, formatSupports)))
 
         blogDefinitionXor.fold(
           error => throw InvalidBlogConfigError(s"cannot initialize blog '$blogName': $error"),
@@ -78,14 +78,19 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
   private def formatSupports: Map[String, FormatSupport] =
     (formatSupportFactories map (factory => factory.postType -> factory.create)).toMap
 
-  private def findStorageFactory(config: StorageConfig): String Xor BlogStorageFactory = {
-    def storageTypes: String = if (storages.nonEmpty)
-      storages.map(_.storageType).mkString(",")
+  private def findStorage(config: StorageConfig): String Xor BlogStorage = {
+    def available: String = if (storageFactories.nonEmpty)
+      storageFactories.map(_.storageType).mkString(",")
     else "-no storages registered-"
 
-    Xor.fromOption(storages.find(factory => factory.storageType == config.storageType),
-      s"""Cannot find any registered blog storage factory for type '${config.storageType}'
-          |(available types are: $storageTypes)""".stripMargin.replaceAll("\n", " "))
+    storageFactories.find(_.storageType == config.storageType) match {
+      case Some(factory) =>
+        factory.create(config, formatSupports).leftMap(_.message)
+      case None => Xor.left(
+        s"""Cannot find any registered blog storage factory for type
+            |'${config.storageType}' (available types are: $available)"""
+          .stripMargin.replaceAll("\n", " "))
+    }
   }
 }
 

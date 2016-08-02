@@ -19,17 +19,17 @@
 package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPost}
-import com.norcane.noble.api.{BlogStorageFactory, FormatSupport}
 import com.norcane.noble.actors.BlogActor.{GetBlog, RenderPostContent}
 import com.norcane.noble.actors.BlogLoaderActor.{BlogLoaded, BlogLoadingFailed, LoadBlog}
+import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPost}
+import com.norcane.noble.api.{BlogStorage, FormatSupport}
 
-class BlogActor(storageFactory: BlogStorageFactory,
+class BlogActor(storage: BlogStorage,
                 blogConfig: BlogConfig,
                 formatSupports: Map[String, FormatSupport]) extends Actor with ActorLogging {
 
   private val blogLoaderActor: ActorRef = context.actorOf(
-    BlogLoaderActor.props(storageFactory, blogConfig.storageConfig, formatSupports))
+    BlogLoaderActor.props(storage, formatSupports))
 
 
   override def preStart(): Unit = {
@@ -60,10 +60,10 @@ class BlogActor(storageFactory: BlogStorageFactory,
 }
 
 object BlogActor {
-  def props(storageFactory: BlogStorageFactory,
+  def props(storage: BlogStorage,
             blogConfig: BlogConfig,
             formatSupports: Map[String, FormatSupport]): Props =
-    Props(new BlogActor(storageFactory, blogConfig, formatSupports))
+    Props(new BlogActor(storage, blogConfig, formatSupports))
 
   trait BlogActorProtocol
 
