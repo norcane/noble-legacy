@@ -16,11 +16,21 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.api
 
-class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPost]) {
+import com.norcane.api.models.Page
+import play.api.mvc.Call
 
-  private val sorted: Seq[BlogPost] = blogPosts.sorted.reverse
+class BlogReverseRouter(path: => String, globalPath: => String) {
 
-  def posts: Seq[BlogPost] = sorted
+  val defaultPage = Page(1, 5)
+
+  def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
+
+  private def withPaging(path: String, page: Page) = {
+    val queryString: String = (Nil ++
+      (if (page.pageNo != 1) Seq("page=" + page.pageNo) else Nil) ++
+      (if (page.perPage != 5) Seq("per_page=" + page.perPage) else Nil)).mkString("&")
+    if (queryString.isEmpty) path else path + "?" + queryString
+  }
 }

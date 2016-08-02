@@ -19,8 +19,9 @@
 package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.norcane.api.models.{Blog, BlogConfig}
+import com.norcane.api.models.{Blog, BlogConfig, BlogPost}
 import com.norcane.api.{BlogStorageFactory, FormatSupport}
+import com.norcane.noble.actors.BlogActor.GetBlog
 import com.norcane.noble.actors.BlogLoaderActor.{BlogLoaded, BlogLoadingFailed, LoadBlog}
 
 class BlogActor(storageFactory: BlogStorageFactory,
@@ -51,7 +52,9 @@ class BlogActor(storageFactory: BlogStorageFactory,
       context.become(notLoaded(sender() -> other :: requests))
   }
 
-  private def loaded(blog: Blog): Receive = PartialFunction.empty
+  private def loaded(blog: Blog): Receive = {
+    case GetBlog => sender ! blog
+  }
 
 }
 
@@ -61,5 +64,10 @@ object BlogActor {
             formatSupports: Map[String, FormatSupport]): Props =
     Props(new BlogActor(storageFactory, blogConfig, formatSupports))
 
+  trait BlogActorProtocol
+
+  case object GetBlog extends BlogActorProtocol
+
+  case class RenderPostContent(blog: Blog, post: BlogPost)
 
 }

@@ -20,19 +20,25 @@ package com.norcane.noble
 
 import javax.inject.{Inject, Singleton}
 
+import com.norcane.api.BlogReverseRouter
+import com.norcane.api.models.Page
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Handler, RequestHeader}
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
 
 @Singleton
-class BlogsRouter @Inject()(noble: Noble) extends SimpleRouter {
+class BlogsRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleRouter {
 
   private var prefix: String = ""
 
   override def routes: Routes = {
     val blogRouters: Seq[Router] = noble.blogs map { blog =>
       val blogPath: String = prefix + blog.config.path
-      new BlogRouter(new BlogController()).withPrefix(blog.config.path)
+      val reverseRouter: BlogReverseRouter = new BlogReverseRouter(blogPath, prefix)
+      val controller: BlogController = new BlogController(
+        blog.actor, noble.themes, reverseRouter, messages)
+      new BlogRouter(controller).withPrefix(blog.config.path)
     }
 
     blogRouters
@@ -53,7 +59,7 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
 
   override def routes: Routes = {
 
-    case GET((p"/" | p"")) => controller.test
+    case GET((p"/" | p"")) ? Page(page) => controller.index(page)
   }
 
   override def withPrefix(prefix: String): Router =

@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import cats.data.Xor
-import com.norcane.api.{BlogStorageFactory, FormatSupport, FormatSupportFactory}
+import com.norcane.api._
 import com.norcane.api.models.StorageConfig
 import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.models.BlogDefinition
@@ -33,11 +33,15 @@ import scala.collection.immutable
 @Singleton
 class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
                       environment: Environment, storages: immutable.Set[BlogStorageFactory],
-                      formatSupportFactories: immutable.Set[FormatSupportFactory]) {
+                      formatSupportFactories: immutable.Set[FormatSupportFactory],
+                      themeFactories: immutable.Set[BlogThemeFactory]) {
 
   private val logger: Logger = Logger(getClass)
 
   lazy val blogs: Seq[BlogDefinition] = loadBlogDefinitions
+  lazy val themes: immutable.Set[BlogTheme] = loadThemes
+
+  private def loadThemes: immutable.Set[BlogTheme] = themeFactories map (_.create)
 
   private def loadBlogDefinitions: Seq[BlogDefinition] = {
     logger.info("Loading blog configurations")
@@ -56,7 +60,7 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
           blogConfig <- ConfigParser.parseBlogConfig(blogName, blogCfg)
           storageFactory <- findStorageFactory(blogConfig.storageConfig)
         } yield BlogDefinition(blogConfig, storageFactory, actorSystem.actorOf(
-            BlogActor.props(storageFactory, blogConfig, formatSupports)))
+          BlogActor.props(storageFactory, blogConfig, formatSupports)))
 
         blogDefinitionXor.fold(
           error => throw InvalidBlogConfigError(s"cannot initialize blog '$blogName': $error"),

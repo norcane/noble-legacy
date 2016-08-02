@@ -29,7 +29,8 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
     libraryDependencies ++= Seq(
       "net.codingwell" %% "scala-guice" % "4.0.1",
       "com.typesafe" % "config" % "1.3.0",
-      "org.typelevel" %% "cats" % "0.6.1"
+      "org.typelevel" %% "cats" % "0.6.1",
+      "com.typesafe.play" %% "play" % "2.5.4"
     )
   )
 

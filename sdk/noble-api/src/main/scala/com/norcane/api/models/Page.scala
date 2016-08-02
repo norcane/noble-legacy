@@ -18,9 +18,19 @@
 
 package com.norcane.api.models
 
-class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPost]) {
+import play.api.mvc.RequestHeader
 
-  private val sorted: Seq[BlogPost] = blogPosts.sorted.reverse
+case class Page(pageNo: Int, perPage: Int)
 
-  def posts: Seq[BlogPost] = sorted
+object Page {
+
+  import play.api.routing.sird._
+
+  def unapply(header: RequestHeader): Option[Page] = {
+    header.queryString match {
+      case q_o"page=${int(page)}" & q_o"page=${int(perPage)}" =>
+        Some(Page(page.getOrElse(1), perPage.getOrElse(5)))
+      case _ => None
+    }
+  }
 }

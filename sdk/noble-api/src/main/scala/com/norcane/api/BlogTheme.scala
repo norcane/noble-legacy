@@ -16,11 +16,28 @@
  * the License.
  */
 
-package com.norcane.api.models
+package com.norcane.api
 
-class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPost]) {
+import com.norcane.api.models.{Blog, BlogPost}
+import play.api.i18n.Messages
+import play.api.mvc.{Call, RequestHeader}
+import play.twirl.api.Html
 
-  private val sorted: Seq[BlogPost] = blogPosts.sorted.reverse
 
-  def posts: Seq[BlogPost] = sorted
+trait BlogThemeFactory {
+  def name: String
+
+  def create: BlogTheme
+}
+
+trait BlogTheme {
+
+  def name: String
+
+  def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
+                posts: Seq[(BlogPost, String)], previous: Option[Call], next: Option[Call])
+               (implicit header: RequestHeader, messages: Messages): Html
+
+  def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost, content: String)
+              (implicit header: RequestHeader, messages: Messages): Html
 }

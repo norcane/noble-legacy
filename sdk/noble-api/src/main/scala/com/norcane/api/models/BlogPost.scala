@@ -18,6 +18,11 @@
 
 package com.norcane.api.models
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneId}
 
 case class BlogPost(title: String, date: LocalDate, tags: Set[String])
+
+object BlogPost {
+  implicit val ordering = Ordering.by((post: BlogPost) =>
+    post.date.atStartOfDay(ZoneId.systemDefault()).toEpochSecond)
+}
