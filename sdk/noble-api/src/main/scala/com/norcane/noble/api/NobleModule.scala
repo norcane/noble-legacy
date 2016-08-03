@@ -18,8 +18,8 @@
 
 package com.norcane.noble.api
 
-import com.google.inject.AbstractModule
-import net.codingwell.scalaguice.ScalaModule
+import com.google.inject.{AbstractModule, Binder}
+import net.codingwell.scalaguice.{ScalaModule, ScalaMultibinder}
 
 /**
   * Base trait for Noble modules. The Noble module represents the way of extending the default
@@ -28,4 +28,46 @@ import net.codingwell.scalaguice.ScalaModule
   *
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-trait NobleModule extends AbstractModule with ScalaModule
+trait NobleModule extends AbstractModule with ScalaModule {
+
+  /**
+    * Registers the new blog storage, using its [[BlogStorageFactory]] implementation.
+    *
+    * = Example of use =
+    * {{{
+    *   registerBlogStorage[MyBlogStorageFactory]()
+    * }}}
+    *
+    * @tparam T blog storage factory type
+    */
+  protected def registerBlogStorage[T <: BlogStorageFactory : Manifest](): Unit =
+    ScalaMultibinder.newSetBinder[BlogStorageFactory](binder).addBinding.to[T]
+
+  /**
+    * Registers new format support, using its [[FormatSupportFactory]] implementation.
+    *
+    * = Example of use =
+    * {{{
+    *   registerFormatSupport[MyFormatSupportFactory]()
+    * }}}
+    *
+    * @tparam T format support factory type
+    */
+  protected def registerFormatSupport[T <: FormatSupportFactory : Manifest](): Unit =
+    ScalaMultibinder.newSetBinder[FormatSupportFactory](binder).addBinding.to[T]
+
+  /**
+    * Registers new blog theme, using its [[BlogThemeFactory]] implementation.
+    *
+    * = Example of use =
+    * {{{
+    *   registerBlogTheme[MyBlogThemeFactory]()
+    * }}}
+    *
+    * @tparam T blog theme factory type
+    */
+  protected def registerBlogTheme[T <: BlogThemeFactory : Manifest](): Unit =
+    ScalaMultibinder.newSetBinder[BlogThemeFactory](binder).addBinding.to[T]
+
+  override protected def binder: Binder = super.binder()
+}

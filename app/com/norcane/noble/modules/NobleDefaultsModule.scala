@@ -18,25 +18,21 @@
 
 package com.norcane.noble.modules
 
-import com.norcane.noble.api.{BlogStorageFactory, BlogThemeFactory, FormatSupportFactory, NobleModule}
+import com.norcane.noble.api.NobleModule
 import com.norcane.noble.formatsupport.MarkdownFormatSupportFactory
 import com.norcane.noble.storages.GitBlogStorageFactory
 import com.norcane.noble.themes.HumaneThemeFactory
-import net.codingwell.scalaguice.ScalaMultibinder
 
 class NobleDefaultsModule extends NobleModule {
 
   override def configure(): Unit = {
-    // add default support for Git blog storage
-    ScalaMultibinder.newSetBinder[BlogStorageFactory](binder)
-      .addBinding.to[GitBlogStorageFactory]
+    // register the implementation of BlogStorage, providing support for Git-based storage
+    registerBlogStorage[GitBlogStorageFactory]()
 
-    // add default support for Markdown blog post/page format
-    ScalaMultibinder.newSetBinder[FormatSupportFactory](binder)
-      .addBinding.to[MarkdownFormatSupportFactory]
+    // register the implementation of FormatSupport, providing support for Markdown-based posts
+    registerFormatSupport[MarkdownFormatSupportFactory]()
 
-    // add default theme called 'humane'
-    ScalaMultibinder.newSetBinder[BlogThemeFactory](binder)
-      .addBinding.to[HumaneThemeFactory]
+    // registers the default theme 'Humane'
+    registerBlogTheme[HumaneThemeFactory]()
   }
 }
