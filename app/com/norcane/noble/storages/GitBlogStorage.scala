@@ -104,7 +104,16 @@ class GitBlogStorage(config: GitStorageConfig,
     )
   }
 
-  override def loadBlogPosts(hash: String): Xor[BlogStorageError, List[BlogPost]] = {
+  override def loadPostContent(hash: String, post: BlogPost): BlogStorageError Xor String = {
+    val Some(stream) = loadStream(hash, s"$PostsDirName/${post.id}")
+    for {
+      formatSupport <- selectFormatSupport(post.format)
+      content <- formatSupport.extractPostContent(stream.stream, post)
+        .leftMap(err => BlogStorageError(err.message, err.cause))
+    } yield content
+  }
+
+  override def loadBlogPosts(hash: String): BlogStorageError Xor List[BlogPost] = {
     import cats.std.list._
     import cats.syntax.traverse._
 
@@ -134,7 +143,8 @@ class GitBlogStorage(config: GitStorageConfig,
     def parseDateAndTitle(filename: String, extension: String): BlogStorageError Xor BlogPostRecord =
       filename match {
         case DateAndTitleExtractor(AsInt(year), AsInt(month), AsInt(day), title) =>
-          Xor.right(BlogPostRecord(LocalDate.of(year, month, day), title, extension))
+          val id: String = s"$filename.$extension"
+          Xor.right(BlogPostRecord(id, LocalDate.of(year, month, day), title, extension))
         case _ => Xor.left(
           BlogStorageError(s"cannot parse date and title for file '$filename.$extension'"))
       }

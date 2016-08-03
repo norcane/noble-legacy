@@ -19,6 +19,8 @@
 package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.routing.SmallestMailboxPool
+import com.norcane.noble.Keys
 import com.norcane.noble.actors.BlogActor.{GetBlog, RenderPostContent}
 import com.norcane.noble.actors.BlogLoaderActor.{BlogLoaded, BlogLoadingFailed, LoadBlog}
 import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPost}
@@ -30,6 +32,12 @@ class BlogActor(storage: BlogStorage,
 
   private val blogLoaderActor: ActorRef = context.actorOf(
     BlogLoaderActor.props(storage, formatSupports))
+
+  private val contentLoaderActors: ActorRef = context.actorOf(
+    ContentLoaderActor.props(storage)
+      .withRouter(SmallestMailboxPool(nrOfInstances = 10))
+      .withDispatcher(s"${Keys.Namespace}.content-loader-dispatcher")
+  )
 
 
   override def preStart(): Unit = {
@@ -54,7 +62,7 @@ class BlogActor(storage: BlogStorage,
 
   private def loaded(blog: Blog): Receive = {
     case GetBlog => sender ! blog
-    case req: RenderPostContent => sender ! Some("FIXME implement me!") // FIXME implement me
+    case req: RenderPostContent => contentLoaderActors.tell(req, sender())
   }
 
 }

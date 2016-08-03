@@ -39,9 +39,11 @@ class MarkdownFormatSupportSpec extends mutable.Specification with Matchers {
   private val testDate: LocalDate = LocalDate.of(2016, 7, 26)
   private val metadata: FormatSupportError Xor BlogPost = formatSupport.extractPostMetadata(
     getClass.getResourceAsStream(testBlogPostPath),
-    BlogPostRecord(testDate, "test-article", "md")
+    BlogPostRecord("2016-07-26-test-article.md", testDate, "test-article", "md")
   )
   private val testBlogPost: BlogPost = BlogPost(
+    id = "2016-07-26-test-article.md",
+    format = "md",
     title = "Test blog post title",
     date = testDate,
     tags = Set("first", "second", "multi word")

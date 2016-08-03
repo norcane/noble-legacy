@@ -45,9 +45,9 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
 
   private def loadBlogDefinitions: Seq[BlogDefinition] = {
     logger.info("Loading blog configurations")
-    val blogsConfigKey: String = s"${Keys.ConfigPrefix}.blogs"
+    val blogsConfigKey: String = s"${Keys.Namespace}.blogs"
     val blogsConfigXor: String Xor Configuration = Xor.fromOption(
-      configuration.getConfig(s"${Keys.ConfigPrefix}.blogs"),
+      configuration.getConfig(s"${Keys.Namespace}.blogs"),
       s"missing blogs configuration under the '$blogsConfigKey'")
 
     val blogDefinitionsXor: Xor[String, Seq[BlogDefinition]] = blogsConfigXor map { blogsConfig =>

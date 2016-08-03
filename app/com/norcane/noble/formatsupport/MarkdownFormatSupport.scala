@@ -1,3 +1,21 @@
+/*
+ *              _     _
+ *  _ __   ___ | |__ | | ___
+ * | '_ \ / _ \| '_ \| |/ _ \       noble :: norcane blog engine
+ * | | | | (_) | |_) | |  __/       Copyright (c) 2016 norcane
+ * |_| |_|\___/|_.__/|_|\___|
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package com.norcane.noble.formatsupport
 
 import java.io.InputStream
@@ -7,7 +25,7 @@ import javax.inject.Singleton
 import cats.data.Xor
 import com.norcane.noble.api.models.BlogPost
 import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
-import com.norcane.noble.utils.{Yaml, YamlValue}
+import com.norcane.noble.utils.Yaml
 import org.pegdown.PegDownProcessor
 
 import scala.io.Source
@@ -59,15 +77,12 @@ class MarkdownFormatSupport extends FormatSupport {
 
     import Yaml.Defaults._
 
-    def asXor[T: YamlValue](key: String, errMsg: String): FormatSupportError Xor T =
-      Xor.fromOption(yaml.get[T](key), FormatSupportError(errMsg))
-
     val title: String = yaml.get[String]("title").getOrElse(record.title)
     val date: LocalDate = yaml.get[LocalDate]("date").getOrElse(record.date)
     val tags: Set[String] = yaml.get[String]("tags").toSet[String]
       .flatMap(_.split(" +").map(_.replace('+', ' ')))
 
-    Xor.right(BlogPost(title, date, tags))
+    Xor.right(BlogPost(record.id, record.postType, title, date, tags))
   }
 
   private def extractFrontMatter(is: InputStream, title: String): FormatSupportError Xor Yaml = {

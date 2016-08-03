@@ -35,6 +35,8 @@ trait BlogStorage {
 
   def loadInfo(hash: String): BlogStorageError Xor BlogInfo
 
+  def loadPostContent(hash: String, post: BlogPost): BlogStorageError Xor String
+
   def loadBlogPosts(hash: String): BlogStorageError Xor Seq[BlogPost]
 }
 
