@@ -18,6 +18,8 @@
 
 package com.norcane.noble.api
 
+import java.io.InputStream
+
 import cats.data.Xor
 import com.norcane.noble.api.models.{BlogInfo, BlogPost, StorageConfig}
 
@@ -38,6 +40,10 @@ trait BlogStorage {
   def loadPostContent(hash: String, post: BlogPost): BlogStorageError Xor String
 
   def loadBlogPosts(hash: String): BlogStorageError Xor Seq[BlogPost]
+
+  def loadAsset(hash: String, path: String): BlogStorageError Xor ContentStream
 }
+
+case class ContentStream(stream: InputStream, length: Long)
 
 case class BlogStorageError(message: String, cause: Option[Throwable] = None)

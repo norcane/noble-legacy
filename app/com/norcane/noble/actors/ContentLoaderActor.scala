@@ -20,8 +20,9 @@ package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, Props}
 import cats.data.Xor
-import com.norcane.noble.api.BlogStorage
+import com.norcane.noble.actors.BlogActor.LoadAsset
 import com.norcane.noble.api.models.{Blog, BlogPost}
+import com.norcane.noble.api.{BlogStorage, ContentStream}
 
 import scala.concurrent.blocking
 
@@ -31,6 +32,16 @@ class ContentLoaderActor(storage: BlogStorage) extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case RenderPostContent(blog, post) => sender ! loadPostContent(blog, post)
+    case LoadAsset(blog, path) => sender ! loadAsset(blog, path)
+  }
+
+  private def loadAsset(blog: Blog, path: String): Option[ContentStream] = blocking {
+    storage.loadAsset(blog.hash, path) match {
+      case Xor.Right(stream) => Some(stream)
+      case Xor.Left(err) =>
+        log.error(err.cause.orNull, err.message)
+        None
+    }
   }
 
   private def loadPostContent(blog: Blog, post: BlogPost): Option[String] = blocking {

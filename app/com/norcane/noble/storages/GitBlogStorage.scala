@@ -18,7 +18,7 @@
 
 package com.norcane.noble.storages
 
-import java.io.{File, InputStream}
+import java.io.File
 import java.time.LocalDate
 import javax.inject.Singleton
 
@@ -65,8 +65,9 @@ class GitBlogStorage(config: GitStorageConfig,
 
   import Yaml.Defaults._
 
-  val ConfigFileName = "_config.yml"
-  val PostsDirName = "_posts"
+  val ConfigFileName: String = "_config.yml"
+  val PostsDirName: String = "_posts"
+  val AssetsDirName: String = "_assets"
 
   private val FilenameExtractor: Regex = """(.+)\.([^\.]+)""".r
   private val DateAndTitleExtractor: Regex = """(\d{4})-(\d{1,2})-(\d{1,2})-(.+)""".r
@@ -129,6 +130,11 @@ class GitBlogStorage(config: GitStorageConfig,
     }) getOrElse Nil).toList.sequenceU
     // IntelliJ Idea will highlight an error here, but the code is compilable and working,
     // issue is reported here: https://youtrack.jetbrains.com/issue/SCL-9752
+  }
+
+  override def loadAsset(hash: String, path: String): BlogStorageError Xor ContentStream = {
+    Xor.fromOption(loadStream(hash, AssetsDirName + path),
+      BlogStorageError(s"Cannot load asset for path '$path'"))
   }
 
   private def selectFormatSupport(postType: String): BlogStorageError Xor FormatSupport =
@@ -204,9 +210,6 @@ class GitBlogStorage(config: GitStorageConfig,
       revWalk.dispose()
     }
   }
-
-  private case class ContentStream(stream: InputStream, length: Long)
-
 }
 
 case class GitStorageConfig(gitRepo: File, blogPath: String, branch: String, remote: Option[String])

@@ -18,12 +18,18 @@
 
 package com.norcane.noble
 
+import java.io.File
+
 import akka.actor.ActorRef
+import akka.pattern.ask
+import akka.stream.scaladsl.StreamConverters
 import akka.util.Timeout
+import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, RenderPostContent}
 import com.norcane.noble.api.models.{Blog, BlogPost, Page}
-import com.norcane.noble.api.{BlogReverseRouter, BlogTheme}
-import com.norcane.noble.actors.BlogActor.{GetBlog, RenderPostContent}
+import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
+import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.MimeTypes
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 
@@ -40,10 +46,22 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     paged(request.blog.posts, page, None)(router.index)
   }
 
+  def asset(path: String) = BlogAction.async { implicit request =>
+    val safePath: String = new File(s"/$path").getCanonicalPath
+
+    (blogActor ? LoadAsset(request.blog, safePath)).mapTo[Option[ContentStream]] flatMap {
+      case Some(ContentStream(stream, length)) =>
+        Future.successful(Ok.sendEntity(HttpEntity.Streamed(
+          StreamConverters.fromInputStream(() => stream),
+          Some(length),
+          MimeTypes.forFileName(path)
+        )))
+      case _ => Future.successful(NotFound)
+    }
+  }
+
   private def paged[A](allPosts: Seq[BlogPost], page: Page, title: Option[String])
                       (route: Page => Call)(implicit request: BlogRequest[A]): Future[Result] = {
-
-    import akka.pattern.ask
 
     val pageNo: Int = if (page.pageNo < 1) 1 else page.pageNo
     val perPage: Int = if (page.perPage < 1) 1 else if (page.perPage > 10) 10 else page.perPage

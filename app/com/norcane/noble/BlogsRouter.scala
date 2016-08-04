@@ -60,6 +60,9 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
   override def routes: Routes = {
 
     case GET((p"/" | p"")) ? Page(page) => controller.index(page)
+
+    // assets
+    case GET(p"/assets/$path*") => controller.asset(path)
   }
 
   override def withPrefix(prefix: String): Router =
