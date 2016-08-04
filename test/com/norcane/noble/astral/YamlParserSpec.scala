@@ -16,56 +16,60 @@
  * the License.
  */
 
-package com.norcane.noble.utils
+package com.norcane.noble.astral
 
 import java.time.LocalDate
 
+import com.norcane.noble.api.astral.Astral
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
 
 import scala.io.Source
 import scala.util.Try
 
+
 /**
-  * ''Specs2'' specification for the [[Yaml]] class.
+  * ''Specs2'' specification for the [[YamlParser]] class.
   *
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-class YamlSpec extends mutable.Specification with Matchers {
+class YamlParserSpec extends mutable.Specification with Matchers {
 
-  import Yaml.Defaults._
+  import Astral.Defaults._
 
-  private val className: String = Yaml.getClass.getSimpleName
+  private implicit val yamlParser: YamlParser = new YamlParser()
+
   private val testFile: String = "/testFile.yml"
-  private val testYaml: Try[Yaml] = Yaml.parse(
+  private val rawYaml: RawYaml = RawYaml(
     Source.fromInputStream(getClass.getResourceAsStream(testFile)).mkString)
+  private val parsedYaml: Try[Astral] = Astral.parse(rawYaml)
 
-  s"The YAML parser should" >> {
 
-    "properly load the test YAML file" >> {
-      testYaml.isSuccess must beTrue
+  "The YAML parser should" >> {
+
+    "properly load the test file" >> {
+      parsedYaml.isSuccess must beTrue
     }
 
     "properly parse string values" >> {
-      testYaml.get.get[String]("testString") must beEqualTo(Some("testValue"))
+      parsedYaml.get.get[String]("testString") must beEqualTo(Some("testValue"))
     }
 
     "properly parse integer numbers" >> {
-      testYaml.get.get[Int]("testInt") must beEqualTo(Some(42))
+      parsedYaml.get.get[Int]("testInt") must beEqualTo(Some(42))
     }
 
     "properly parse string list" >> {
-      testYaml.get.get[List[String]]("testList") must beEqualTo(Some(List("first", "second")))
+      parsedYaml.get.get[List[String]]("testList") must beEqualTo(Some(List("first", "second")))
     }
 
-    "properly parse nested YAML object" >> {
-      testYaml.get.get[Yaml]("testMap")
+    "properly parse nested ASTral object" >> {
+      parsedYaml.get.get[Astral]("testMap")
         .flatMap(yaml => yaml.get[String]("key1")) must beEqualTo(Some("value1"))
     }
 
     "properly parse Java8's LocalDate" >> {
-      testYaml.get.get[LocalDate]("testDate") must beEqualTo(Some(LocalDate.of(2016, 7, 26)))
+      parsedYaml.get.get[LocalDate]("testDate") must beEqualTo(Some(LocalDate.of(2016, 7, 26)))
     }
   }
-
 }

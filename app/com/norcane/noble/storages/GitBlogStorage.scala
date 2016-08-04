@@ -24,8 +24,9 @@ import javax.inject.Singleton
 
 import cats.data.Xor
 import com.norcane.noble.api._
+import com.norcane.noble.api.astral.{Astral, AstralType}
 import com.norcane.noble.api.models.{BlogInfo, BlogPost, StorageConfig}
-import com.norcane.noble.utils.{Yaml, YamlValue}
+import com.norcane.noble.astral.{RawYaml, YamlParser}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ObjectId, Repository, RepositoryBuilder}
 import org.eclipse.jgit.revwalk.{RevTree, RevWalk}
@@ -63,7 +64,7 @@ class GitBlogStorageFactory extends BlogStorageFactory {
 class GitBlogStorage(config: GitStorageConfig,
                      formatSupports: Map[String, FormatSupport]) extends BlogStorage {
 
-  import Yaml.Defaults._
+  import Astral.Defaults._
 
   val ConfigFileName: String = "_config.yml"
   val PostsDirName: String = "_posts"
@@ -87,10 +88,12 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   override def loadInfo(hash: String): BlogStorageError Xor BlogInfo = {
-    val yaml: Yaml = loadContent(hash, ConfigFileName)
-      .flatMap(content => Yaml.parse(content).toOption).getOrElse(Yaml.empty)
-    def asXor[T: YamlValue](key: String, errMsg: String): BlogStorageError Xor T =
-      Xor.fromOption(yaml.get[T](key), BlogStorageError(errMsg))
+    implicit val yamlParser: YamlParser = YamlParser.parser
+
+    val info: Astral = loadContent(hash, ConfigFileName)
+      .flatMap(content => Astral.parse(RawYaml(content)).toOption).getOrElse(Astral.empty)
+    def asXor[T: AstralType](key: String, errMsg: String): BlogStorageError Xor T =
+      Xor.fromOption(info.get[T](key), BlogStorageError(errMsg))
 
     for {
       title <- asXor[String]("title", s"no blog title specified in $ConfigFileName")
@@ -98,9 +101,9 @@ class GitBlogStorage(config: GitStorageConfig,
       themeName <- asXor[String]("theme", s"no blog theme name specified in $ConfigFileName")
     } yield BlogInfo(
       title = title,
-      subtitle = yaml.get[String]("subtitle"),
+      subtitle = info.get[String]("subtitle"),
       author = author,
-      description = yaml.get[String]("description"),
+      description = info.get[String]("description"),
       themeName = themeName
     )
   }

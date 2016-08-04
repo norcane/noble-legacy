@@ -23,9 +23,10 @@ import java.time.LocalDate
 import javax.inject.Singleton
 
 import cats.data.Xor
+import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models.BlogPost
 import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
-import com.norcane.noble.utils.Yaml
+import com.norcane.noble.astral.{RawYaml, YamlParser}
 import org.pegdown.PegDownProcessor
 
 import scala.io.Source
@@ -72,27 +73,29 @@ class MarkdownFormatSupport extends FormatSupport {
     }
   }
 
-  private def extractBlogPost(yaml: Yaml,
+  private def extractBlogPost(frontMatter: Astral,
                               record: BlogPostRecord): FormatSupportError Xor BlogPost = {
 
-    import Yaml.Defaults._
+    import Astral.Defaults._
 
-    val title: String = yaml.get[String]("title").getOrElse(record.title)
-    val date: LocalDate = yaml.get[LocalDate]("date").getOrElse(record.date)
-    val tags: Set[String] = yaml.get[String]("tags").toSet[String]
+    val title: String = frontMatter.get[String]("title").getOrElse(record.title)
+    val date: LocalDate = frontMatter.get[LocalDate]("date").getOrElse(record.date)
+    val tags: Set[String] = frontMatter.get[String]("tags").toSet[String]
       .flatMap(_.split(" +").map(_.replace('+', ' ')))
 
     Xor.right(BlogPost(record.id, record.postType, title, date, tags))
   }
 
-  private def extractFrontMatter(is: InputStream, title: String): FormatSupportError Xor Yaml = {
+  private def extractFrontMatter(is: InputStream, title: String): FormatSupportError Xor Astral = {
+    implicit val yamlParser: YamlParser = YamlParser.parser
+
     val lines: Iterator[String] = Source.fromInputStream(is).getLines()
       .map(_.trim).dropWhile(_.isEmpty)
 
     lines.nextOption match {
       case Some(FrontMatterSeparator) =>
         val frontMatter: String = lines.takeWhile(_ != FrontMatterSeparator).mkString("\n")
-        Yaml.parse(frontMatter) match {
+        Astral.parse(RawYaml(frontMatter)) match {
           case Success(yaml) => Xor.right(yaml)
           case Failure(th) =>
             Xor.left(FormatSupportError("Cannot parse YAML front matter", Some(th)))
