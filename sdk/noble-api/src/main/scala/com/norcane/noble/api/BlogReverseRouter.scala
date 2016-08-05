@@ -19,13 +19,22 @@
 package com.norcane.noble.api
 
 import com.norcane.noble.api.models.Page
+import controllers.Assets
 import play.api.mvc.Call
+import play.core.routing.ReverseRouteContext
 
-class BlogReverseRouter(path: => String, globalPath: => String) {
+class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
 
   val defaultPage = Page(1, 5)
 
   def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
+
+  def webJarAsset(file: String): Call = {
+    val path: String = Assets.Asset
+      .assetPathBindable(ReverseRouteContext(Map("path" -> "/public/lib")))
+      .unbind("file", Assets.Asset(file))
+    Call("GET", s"$globalAssetsPath/lib/$path")
+  }
 
   private def withPaging(path: String, page: Page) = {
     val queryString: String = (Nil ++

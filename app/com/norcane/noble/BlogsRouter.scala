@@ -33,23 +33,35 @@ class BlogsRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleR
   private var prefix: String = ""
 
   override def routes: Routes = {
+    import play.api.routing._
+    import play.api.routing.sird._
+
     val blogRouters: Seq[Router] = noble.blogs map { blog =>
       val blogPath: String = prefix + blog.config.path
-      val reverseRouter: BlogReverseRouter = new BlogReverseRouter(blogPath, prefix)
+      val globalAssetsPath: String = s"$prefix/${Keys.Defaults.GlobalAssetsPrefix}"
+      val reverseRouter: BlogReverseRouter = new BlogReverseRouter(blogPath, globalAssetsPath)
       val controller: BlogController = new BlogController(
         blog.actor, noble.themes, reverseRouter, messages)
       new BlogRouter(controller).withPrefix(blog.config.path)
     }
 
-    blogRouters
+    val blogRoutes: PartialFunction[RequestHeader, Handler] = blogRouters
       .map(_.routes)
       .foldLeft(PartialFunction.empty[RequestHeader, Handler])(_ orElse _)
+
+    val globalRoutes: PartialFunction[RequestHeader, Handler] = {
+      case GET(p"/${Keys.Defaults.GlobalAssetsPrefix}/lib/$path*") =>
+        controllers.Assets.versioned("/public/lib", path)
+    }
+
+    globalRoutes orElse blogRoutes
   }
 
   override def withPrefix(prefix: String): Router = {
     this.prefix = if (prefix == "/") "" else prefix
     super.withPrefix(prefix)
   }
+
 }
 
 class BlogRouter(controller: BlogController) extends SimpleRouter {

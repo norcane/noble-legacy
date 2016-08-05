@@ -41,7 +41,7 @@ class HumaneTheme extends BlogTheme {
   override def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
                          posts: Seq[(BlogPost, String)], previous: Option[Call], next: Option[Call])
                         (implicit header: RequestHeader, messages: Messages): Html =
-    com.norcane.noble.themes.humane.html.blogPosts(posts)
+    com.norcane.noble.themes.humane.html.blogPosts(router, posts)
 
   override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost, content: String)
                        (implicit header: RequestHeader, messages: Messages): Html = ???

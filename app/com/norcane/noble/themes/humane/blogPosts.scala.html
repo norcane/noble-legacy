@@ -1,10 +1,21 @@
-@(posts: Seq[(com.norcane.noble.api.models.BlogPost, String)])
+@(
+        router: com.norcane.noble.api.BlogReverseRouter,
+        posts: Seq[(com.norcane.noble.api.models.BlogPost, String)]
+)
 
-<div class="posts">
-    @for((post, content) <- posts) {
-        <article>
-            <h1>@post.title</h1>
-            <div class="content">@Html(content)</div>
-        </article>
-    }
-</div>
+<html>
+    <head>
+        <link rel="stylesheet" href="@router.webJarAsset("noble/css/humane.css")" />
+    </head>
+    <body>
+        <div class="posts">
+            @for((post, content) <- posts) {
+                <article>
+                    <h1>@post.title</h1>
+                    <div class="content">@Html(content)</div>
+                </article>
+            }
+        </div>
+    </body>
+</html>
+

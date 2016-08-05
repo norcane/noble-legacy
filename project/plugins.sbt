@@ -4,6 +4,8 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.4")
 
+addSbtPlugin("com.typesafe.sbt" % "sbt-less" % "1.1.1")
+
 // allows to check outdated dependencies using 'sbt dependencyUpdates'
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.10")
 

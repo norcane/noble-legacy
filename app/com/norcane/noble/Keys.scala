@@ -22,4 +22,8 @@ object Keys {
 
   val Namespace: String = getClass.getPackage.getName
 
+  object Defaults {
+    val GlobalAssetsPrefix: String = "_assets"
+  }
+
 }
