@@ -1,0 +1,43 @@
+@(
+        blog: com.norcane.noble.api.models.Blog,
+        router: com.norcane.noble.api.BlogReverseRouter
+)(content: Html)
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>@blog.info.title</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="@router.webJarAsset("noble/css/humane/main.css")" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <header>
+        <h1>@blog.info.title</h1>
+        @for(subtitle <- blog.info.subtitle) {
+          <h2>subtitle</h2>
+        }
+      </header>
+
+      <div class="content-wrapper">
+        <div class="content">
+        @content
+        </div>
+        <aside>
+          TODO aside
+        </aside>
+      </div>
+    </div>
+
+    <footer>
+      <div class="copyright">
+        Copyright &copy; @{java.time.Year.now().getValue} @blog.info.author
+      </div>
+      <div>
+        Powered by the <a href="#">noble</a> blog engine.
+      </div>
+    </footer>
+  </body>
+</html>
