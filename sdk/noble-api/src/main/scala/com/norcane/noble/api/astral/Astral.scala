@@ -37,7 +37,7 @@ import scala.util.Try
   * @param underlying underlying map holding the actual data
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class Astral(underlying: Map[String, AnyRef]) {
+case class Astral(underlying: Map[String, Any]) {
 
   /**
     * Returns the value of type `T` for the given ''key''. For each used value type an instance of

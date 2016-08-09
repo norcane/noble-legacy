@@ -20,7 +20,25 @@ package com.norcane.noble.api.models
 
 import java.time.{LocalDate, ZoneId}
 
-case class BlogPost(id: String, format: String, title: String, date: LocalDate, tags: Set[String])
+import com.norcane.noble.api.astral.Astral
+
+/**
+  * Represents the single blog post (metadata only, without the content). Each blog post must define
+  * its unique id, used later to fetch the blog post content (e.g. for file-based blog storages, the
+  * blog post filename can be used). ''Format'' of the blog post must be specified using the name
+  * of one of the registered [[com.norcane.noble.api.FormatSupport]] instances. Additional config
+  * values can be provided (e.g. for the used theme) using the `properties` field.
+  *
+  * @param id         unique blog post identifier
+  * @param format     used format
+  * @param title      blog post title
+  * @param date       blog post date
+  * @param tags       set of blog post tags
+  * @param properties additional blog post properties
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
+case class BlogPost(id: String, format: String, title: String, date: LocalDate, tags: Set[String],
+                    properties: Astral)
 
 object BlogPost {
   implicit val ordering = Ordering.by((post: BlogPost) =>

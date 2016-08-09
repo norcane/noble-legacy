@@ -78,12 +78,13 @@ class MarkdownFormatSupport extends FormatSupport {
 
     import Astral.Defaults._
 
+    val properties: Astral = Astral(frontMatter.underlying -- Seq("title", "date", "tags"))
     val title: String = frontMatter.get[String]("title").getOrElse(record.title)
     val date: LocalDate = frontMatter.get[LocalDate]("date").getOrElse(record.date)
     val tags: Set[String] = frontMatter.get[String]("tags").toSet[String]
       .flatMap(_.split(" +").map(_.replace('+', ' ')))
 
-    Xor.right(BlogPost(record.id, record.postType, title, date, tags))
+    Xor.right(BlogPost(record.id, record.postType, title, date, tags, properties))
   }
 
   private def extractFrontMatter(is: InputStream, title: String): FormatSupportError Xor Astral = {

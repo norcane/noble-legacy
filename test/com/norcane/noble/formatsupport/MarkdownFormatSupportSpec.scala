@@ -21,6 +21,7 @@ package com.norcane.noble.formatsupport
 import java.time.LocalDate
 
 import cats.data.Xor
+import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models.BlogPost
 import com.norcane.noble.api.{BlogPostRecord, FormatSupportError}
 import org.specs2.matcher.Matchers
@@ -46,7 +47,8 @@ class MarkdownFormatSupportSpec extends mutable.Specification with Matchers {
     format = "md",
     title = "Test blog post title",
     date = testDate,
-    tags = Set("first", "second", "multi word")
+    tags = Set("first", "second", "multi word"),
+    Astral(Map[String, Any]("testProp" -> 42))
   )
 
   "The Markdown format support should" >> {
