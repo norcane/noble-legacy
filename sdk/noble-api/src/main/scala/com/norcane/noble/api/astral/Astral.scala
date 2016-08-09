@@ -51,6 +51,14 @@ case class Astral(underlying: Map[String, Any]) {
   def get[T: AstralType](key: String): Option[T] =
     underlying.get(key) flatMap implicitly[AstralType[T]].read
 
+  /**
+    * Checks whether the value for specified ''key'' exists.
+    *
+    * @param key key for which check the presence of value
+    * @return `true` if value for specified ''key'' found
+    */
+  def has(key: String): Boolean = underlying.contains(key)
+
 }
 
 /**

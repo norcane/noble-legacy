@@ -27,7 +27,6 @@ import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models.BlogPost
 import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
 import com.norcane.noble.astral.{RawYaml, YamlParser}
-import org.pegdown.PegDownProcessor
 
 import scala.io.Source
 import scala.util.{Failure, Success}
@@ -42,8 +41,9 @@ class MarkdownFormatSupportFactory extends FormatSupportFactory {
 
 class MarkdownFormatSupport extends FormatSupport {
 
+  import com.norcane.noble.utils.MarkdownProcessor.md2html
+
   private val FrontMatterSeparator: String = "---"
-  private val processor: PegDownProcessor = new PegDownProcessor()
 
   private implicit class IteratorOps[T](iterator: Iterator[T]) {
     def nextOption = if (iterator.hasNext) Option(iterator.next()) else None
@@ -61,7 +61,7 @@ class MarkdownFormatSupport extends FormatSupport {
     for (content <- extractContent(is, post.title)) yield markdownToHtml(content)
   }
 
-  private def markdownToHtml(input: String): String = processor.markdownToHtml(input)
+  private def markdownToHtml(input: String): String = md2html(input)
 
   private def extractContent(is: InputStream, title: String): FormatSupportError Xor String = {
     val lines: Iterator[String] = Source.fromInputStream(is).getLines()

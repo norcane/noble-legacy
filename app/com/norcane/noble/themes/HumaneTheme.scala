@@ -20,8 +20,10 @@ package com.norcane.noble.themes
 
 import javax.inject.Singleton
 
+import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models.{Blog, BlogPost}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
+import com.norcane.noble.themes.HumaneTheme.HumaneProps
 import play.api.i18n.Messages
 import play.api.mvc.{Call, RequestHeader}
 import play.twirl.api.Html
@@ -36,12 +38,27 @@ class HumaneThemeFactory extends BlogThemeFactory {
 
 class HumaneTheme extends BlogTheme {
 
+  import com.norcane.noble.utils.MarkdownProcessor.md2html
+
   override def name: String = HumaneTheme.ThemeName
 
   override def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
                          posts: Seq[(BlogPost, String)], previous: Option[Call], next: Option[Call])
-                        (implicit header: RequestHeader, messages: Messages): Html =
-    com.norcane.noble.themes.humane.html.blogPosts(blog, router, posts)
+                        (implicit header: RequestHeader, messages: Messages): Html = {
+
+    import Astral.Defaults._
+
+    val propsOpt: Option[Astral] = blog.info.properties.get[Astral]("humane")
+    val authorOpt: Option[Astral] = propsOpt flatMap (_.get[Astral]("author"))
+    val authorBio: Option[String] = authorOpt flatMap (_.get[String]("bio"))
+    val portraitPath: Option[String] = authorOpt flatMap (_.get[String]("portrait"))
+    val humaneProps: HumaneProps = HumaneProps(
+      authorBio = authorBio map md2html,
+      portraitPath = portraitPath)
+
+    com.norcane.noble.themes.humane.html.blogPosts(blog, router, posts, humaneProps)
+  }
+
 
   override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost, content: String)
                        (implicit header: RequestHeader, messages: Messages): Html = ???
@@ -49,4 +66,7 @@ class HumaneTheme extends BlogTheme {
 
 object HumaneTheme {
   val ThemeName: String = "humane"
+
+  case class HumaneProps(authorBio: Option[String], portraitPath: Option[String])
+
 }

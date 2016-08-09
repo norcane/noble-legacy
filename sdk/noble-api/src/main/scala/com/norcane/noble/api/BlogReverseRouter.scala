@@ -29,6 +29,8 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
 
   def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
 
+  def asset(file: String): Call = Call("GET", s"$path/assets/$file")
+
   def webJarAsset(file: String): Call = {
     val path: String = Assets.Asset
       .assetPathBindable(ReverseRouteContext(Map("path" -> "/public/lib")))

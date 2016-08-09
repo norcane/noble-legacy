@@ -1,6 +1,7 @@
 ## Title of the blog
 title: Minimal test blog
 
+## Subtitle of the blog (optional)
 subtitle: based on the Humane theme
 
 ## Name of the blog author
@@ -8,3 +9,18 @@ author: John Smith
 
 ## Name of used blog theme. This uses the default bundled theme called 'humane'.
 theme: humane
+
+## Humane theme specific properties
+humane:
+
+  ## Additional info about the blog author
+  author:
+
+    ## Author portrait image (path inside the _assets/ directory)
+    portrait: images/author-portrait.jpg
+
+    ## Author short bio
+    bio: >
+      Here belongs short author bio. This text is specific for the Humane theme
+      and can be set using the `humane/authorBio` blog property. If missing, this
+      box won't be displayed at all.

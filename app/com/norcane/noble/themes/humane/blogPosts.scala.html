@@ -1,11 +1,12 @@
 @(
         blog: com.norcane.noble.api.models.Blog,
         router: com.norcane.noble.api.BlogReverseRouter,
-        posts: Seq[(com.norcane.noble.api.models.BlogPost, String)]
+        posts: Seq[(com.norcane.noble.api.models.BlogPost, String)],
+        humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
 )
 
 
-@com.norcane.noble.themes.humane.html.main(blog, router) {
+@com.norcane.noble.themes.humane.html.main(blog, router, humaneProps) {
 
   <div class="posts">
   @for((post, content) <- posts) {

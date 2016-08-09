@@ -16,8 +16,10 @@
 //
 @import url(https://fonts.googleapis.com/css?family=Raleway:400,400italic,700&subset=latin,latin-ext);
 @import url(https://fonts.googleapis.com/css?family=Oswald&subset=latin,latin-ext);
+@import url(https://fonts.googleapis.com/css?family=Source+Code+Pro);
 
 h1, h2 {
+  // Appearance
   font-weight: normal;
 }
 
@@ -31,6 +33,18 @@ body {
   font-family: "Raleway", sans-serif;
 }
 
+code {
+  // Appearance
+  font-family: "Source Code Pro", monospace;
+}
+
+img.responsive {
+  // Positioning
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+}
+
 a, a:visited {
   // Appearance
   color: @color_gold;
@@ -40,6 +54,7 @@ a, a:visited {
 }
 
 a:hover {
+  // Appearance
   color: @color_blue;
 }
 
