@@ -31,11 +31,11 @@ import play.api.Configuration
 object ConfigParser {
 
   /**
-    * Constructs new instance of [[StorageConfig]] based on the given configuration object. The root
+    * Constructs new instance of `StorageConfig` based on the given configuration object. The root
     * of this configuration must be the blog storage config configuration block.
     *
     * @param config configuration to parse
-    * @return instance of [[StorageConfig]] or error message in case of failure
+    * @return instance of `StorageConfig` or error message in case of failure
     */
   def parseStorageConfig(config: Configuration): String Xor StorageConfig = {
     val storageTypeXor: String Xor String = Xor.fromOption(config.getString("type"),
@@ -46,11 +46,11 @@ object ConfigParser {
   }
 
   /**
-    * Constructs new instance of [[BlogConfig]] based on the given configuration object. The root
+    * Constructs new instance of `BlogConfig` based on the given configuration object. The root
     * of this configuration must be the blog config configuration block.
     *
     * @param config configuration to parse
-    * @return instance of [[BlogConfig]] or error message in case of failure
+    * @return instance of `BlogConfig` or error message in case of failure
     */
   def parseBlogConfig(blogName: String, config: Configuration): String Xor BlogConfig = {
     val path: String = config.getString("path").getOrElse("/blog")
