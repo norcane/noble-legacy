@@ -17,7 +17,7 @@
       <header>
         <h1>@blog.info.title</h1>
         @for(subtitle <- blog.info.subtitle) {
-          <h2>subtitle</h2>
+          <h2>@subtitle</h2>
         }
       </header>
 
@@ -26,7 +26,19 @@
         @content
         </div>
         <aside>
-          TODO aside
+          <div class="module">
+            <div class="content">
+              <h1><span>module heading 1</span></h1>
+              <p>sidebar module content</p>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="content">
+              <h1><span>module heading 2</span></h1>
+              <p>sidebar module content</p>
+            </div>
+          </div>
         </aside>
       </div>
     </div>

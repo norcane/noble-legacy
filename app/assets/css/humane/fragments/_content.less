@@ -16,12 +16,12 @@
 
 .content-wrapper {
   // Positioning
-  margin: 10px 0;
+  margin: 20px 0;
 }
 
 @media (min-width: 320px) {
-  .content-wrapper .content,
-  .content-wrapper aside {
+  .content-wrapper > .content,
+  .content-wrapper > aside {
     // Positioning
     display: block;
   }
@@ -33,16 +33,17 @@
     display: flex;
   }
 
-  .content-wrapper .content {
+  .content-wrapper > .content {
     // Positioning
     box-sizing: border-box;
     flex-grow: 1;
-    width: 70%;
+    margin-right: 10px;
   }
 
-  .content-wrapper aside {
+  .content-wrapper > aside {
     // Positioning
     box-sizing: border-box;
     flex: 0 0 30%;
+    margin-left: 10px;
   }
 }

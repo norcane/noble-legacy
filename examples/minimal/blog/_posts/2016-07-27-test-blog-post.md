@@ -4,7 +4,6 @@ date: 2016-07-27
 tags: noble blog norcane
 ---
 
-# Testing Blog Post
 This is the testing blog post, used to test capabilities of the used *Markdown* processor and to
 demonstrate visual design of the *Humane* theme.
 
@@ -13,10 +12,10 @@ Basic formatting of *italics* and **bold** is supported. This *can be **nested**
 # Heading 1
 some text here
 
-# Heading 2
+## Heading 2
 some text here
 
-# Heading 3
+### Heading 3
 some text here
 
 ## Lists

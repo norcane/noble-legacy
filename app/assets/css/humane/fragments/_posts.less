@@ -24,11 +24,11 @@
 .posts article > h1 {
   // Positioning
   margin: 0;
-  padding: 30px 0;
+  padding: 30px 10px;
 
   // Appearance
+  color: @color_dark;
   text-align: center;
-  font-size: 2em;
   font-weight: 700;
 }
 
@@ -46,9 +46,79 @@
 .posts article > .post-meta span {
   // Appearance
   font-weight: 700;
-  color: #000000;
+  color: @color_dark;
 }
 
 .posts article > .content {
   padding: 0 20px;
+}
+
+.posts article > .content > h1,
+.posts article > .content > h2,
+.posts article > .content > h3 {
+  // Appearance
+  font-weight: 400;
+}
+
+.posts article > .content > h1 {
+  // Appearance
+  color: @color_gold;
+}
+
+.posts article > .content > h2 {
+  // Appearance
+  color: @color_dark;
+}
+
+.posts article > .content > h3 {
+  // Appearance
+  color: @color_gray;
+}
+
+@media (min-width: 320px) {
+
+  .posts article > h1 {
+    // Appearance
+    font-size: 2em;
+  }
+
+  .posts article > .content > h1 {
+    // Appearance
+    font-size: 1.7em;
+  }
+
+  .posts article > .content > h2 {
+    // Appearance
+    font-size: 1.5em;
+  }
+
+  .posts article > .content > h3 {
+    // Appearance
+    font-size: 1.3em;
+  }
+
+}
+
+@media (min-width: 800px) {
+
+  .posts article > h1 {
+    // Appearance
+    font-size: 2.5em;
+  }
+
+  .posts article > .content > h1 {
+    // Appearance
+    font-size: 2em;
+  }
+
+  .posts article > .content > h2 {
+    // Appearance
+    font-size: 1.7em;
+  }
+
+  .posts article > .content > h3 {
+    // Appearance
+    font-size: 1.4em;
+  }
+
 }
