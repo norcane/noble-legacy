@@ -21,7 +21,7 @@ package com.norcane.noble.api.astral
 import java.time.{LocalDate, ZoneId}
 import java.util.Date
 
-import scala.annotation.implicitNotFound
+import scala.annotation.{implicitNotFound, tailrec}
 import scala.util.Try
 
 /**
@@ -39,25 +39,52 @@ import scala.util.Try
   */
 case class Astral(underlying: Map[String, Any]) {
 
+  private implicit val astralValue = Astral.Defaults.astral
+
   /**
-    * Returns the value of type `T` for the given ''key''. For each used value type an instance of
-    * the [[AstralType]] must be implicitly in scope. ''Ready-to-use'' [[AstralType]]
-    * implementations are available in the [[Astral.Defaults]] object.
+    * Returns the value of type `T` for the given `key`. For each used value type an instance of the
+    * [[AstralType]] must be implicitly in scope. ''Ready-to-use'' [[AstralType]] implementations
+    * are available in the [[Astral.Defaults]] object.
     *
     * @param key key for which to return the value
     * @tparam T type of the value
     * @return value (if found)
     */
-  def get[T: AstralType](key: String): Option[T] =
-    underlying.get(key) flatMap implicitly[AstralType[T]].read
+  def get[T: AstralType](key: String): Option[T] = {
+    @tailrec def findNode(chunks: Array[String], node: Option[Astral]): Option[Astral] = {
+      if (chunks.length == 1) {
+        node flatMap (_.get[Astral](chunks(0)))
+      } else {
+        findNode(chunks.drop(1), node flatMap (_.get[Astral](chunks(0))))
+      }
+    }
+
+    val chunks: Array[String] = key.split('/')
+    val node: Option[Astral] = if (chunks.length > 1)
+      findNode(chunks.dropRight(1), Some(this))
+    else Some(this)
+
+    node flatMap (_.underlying.get(chunks.last) flatMap implicitly[AstralType[T]].read)
+  }
 
   /**
-    * Checks whether the value for specified ''key'' exists.
+    * Checks whether the value of the type `T` for given `key` exists. To check the existence of
+    * value regardless its type, use [[Any]] as value type.
     *
-    * @param key key for which check the presence of value
-    * @return `true` if value for specified ''key'' found
+    * = Example of use =
+    * {{{
+    *   // checks whether the value of type String exists for key 'testKey'
+    *   instance.has[String]('testKey')
+    *
+    *   // check whether value of any type exists for key 'testKey'
+    *   instance.has[Any]('testKey')
+    * }}}
+    *
+    * @param key key for which to check the presence of value
+    * @tparam T type of the checked value
+    * @return `true` if value of type `T` and for given `key` has been found
     */
-  def has(key: String): Boolean = underlying.contains(key)
+  def has[T: AstralType](key: String): Boolean = get[T](key).isDefined
 
 }
 
@@ -85,6 +112,10 @@ object Astral {
     * Object providing several implementations of the [[AstralType]] ''typeclass'' for common types.
     */
   object Defaults {
+
+    implicit val anyValue: AstralType[Any] = AstralType {
+      case any: Any => any
+    }
 
     /**
       * Provides support for reading value of type string.

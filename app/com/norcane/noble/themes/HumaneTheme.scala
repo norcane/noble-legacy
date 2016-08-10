@@ -49,9 +49,10 @@ class HumaneTheme extends BlogTheme {
     import Astral.Defaults._
 
     val propsOpt: Option[Astral] = blog.info.properties.get[Astral]("humane")
-    val authorOpt: Option[Astral] = propsOpt flatMap (_.get[Astral]("author"))
-    val authorBio: Option[String] = authorOpt flatMap (_.get[String]("bio"))
-    val portraitPath: Option[String] = authorOpt flatMap (_.get[String]("portrait"))
+
+    // author properties
+    val authorBio: Option[String] = propsOpt flatMap (_.get[String]("author/bio"))
+    val portraitPath: Option[String] = propsOpt flatMap (_.get[String]("author/portrait"))
     val humaneProps: HumaneProps = HumaneProps(
       authorBio = authorBio map md2html,
       portraitPath = portraitPath)
