@@ -86,6 +86,13 @@ case class Astral(underlying: Map[String, Any]) {
     */
   def has[T: AstralType](key: String): Boolean = get[T](key).isDefined
 
+  /**
+    * Returns sequence of all keys for current [[Astral]] object.
+    *
+    * @return sequence of all keys
+    */
+  def keys: Iterable[String] = underlying.keys
+
 }
 
 /**

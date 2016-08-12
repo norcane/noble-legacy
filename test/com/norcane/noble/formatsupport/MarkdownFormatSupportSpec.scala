@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 import cats.data.Xor
 import com.norcane.noble.api.astral.Astral
-import com.norcane.noble.api.models.BlogPost
+import com.norcane.noble.api.models.BlogPostMeta
 import com.norcane.noble.api.{BlogPostRecord, FormatSupportError}
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
@@ -38,12 +38,13 @@ class MarkdownFormatSupportSpec extends mutable.Specification with Matchers {
   private val testBlogPostPath: String = "/2016-07-26-test-article.md"
   private val formatSupport: MarkdownFormatSupport = new MarkdownFormatSupport()
   private val testDate: LocalDate = LocalDate.of(2016, 7, 26)
-  private val metadata: FormatSupportError Xor BlogPost = formatSupport.extractPostMetadata(
+  private val metadata: FormatSupportError Xor BlogPostMeta = formatSupport.extractPostMetadata(
     getClass.getResourceAsStream(testBlogPostPath),
     BlogPostRecord("2016-07-26-test-article.md", testDate, "test-article", "md")
   )
-  private val testBlogPost: BlogPost = BlogPost(
+  private val testBlogPost: BlogPostMeta = BlogPostMeta(
     id = "2016-07-26-test-article.md",
+    author = "john.smith",
     format = "md",
     title = "Test blog post title",
     date = testDate,

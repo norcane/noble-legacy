@@ -25,7 +25,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.StreamConverters
 import akka.util.Timeout
 import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, RenderPostContent}
-import com.norcane.noble.api.models.{Blog, BlogPost, Page}
+import com.norcane.noble.api.models.{Blog, BlogPost, BlogPostMeta, Page}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
 import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -60,24 +60,29 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     }
   }
 
-  private def paged[A](allPosts: Seq[BlogPost], page: Page, title: Option[String])
+  private def paged[A](allPosts: Seq[BlogPostMeta], page: Page, title: Option[String])
                       (route: Page => Call)(implicit request: BlogRequest[A]): Future[Result] = {
 
     val pageNo: Int = if (page.pageNo < 1) 1 else page.pageNo
     val perPage: Int = if (page.perPage < 1) 1 else if (page.perPage > 10) 10 else page.perPage
     val zeroBasedPageNo: Int = pageNo - 1
     val startPageNo: Int = zeroBasedPageNo * perPage
-    val posts: Seq[BlogPost] = allPosts.slice(startPageNo, startPageNo + perPage)
+    val posts: Seq[BlogPostMeta] = allPosts.slice(startPageNo, startPageNo + perPage)
     val lastPageNo: Int = allPosts.size / perPage
     val previous: Option[Call] = if (pageNo > 1) Some(route(Page(pageNo - 1, perPage))) else None
     val next: Option[Call] = if (pageNo < lastPageNo) Some(route(Page(pageNo + 1, perPage))) else None
 
     // load blog posts content
     Future.sequence(posts.map { post =>
-      (blogActor ? RenderPostContent(request.blog, post)).mapTo[Option[String]] map (_ map (post -> _))
+      (blogActor ? RenderPostContent(request.blog, post)).mapTo[Option[String]] map { contentOpt =>
+        for {
+          author <- request.blog.info.authors.find(_.nickname == post.author)
+          content <- contentOpt
+        } yield BlogPost(post, author, content)
+      }
     }).map { loaded =>
       val theme: BlogTheme = themeByName(request.blog.info.themeName)
-      val posts: Seq[(BlogPost, String)] = loaded flatMap (_.toSeq)
+      val posts: Seq[BlogPost] = loaded flatMap (_.toSeq)
       Ok(theme.blogPosts(request.blog, router, title, posts, previous, next))
     }
   }

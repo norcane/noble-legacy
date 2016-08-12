@@ -20,8 +20,7 @@ package com.norcane.noble.themes
 
 import javax.inject.Singleton
 
-import com.norcane.noble.api.astral.Astral
-import com.norcane.noble.api.models.{Blog, BlogPost}
+import com.norcane.noble.api.models.{Blog, BlogAuthor, BlogPost, BlogPostMeta}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
 import com.norcane.noble.themes.HumaneTheme.HumaneProps
 import play.api.i18n.Messages
@@ -43,31 +42,25 @@ class HumaneTheme extends BlogTheme {
   override def name: String = HumaneTheme.ThemeName
 
   override def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
-                         posts: Seq[(BlogPost, String)], previous: Option[Call], next: Option[Call])
+                         posts: Seq[BlogPost], previous: Option[Call], next: Option[Call])
                         (implicit header: RequestHeader, messages: Messages): Html = {
 
-    import Astral.Defaults._
+    val singleAuthor: Option[BlogAuthor] = for {
+      author <- blog.info.authors.headOption if blog.info.authors.size == 1
+    } yield author.copy(biography = author.biography map md2html)
 
-    val propsOpt: Option[Astral] = blog.info.properties.get[Astral]("humane")
-
-    // author properties
-    val authorBio: Option[String] = propsOpt flatMap (_.get[String]("author/bio"))
-    val portraitPath: Option[String] = propsOpt flatMap (_.get[String]("author/portrait"))
-    val humaneProps: HumaneProps = HumaneProps(
-      authorBio = authorBio map md2html,
-      portraitPath = portraitPath)
-
+    val humaneProps: HumaneProps = HumaneProps(singleAuthor)
     com.norcane.noble.themes.humane.html.blogPosts(blog, router, posts, humaneProps)
   }
 
-
-  override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost, content: String)
+  override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPostMeta, content: String)
                        (implicit header: RequestHeader, messages: Messages): Html = ???
 }
 
 object HumaneTheme {
+
   val ThemeName: String = "humane"
 
-  case class HumaneProps(authorBio: Option[String], portraitPath: Option[String])
+  case class HumaneProps(singleAuthor: Option[BlogAuthor])
 
 }

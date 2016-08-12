@@ -20,8 +20,8 @@ package com.norcane.noble.actors
 
 import akka.actor.{Actor, Props}
 import cats.data.Xor
-import com.norcane.noble.api.models.Blog
-import com.norcane.noble.api.{BlogStorage, FormatSupport}
+import com.norcane.noble.api.models.{Blog, BlogInfo, BlogPostMeta}
+import com.norcane.noble.api.{BlogStorage, BlogStorageError, FormatSupport}
 
 import scala.concurrent.blocking
 
@@ -41,12 +41,32 @@ class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSu
 
   private def loadBlog: BlogLoadingFailed Xor Blog = {
     val hash: String = storage.currentHash
+
+    def wrapErr[T](xor: BlogStorageError Xor T): BlogLoadingFailed Xor T =
+      xor.leftMap(err => BlogLoadingFailed(err.message, err.cause))
+
     for {
-      blogInfo <- storage.loadInfo(hash)
-        .leftMap(err => BlogLoadingFailed(err.message, err.cause))
-      blogPosts <- storage.loadBlogPosts(hash)
-        .leftMap(err => BlogLoadingFailed(err.message, err.cause))
-    } yield new Blog(hash, blogInfo, blogPosts)
+      blogInfo <- wrapErr(storage.loadInfo(hash))
+      blogPosts <- wrapErr(storage.loadBlogPosts(hash))
+      validatedBlogPosts <- validateBlogPosts(blogPosts, blogInfo)
+    } yield new Blog(hash, blogInfo, validatedBlogPosts)
+  }
+
+  private def validateBlogPosts(posts: Seq[BlogPostMeta],
+                                blogInfo: BlogInfo): BlogLoadingFailed Xor Seq[BlogPostMeta] = {
+
+    import cats.std.list._
+    import cats.syntax.traverse._
+
+    val validated: Seq[Xor[BlogLoadingFailed, BlogPostMeta]] = posts map { post =>
+      blogInfo.authors find (_.nickname == post.author) match {
+        case Some(author) => Xor.right(post)
+        case None => Xor.left(BlogLoadingFailed(s"Cannot find author definition for nickname " +
+          s"'${post.author}' mentioned in blog post '${post.id}'"))
+      }
+    }
+
+    validated.toList.sequenceU
   }
 }
 

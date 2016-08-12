@@ -23,7 +23,7 @@ import akka.routing.SmallestMailboxPool
 import com.norcane.noble.Keys
 import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, RenderPostContent}
 import com.norcane.noble.actors.BlogLoaderActor.{BlogLoaded, BlogLoadingFailed, LoadBlog}
-import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPost}
+import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPostMeta}
 import com.norcane.noble.api.{BlogStorage, FormatSupport}
 
 class BlogActor(storage: BlogStorage,
@@ -78,7 +78,7 @@ object BlogActor {
 
   case object GetBlog extends BlogActorProtocol
 
-  case class RenderPostContent(blog: Blog, post: BlogPost)
+  case class RenderPostContent(blog: Blog, post: BlogPostMeta)
 
   case class LoadAsset(blog: Blog, path: String)
 

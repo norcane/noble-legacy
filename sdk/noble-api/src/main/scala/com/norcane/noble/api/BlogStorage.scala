@@ -21,7 +21,7 @@ package com.norcane.noble.api
 import java.io.InputStream
 
 import cats.data.Xor
-import com.norcane.noble.api.models.{BlogInfo, BlogPost, StorageConfig}
+import com.norcane.noble.api.models.{BlogInfo, BlogPostMeta, StorageConfig}
 
 trait BlogStorageFactory {
 
@@ -37,9 +37,9 @@ trait BlogStorage {
 
   def loadInfo(hash: String): BlogStorageError Xor BlogInfo
 
-  def loadPostContent(hash: String, post: BlogPost): BlogStorageError Xor String
+  def loadPostContent(hash: String, post: BlogPostMeta): BlogStorageError Xor String
 
-  def loadBlogPosts(hash: String): BlogStorageError Xor Seq[BlogPost]
+  def loadBlogPosts(hash: String): BlogStorageError Xor Seq[BlogPostMeta]
 
   def loadAsset(hash: String, path: String): BlogStorageError Xor ContentStream
 }

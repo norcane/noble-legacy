@@ -18,7 +18,7 @@
 
 package com.norcane.noble.api
 
-import com.norcane.noble.api.models.{Blog, BlogPost}
+import com.norcane.noble.api.models.{Blog, BlogPost, BlogPostMeta}
 import play.api.i18n.Messages
 import play.api.mvc.{Call, RequestHeader}
 import play.twirl.api.Html
@@ -35,9 +35,9 @@ trait BlogTheme {
   def name: String
 
   def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
-                posts: Seq[(BlogPost, String)], previous: Option[Call], next: Option[Call])
+                posts: Seq[BlogPost], previous: Option[Call], next: Option[Call])
                (implicit header: RequestHeader, messages: Messages): Html
 
-  def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost, content: String)
+  def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPostMeta, content: String)
               (implicit header: RequestHeader, messages: Messages): Html
 }

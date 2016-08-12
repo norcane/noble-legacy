@@ -1,7 +1,7 @@
 @(
         blog: com.norcane.noble.api.models.Blog,
         router: com.norcane.noble.api.BlogReverseRouter,
-        posts: Seq[(com.norcane.noble.api.models.BlogPost, String)],
+        posts: Seq[com.norcane.noble.api.models.BlogPost],
         humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
 )
 
@@ -9,13 +9,13 @@
 @com.norcane.noble.themes.humane.html.main(blog, router, humaneProps) {
 
   <div class="posts">
-  @for((post, content) <- posts) {
+  @for(post <- posts) {
     <article>
-      <h1>@post.title</h1>
+      <h1>@post.meta.title</h1>
       <div class="post-meta">
-        posted on <span>@post.date</span> by <span>@blog.info.author</span>
+        posted on <span>@post.meta.date</span> by <span>@post.author.name</span>
       </div>
-      <div class="content">@Html(content)</div>
+      <div class="content">@Html(post.content)</div>
     </article>
   }
   </div>

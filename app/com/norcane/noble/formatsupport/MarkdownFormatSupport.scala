@@ -24,7 +24,7 @@ import javax.inject.Singleton
 
 import cats.data.Xor
 import com.norcane.noble.api.astral.Astral
-import com.norcane.noble.api.models.BlogPost
+import com.norcane.noble.api.models.BlogPostMeta
 import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
 import com.norcane.noble.astral.{RawYaml, YamlParser}
 
@@ -50,14 +50,14 @@ class MarkdownFormatSupport extends FormatSupport {
   }
 
   override def extractPostMetadata(is: InputStream,
-                                   record: BlogPostRecord): FormatSupportError Xor BlogPost = {
+                                   record: BlogPostRecord): FormatSupportError Xor BlogPostMeta = {
     for {
       frontMatter <- extractFrontMatter(is, record.title)
       blogPost <- extractBlogPost(frontMatter, record)
     } yield blogPost
   }
 
-  override def extractPostContent(is: InputStream, post: BlogPost): FormatSupportError Xor String = {
+  override def extractPostContent(is: InputStream, post: BlogPostMeta): FormatSupportError Xor String = {
     for (content <- extractContent(is, post.title)) yield markdownToHtml(content)
   }
 
@@ -74,17 +74,21 @@ class MarkdownFormatSupport extends FormatSupport {
   }
 
   private def extractBlogPost(frontMatter: Astral,
-                              record: BlogPostRecord): FormatSupportError Xor BlogPost = {
+                              record: BlogPostRecord): FormatSupportError Xor BlogPostMeta = {
 
     import Astral.Defaults._
 
-    val properties: Astral = Astral(frontMatter.underlying -- Seq("title", "date", "tags"))
+    val properties: Astral = Astral(
+      frontMatter.underlying -- Seq("author", "title", "date", "tags"))
     val title: String = frontMatter.get[String]("title").getOrElse(record.title)
     val date: LocalDate = frontMatter.get[LocalDate]("date").getOrElse(record.date)
     val tags: Set[String] = frontMatter.get[String]("tags").toSet[String]
       .flatMap(_.split(" +").map(_.replace('+', ' ')))
 
-    Xor.right(BlogPost(record.id, record.postType, title, date, tags, properties))
+    for {
+      author <- Xor.fromOption(frontMatter.get[String]("author"),
+        FormatSupportError(s"No author nickname defined for blog post '${record.id}'"))
+    } yield BlogPostMeta(record.id, author, record.postType, title, date, tags, properties)
   }
 
   private def extractFrontMatter(is: InputStream, title: String): FormatSupportError Xor Astral = {

@@ -22,7 +22,7 @@ import java.io.InputStream
 import java.time.LocalDate
 
 import cats.data.Xor
-import com.norcane.noble.api.models.BlogPost
+import com.norcane.noble.api.models.BlogPostMeta
 
 
 trait FormatSupportFactory {
@@ -33,9 +33,9 @@ trait FormatSupportFactory {
 
 trait FormatSupport {
 
-  def extractPostMetadata(is: InputStream, record: BlogPostRecord): FormatSupportError Xor BlogPost
+  def extractPostMetadata(is: InputStream, record: BlogPostRecord): FormatSupportError Xor BlogPostMeta
 
-  def extractPostContent(is: InputStream, post: BlogPost): FormatSupportError Xor String
+  def extractPostContent(is: InputStream, post: BlogPostMeta): FormatSupportError Xor String
 
 }
 

@@ -23,19 +23,19 @@
       </header>
 
       <div class="content-wrapper">
-        <div class="content">
-        @content
-        </div>
+        <div class="content">@content</div>
         <aside>
 
-          @for(authorBio <- humaneProps.authorBio) {
+          @for(singleAuthor <- humaneProps.singleAuthor) {
             <div class="module">
               <div class="content">
                 <h1><span>about the author</span></h1>
-                @for(portraitPath <- humaneProps.portraitPath) {
-                  <img class="responsive" src="@router.asset(portraitPath)" alt="portrait" />
+                @for(avatar <- singleAuthor.avatar) {
+                  <img class="responsive" src="@router.asset(avatar)" alt="portrait" />
                 }
-                <p>@Html(authorBio)</p>
+                @for(biography <- singleAuthor.biography) {
+                  <p>@Html(biography)</p>
+                }
               </div>
             </div>
           }
@@ -52,9 +52,7 @@
 
     <footer>
       <div class="copyright">
-        Copyright &copy; @{
-        java.time.Year.now().getValue
-      } @blog.info.author
+        Copyright &copy; @java.time.Year.now().getValue TODO copyright
       </div>
       <div>
         Powered by the <a href="#">noble</a> blog engine.

@@ -25,7 +25,7 @@ import javax.inject.Singleton
 import cats.data.Xor
 import com.norcane.noble.api._
 import com.norcane.noble.api.astral.{Astral, AstralType}
-import com.norcane.noble.api.models.{BlogInfo, BlogPost, StorageConfig}
+import com.norcane.noble.api.models.{BlogAuthor, BlogInfo, BlogPostMeta, StorageConfig}
 import com.norcane.noble.astral.{RawYaml, YamlParser}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ObjectId, Repository, RepositoryBuilder}
@@ -97,19 +97,20 @@ class GitBlogStorage(config: GitStorageConfig,
 
     for {
       title <- asXor[String]("title", s"no blog title specified in $ConfigFileName")
-      author <- asXor[String]("author", s"no blog author specified in $ConfigFileName")
+      authors <- asXor[Astral]("authors", s"no authors info specified in $ConfigFileName")
+        .flatMap(parseAuthors)
       themeName <- asXor[String]("theme", s"no blog theme name specified in $ConfigFileName")
     } yield BlogInfo(
       title = title,
       subtitle = info.get[String]("subtitle"),
-      author = author,
+      authors = authors,
       description = info.get[String]("description"),
       themeName = themeName,
       properties = info
     )
   }
 
-  override def loadPostContent(hash: String, post: BlogPost): BlogStorageError Xor String = {
+  override def loadPostContent(hash: String, post: BlogPostMeta): BlogStorageError Xor String = {
     val Some(stream) = loadStream(hash, s"$PostsDirName/${post.id}")
     for {
       formatSupport <- selectFormatSupport(post.format)
@@ -118,7 +119,7 @@ class GitBlogStorage(config: GitStorageConfig,
     } yield content
   }
 
-  override def loadBlogPosts(hash: String): BlogStorageError Xor List[BlogPost] = {
+  override def loadBlogPosts(hash: String): BlogStorageError Xor List[BlogPostMeta] = {
     import cats.std.list._
     import cats.syntax.traverse._
 
@@ -139,6 +140,34 @@ class GitBlogStorage(config: GitStorageConfig,
   override def loadAsset(hash: String, path: String): BlogStorageError Xor ContentStream = {
     Xor.fromOption(loadStream(hash, AssetsDirName + path),
       BlogStorageError(s"Cannot load asset for path '$path'"))
+  }
+
+  private def parseAuthors(authors: Astral): BlogStorageError Xor Seq[BlogAuthor] = {
+    import cats.std.list._
+    import cats.syntax.traverse._
+
+    if (authors.keys.nonEmpty) {
+      (authors.keys map { nickname =>
+        val authorAst: Xor[String, Astral] = Xor.fromOption(authors.get[Astral](nickname),
+          s"invalid configuration for author with nickname '$nickname'")
+
+        val authorXor: Xor[String, BlogAuthor] = for {
+          author <- authorAst
+          name <- Xor.fromOption(author.get[String]("name"),
+            s"missing name for author with nickname '$nickname")
+        } yield BlogAuthor(
+          nickname = nickname,
+          name = name,
+          biography = author.get[String]("biography"),
+          avatar = author.get[String]("avatar"),
+          properties = author
+        )
+
+        authorXor.leftMap(BlogStorageError(_))
+        // IntelliJ Idea will highlight an error here, but the code is compilable and working,
+        // issue is reported here: https://youtrack.jetbrains.com/issue/SCL-9752
+      }).toList.sequenceU
+    } else Xor.left(BlogStorageError("At least one author must be defined for each blog"))
   }
 
   private def selectFormatSupport(postType: String): BlogStorageError Xor FormatSupport =
