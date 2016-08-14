@@ -10,12 +10,13 @@
 
   <div class="posts">
   @for(post <- posts) {
-    <article>
+    <article class="preview">
       <h1>@post.meta.title</h1>
       <div class="post-meta">
         posted on <span>@post.meta.date</span> by <span>@post.author.name</span>
       </div>
       <div class="content">@Html(post.content)</div>
+      <div class="read-more"><a href="#">read full article</a></div>
     </article>
   }
   </div>

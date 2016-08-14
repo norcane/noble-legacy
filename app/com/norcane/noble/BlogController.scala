@@ -40,7 +40,7 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
                      val messagesApi: MessagesApi)
   extends I18nSupport with Results {
 
-  private implicit val defaultTimeout = Timeout(5.seconds)
+  private implicit val defaultTimeout = Timeout(10.seconds)
 
   def index(page: Page) = BlogAction.async { implicit request =>
     paged(request.blog.posts, page, None)(router.index)

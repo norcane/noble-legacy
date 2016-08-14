@@ -21,6 +21,11 @@
   background-color: #FFFFFF;
 }
 
+.posts article:not(:first-child) {
+  // Positioning
+  margin-top: 20px;
+}
+
 .posts article > h1 {
   // Positioning
   margin: 0;
@@ -73,6 +78,43 @@
 .posts article > .content > h3 {
   // Appearance
   color: @color_gray;
+}
+
+.posts article.preview {
+  padding-bottom: 20px;
+}
+
+.posts article.preview > .content {
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.posts article > .read-more {
+  // Appearance
+  text-align: center;
+  height: 50px;
+  margin-top: -30px;
+}
+
+.posts article > .read-more > a {
+  // Positioning
+  display: block;
+  padding: 10px 0;
+  background: #FFFFFF;
+}
+
+.posts article > .read-more > a::after {
+  content: " »";
+}
+
+.posts article > .read-more::before {
+  // Positioning
+  position: relative;
+  display: block;
+  height: 30px;
+  background-image: linear-gradient(to bottom, transparent, #FFFFFF);
+  content: "";
+  
 }
 
 @media (min-width: 320px) {

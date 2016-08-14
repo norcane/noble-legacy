@@ -28,14 +28,12 @@ import org.pegdown.PegDownProcessor
   */
 object MarkdownProcessor {
 
-  private val processor: PegDownProcessor = new PegDownProcessor()
-
   /**
     * Takes the input ''Markdown'' text and processes resulting ''HTML'' output.
     *
     * @param input input ''Markdown'' text
     * @return ''HTML'' output
     */
-  def md2html(input: String): String = processor.markdownToHtml(input)
+  def md2html(input: String): String = new PegDownProcessor().markdownToHtml(input)
 
 }
