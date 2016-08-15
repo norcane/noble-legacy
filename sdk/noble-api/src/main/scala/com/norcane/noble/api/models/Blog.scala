@@ -18,9 +18,35 @@
 
 package com.norcane.noble.api.models
 
+import com.norcane.noble.api.models.dates.{Day, Month, Year}
+
+import scala.collection.immutable.SortedMap
+
 class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
 
   private val sorted: Seq[BlogPostMeta] = blogPosts.sorted.reverse
 
+  private val years: Seq[Year] = sorted.groupBy(_.date.getYear).map { byYear =>
+    val (year, yearPosts) = byYear
+
+    val months: SortedMap[Int, Month] =
+      SortedMap.empty[Int, Month] ++ yearPosts.groupBy(_.date.getMonthValue).map { byMonth =>
+        val (month, monthPosts) = byMonth
+
+        val days: SortedMap[Int, Day] =
+          SortedMap.empty ++ monthPosts.groupBy(_.date.getDayOfMonth).map { byDay =>
+            val (day, dayPosts) = byDay
+
+            day -> Day(year, month, day, dayPosts)
+          }
+
+        month -> Month(year, month, days, monthPosts)
+      }
+
+    Year(year, months, yearPosts)
+  }.toSeq.sorted
+
   def posts: Seq[BlogPostMeta] = sorted
+
+  def forYear(year: Int): Year = years.find(_.year == year).getOrElse(Year.empty(year))
 }

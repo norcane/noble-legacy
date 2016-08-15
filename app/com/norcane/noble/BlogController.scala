@@ -42,14 +42,28 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
 
   private implicit val defaultTimeout = Timeout(10.seconds)
 
-  def index(page: Page) = BlogAction.async { implicit request =>
-    paged(request.blog.posts, page, None)(router.index)
+  def index(page: Page) = BlogAction.async { implicit req =>
+    paged(req.blog.posts, page, None)(router.index)
   }
 
-  def asset(path: String) = BlogAction.async { implicit request =>
+  def post(year: Int, month: Int, day: Int, permalink: String) = BlogAction.async { implicit req =>
+    req.blog.forYear(year).forMonth(month).forDay(day).forPermalink(permalink) match {
+      case Some(postMeta) =>
+        (blogActor ? RenderPostContent(req.blog, postMeta))
+          .mapTo[Option[String]].map(createBlogPost(postMeta, _, req.blog)) map {
+
+          case Some(blogPost) =>
+            Ok(themeByName(req.blog.info.themeName).blogPost(req.blog, router, blogPost))
+          case None => notFound
+        }
+      case None => Future.successful(notFound)
+    }
+  }
+
+  def asset(path: String) = BlogAction.async { implicit req =>
     val safePath: String = new File(s"/$path").getCanonicalPath
 
-    (blogActor ? LoadAsset(request.blog, safePath)).mapTo[Option[ContentStream]] flatMap {
+    (blogActor ? LoadAsset(req.blog, safePath)).mapTo[Option[ContentStream]] flatMap {
       case Some(ContentStream(stream, length)) =>
         Future.successful(Ok.sendEntity(HttpEntity.Streamed(
           StreamConverters.fromInputStream(() => stream),
@@ -60,8 +74,16 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     }
   }
 
+  def notFound = NotFound
+
+  private def createBlogPost(meta: BlogPostMeta, contentOpt: Option[String],
+                             blog: Blog): Option[BlogPost] = for {
+    content <- contentOpt
+    author <- blog.info.authors.find(_.nickname == meta.author)
+  } yield BlogPost(meta, author, content)
+
   private def paged[A](allPosts: Seq[BlogPostMeta], page: Page, title: Option[String])
-                      (route: Page => Call)(implicit request: BlogRequest[A]): Future[Result] = {
+                      (route: Page => Call)(implicit req: BlogRequest[A]): Future[Result] = {
 
     val pageNo: Int = if (page.pageNo < 1) 1 else page.pageNo
     val perPage: Int = if (page.perPage < 1) 1 else if (page.perPage > 10) 10 else page.perPage
@@ -73,17 +95,13 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     val next: Option[Call] = if (pageNo < lastPageNo) Some(route(Page(pageNo + 1, perPage))) else None
 
     // load blog posts content
-    Future.sequence(posts.map { post =>
-      (blogActor ? RenderPostContent(request.blog, post)).mapTo[Option[String]] map { contentOpt =>
-        for {
-          author <- request.blog.info.authors.find(_.nickname == post.author)
-          content <- contentOpt
-        } yield BlogPost(post, author, content)
-      }
+    Future.sequence(posts.map { postMeta =>
+      (blogActor ? RenderPostContent(req.blog, postMeta)).mapTo[Option[String]]
+        .map(createBlogPost(postMeta, _, req.blog))
     }).map { loaded =>
-      val theme: BlogTheme = themeByName(request.blog.info.themeName)
+      val theme: BlogTheme = themeByName(req.blog.info.themeName)
       val posts: Seq[BlogPost] = loaded flatMap (_.toSeq)
-      Ok(theme.blogPosts(request.blog, router, title, posts, previous, next))
+      Ok(theme.blogPosts(req.blog, router, title, posts, previous, next))
     }
   }
 

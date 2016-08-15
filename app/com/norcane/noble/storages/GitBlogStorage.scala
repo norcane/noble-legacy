@@ -183,7 +183,7 @@ class GitBlogStorage(config: GitStorageConfig,
       filename match {
         case DateAndTitleExtractor(AsInt(year), AsInt(month), AsInt(day), title) =>
           val id: String = s"$filename.$extension"
-          Xor.right(BlogPostRecord(id, LocalDate.of(year, month, day), title, extension))
+          Xor.right(BlogPostRecord(id, LocalDate.of(year, month, day), title, title, extension))
         case _ => Xor.left(
           BlogStorageError(s"cannot parse date and title for file '$filename.$extension'"))
       }

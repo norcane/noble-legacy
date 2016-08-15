@@ -20,7 +20,7 @@ package com.norcane.noble.themes
 
 import javax.inject.Singleton
 
-import com.norcane.noble.api.models.{Blog, BlogAuthor, BlogPost, BlogPostMeta}
+import com.norcane.noble.api.models.{Blog, BlogAuthor, BlogPost}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
 import com.norcane.noble.themes.HumaneTheme.HumaneProps
 import play.api.i18n.Messages
@@ -49,12 +49,15 @@ class HumaneTheme extends BlogTheme {
       author <- blog.info.authors.headOption if blog.info.authors.size == 1
     } yield author.copy(biography = author.biography map md2html)
 
-    val humaneProps: HumaneProps = HumaneProps(singleAuthor)
-    com.norcane.noble.themes.humane.html.blogPosts(blog, router, posts, humaneProps)
+    com.norcane.noble.themes.humane.html.blogPosts(blog, router, posts, HumaneProps(singleAuthor))
   }
 
-  override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPostMeta, content: String)
-                       (implicit header: RequestHeader, messages: Messages): Html = ???
+  override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost)
+                       (implicit header: RequestHeader, messages: Messages): Html = {
+
+    com.norcane.noble.themes.humane.html.blogPost(blog, router, post,
+      HumaneProps(Some(post.author)))
+  }
 }
 
 object HumaneTheme {

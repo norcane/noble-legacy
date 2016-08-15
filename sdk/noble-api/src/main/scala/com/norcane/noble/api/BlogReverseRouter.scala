@@ -18,7 +18,7 @@
 
 package com.norcane.noble.api
 
-import com.norcane.noble.api.models.Page
+import com.norcane.noble.api.models.{BlogPostMeta, Page}
 import controllers.Assets
 import play.api.mvc.Call
 import play.core.routing.ReverseRouteContext
@@ -28,6 +28,8 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
   val defaultPage = Page(1, 5)
 
   def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
+
+  def blogPost(blogPost: BlogPostMeta): Call = Call("GET", path + blogPost.permalink)
 
   def asset(file: String): Call = Call("GET", s"$path/assets/$file")
 

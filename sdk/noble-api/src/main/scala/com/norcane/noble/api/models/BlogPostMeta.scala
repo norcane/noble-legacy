@@ -21,6 +21,7 @@ package com.norcane.noble.api.models
 import java.time.{LocalDate, ZoneId}
 
 import com.norcane.noble.api.astral.Astral
+import play.utils.UriEncoding
 
 /**
   * Represents the single post metadata (without the loaded content). Each blog post must define
@@ -39,8 +40,15 @@ import com.norcane.noble.api.astral.Astral
   * @see BlogPostMeta
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class BlogPostMeta(id: String, author: String, format: String, title: String, date: LocalDate,
-                        tags: Set[String], properties: Astral)
+case class BlogPostMeta(id: String, author: String, format: String, title: String,
+                        permalinkTitle: String, date: LocalDate, tags: Set[String],
+                        properties: Astral) {
+
+  def permalink: String = "/%04d/%02d/%02d/%s".format(
+    date.getYear, date.getMonthValue, date.getDayOfMonth,
+    UriEncoding.encodePathSegment(permalinkTitle, "UTF-8"))
+
+}
 
 /**
   * Companion object for the [[BlogPostMeta]] class.

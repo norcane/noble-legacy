@@ -88,7 +88,8 @@ class MarkdownFormatSupport extends FormatSupport {
     for {
       author <- Xor.fromOption(frontMatter.get[String]("author"),
         FormatSupportError(s"No author nickname defined for blog post '${record.id}'"))
-    } yield BlogPostMeta(record.id, author, record.postType, title, date, tags, properties)
+    } yield BlogPostMeta(record.id, author, record.postType, title, record.permalinkTitle,
+      date, tags, properties)
   }
 
   private def extractFrontMatter(is: InputStream, title: String): FormatSupportError Xor Astral = {
