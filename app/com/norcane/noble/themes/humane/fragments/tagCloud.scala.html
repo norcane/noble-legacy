@@ -9,7 +9,7 @@
     <ul class="tag-cloud">
       @for(tag <- tagCloud) {
         <li class="tag-@tag.weight">
-          <a href="@router.tag(tag.name)">@tag.name (@tag.noOfPosts)</a>
+          <a href="@router.tag(tag.name)">@tag.name</a>
         </li>
       }
     </ul>

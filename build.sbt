@@ -34,6 +34,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 lazy val nobleApi = (project in file("sdk/noble-api"))
   .settings(
     libraryDependencies ++= Seq(
+      specs2 % Test,
       "net.codingwell" %% "scala-guice" % "4.0.1",
       "com.typesafe" % "config" % "1.3.0",
       "org.typelevel" %% "cats" % "0.6.1",
