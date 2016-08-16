@@ -76,6 +76,9 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
     case GET(p"/${int(year)}<\d{4}>/${int(month)}<\d{2}>/${int(day)}<\d{2}>/$permalink") =>
       controller.post(year, month, day, permalink)
 
+    // blog posts per specific tag
+    case GET(p"/tags/$name" ? Page(page)) => controller.tag(name, page)
+
     // assets
     case GET(p"/assets/$path*") => controller.asset(path)
   }

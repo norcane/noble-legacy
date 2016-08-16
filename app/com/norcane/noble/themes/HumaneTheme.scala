@@ -49,7 +49,8 @@ class HumaneTheme extends BlogTheme {
       author <- blog.info.authors.headOption if blog.info.authors.size == 1
     } yield author.copy(biography = author.biography map md2html)
 
-    com.norcane.noble.themes.humane.html.blogPosts(blog, router, posts, HumaneProps(singleAuthor))
+    com.norcane.noble.themes.humane.html.blogPosts(
+      blog, router, title, posts, HumaneProps(singleAuthor))
   }
 
   override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost)

@@ -1,0 +1,17 @@
+@(
+        tagCloud: Seq[com.norcane.noble.api.models.Tag],
+        router: com.norcane.noble.api.BlogReverseRouter
+)
+
+<div class="module">
+  <div class="content">
+    <h1><span>Tags</span></h1>
+    <ul class="tag-cloud">
+      @for(tag <- tagCloud) {
+        <li class="tag-@tag.weight">
+          <a href="@router.tag(tag.name)">@tag.name (@tag.noOfPosts)</a>
+        </li>
+      }
+    </ul>
+  </div>
+</div>

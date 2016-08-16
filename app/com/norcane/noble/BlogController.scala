@@ -60,6 +60,11 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     }
   }
 
+  def tag(name: String, page: Page) = BlogAction.async { implicit req =>
+    paged(req.blog.forTag(name).getOrElse(Nil), page,
+      Some(message("noble.posts-by-tag", name)))(p => router.tag(name, p))
+  }
+
   def asset(path: String) = BlogAction.async { implicit req =>
     val safePath: String = new File(s"/$path").getCanonicalPath
 
@@ -75,6 +80,9 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
   }
 
   def notFound = NotFound
+
+  private def message(key: String, args: Any*)(implicit header: RequestHeader): String =
+    messagesApi.preferred(header).apply(key, args: _*)
 
   private def createBlogPost(meta: BlogPostMeta, contentOpt: Option[String],
                              blog: Blog): Option[BlogPost] = for {

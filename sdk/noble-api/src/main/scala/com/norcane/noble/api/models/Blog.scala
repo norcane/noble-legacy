@@ -46,7 +46,29 @@ class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
     Year(year, months, yearPosts)
   }.toSeq.sorted
 
+  /**
+    * Represents the map of tags, where key is the tag name and value collection of blog posts
+    * for the tag.
+    */
+  val tags: Map[String, Seq[BlogPostMeta]] = sorted
+    .flatMap(postMeta => postMeta.tags map (_ -> postMeta))
+    .groupBy(_._1).mapValues(_ map (_._2))
+
+  /**
+    * Sequence of tags, represented by the [[Tag]] object. The tag weight is calculated for each tag
+    * and its represented as an integer number from 1 to 10, where 1 is the lowest value.
+    */
+  val tagCloud: Seq[Tag] = {
+    val rankFactor: Double = Math.max(1.0, 10.0 / tags.map(_._2.size).fold(0)(Math.max))
+
+    tags.map {
+      case (tag, posts) => Tag(tag, posts.size, Math.ceil(rankFactor * posts.size).toInt)
+    }.toSeq.sortBy(_.name)
+  }
+
   def posts: Seq[BlogPostMeta] = sorted
 
   def forYear(year: Int): Year = years.find(_.year == year).getOrElse(Year.empty(year))
+
+  def forTag(name: String): Option[Seq[BlogPostMeta]] = tags.get(name)
 }

@@ -22,6 +22,7 @@ import com.norcane.noble.api.models.{BlogPostMeta, Page}
 import controllers.Assets
 import play.api.mvc.Call
 import play.core.routing.ReverseRouteContext
+import play.utils.UriEncoding
 
 class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
 
@@ -30,6 +31,9 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
   def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
 
   def blogPost(blogPost: BlogPostMeta): Call = Call("GET", path + blogPost.permalink)
+
+  def tag(name: String, page: Page = defaultPage): Call =
+    Call("GET", withPaging(s"$path/tags/${encode(name)}", page))
 
   def asset(file: String): Call = Call("GET", s"$path/assets/$file")
 
@@ -46,4 +50,6 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
       (if (page.perPage != 5) Seq("per_page=" + page.perPage) else Nil)).mkString("&")
     if (queryString.isEmpty) path else path + "?" + queryString
   }
+
+  private def encode(s: String) = UriEncoding.encodePathSegment(s, "UTF-8")
 }

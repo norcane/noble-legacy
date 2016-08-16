@@ -1,6 +1,7 @@
 @(
         blog: com.norcane.noble.api.models.Blog,
         router: com.norcane.noble.api.BlogReverseRouter,
+        title: Option[String],
         humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
 )(content: Html)
 
@@ -8,7 +9,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>@blog.info.title</title>
+    <title>@title.map(_ + " - ").getOrElse("")@blog.info.title</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <link rel="stylesheet" href="@router.webJarAsset("noble/css/humane/main.css")" />
@@ -26,19 +27,13 @@
         <div class="content">@content</div>
         <aside>
 
+          @** render the 'about author' sidebar module if required **@
           @for(singleAuthor <- humaneProps.singleAuthor) {
-            <div class="module">
-              <div class="content">
-                <h1><span>about the author</span></h1>
-                @for(avatar <- singleAuthor.avatar) {
-                  <img class="responsive" src="@router.asset(avatar)" alt="portrait" />
-                }
-                @for(biography <- singleAuthor.biography) {
-                  <p>@Html(biography)</p>
-                }
-              </div>
-            </div>
+            @com.norcane.noble.themes.humane.fragments.html.author(singleAuthor, router)
           }
+
+          @** render the tag cloud **@
+          @com.norcane.noble.themes.humane.fragments.html.tagCloud(blog.tagCloud, router)
 
           <div class="module">
             <div class="content">
