@@ -18,8 +18,13 @@
 
 package com.norcane.noble.api.models.dates
 
-import com.norcane.noble.api.models.BlogPostMeta
+import java.time.YearMonth
+import java.time.format.TextStyle
 
+import com.norcane.noble.api.models.BlogPostMeta
+import play.api.i18n.Lang
+
+import scala.util.control.Exception._
 import scala.collection.immutable.SortedMap
 
 /**
@@ -33,6 +38,8 @@ import scala.collection.immutable.SortedMap
   */
 case class Month(year: Int, month: Int, days: SortedMap[Int, Day], posts: Seq[BlogPostMeta]) {
 
+  private lazy val partial: Option[YearMonth] = allCatch opt YearMonth.of(year, month)
+
   val orderKey: Int = year * 12 + month
 
   /**
@@ -42,6 +49,9 @@ case class Month(year: Int, month: Int, days: SortedMap[Int, Day], posts: Seq[Bl
     * @return collection of blog posts
     */
   def forDay(day: Int): Day = days.getOrElse(day, Day(year, month, day, Nil))
+
+  def name(implicit lang: Lang): String =
+    partial map (_.getMonth.getDisplayName(TextStyle.FULL_STANDALONE, lang.locale)) getOrElse "unknown"
 }
 
 /**

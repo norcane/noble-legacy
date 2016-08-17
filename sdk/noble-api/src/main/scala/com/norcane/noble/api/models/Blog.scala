@@ -26,7 +26,10 @@ class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
 
   private val sorted: Seq[BlogPostMeta] = blogPosts.sorted.reverse
 
-  private val years: Seq[Year] = sorted.groupBy(_.date.getYear).map { byYear =>
+  /**
+    * Collection of blog posts, sorted by years of publishing.
+    */
+  val years: Seq[Year] = sorted.groupBy(_.date.getYear).map { byYear =>
     val (year, yearPosts) = byYear
 
     val months: SortedMap[Int, Month] =
@@ -34,7 +37,7 @@ class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
         val (month, monthPosts) = byMonth
 
         val days: SortedMap[Int, Day] =
-          SortedMap.empty ++ monthPosts.groupBy(_.date.getDayOfMonth).map { byDay =>
+          SortedMap.empty[Int, Day] ++ monthPosts.groupBy(_.date.getDayOfMonth).map { byDay =>
             val (day, dayPosts) = byDay
 
             day -> Day(year, month, day, dayPosts)

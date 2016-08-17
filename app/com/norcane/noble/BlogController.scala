@@ -25,6 +25,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.StreamConverters
 import akka.util.Timeout
 import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, RenderPostContent}
+import com.norcane.noble.api.models.dates.{Day, Month}
 import com.norcane.noble.api.models.{Blog, BlogPost, BlogPostMeta, Page}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
 import play.api.http.HttpEntity
@@ -62,7 +63,25 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
 
   def tag(name: String, page: Page) = BlogAction.async { implicit req =>
     paged(req.blog.forTag(name).getOrElse(Nil), page,
-      Some(message("noble.posts-by-tag", name)))(p => router.tag(name, p))
+      Some(message("noble.posts-by-tag", name)))(router.tag(name, _))
+  }
+
+  def year(year: Int, page: Page) = BlogAction.async { implicit req =>
+    paged(req.blog.forYear(year).posts, page,
+      Some(message("noble.posts-by-year", year)))(router.year(year, _))
+  }
+
+  def month(year: Int, month: Int, page: Page) = BlogAction.async { implicit req =>
+    val byMonth: Month = req.blog.forYear(year).forMonth(month)
+    paged(byMonth.posts, page,
+      Some(message("noble.posts-by-month", year, byMonth.name)))(router.month(year, month, _))
+  }
+
+  def day(year: Int, month: Int, day: Int, page: Page) = BlogAction.async { implicit req =>
+    val byMonth: Month = req.blog.forYear(year).forMonth(month)
+    val byDay: Day = byMonth.forDay(day)
+    paged(byDay.posts, page,
+      Some(message("noble.posts-by-day", year, byMonth.name, day)))(router.day(year, month, day, _))
   }
 
   def asset(path: String) = BlogAction.async { implicit req =>

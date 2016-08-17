@@ -35,6 +35,15 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
   def tag(name: String, page: Page = defaultPage): Call =
     Call("GET", withPaging(s"$path/tags/${encode(name)}", page))
 
+  def year(year: Int, page: Page = defaultPage): Call =
+    Call("GET", withPaging(s"$path/$year", page))
+
+  def month(year: Int, month: Int, page: Page = defaultPage) =
+    Call("GET", withPaging(f"$path%s/$year%d/$month%02d", page))
+
+  def day(year: Int, month: Int, day: Int, page: Page = defaultPage) =
+    Call("GET", withPaging(f"$path%s/$year%d/$month%02d/$day%02d", page))
+
   def asset(file: String): Call = Call("GET", s"$path/assets/$file")
 
   def webJarAsset(file: String): Call = {
