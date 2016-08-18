@@ -26,7 +26,7 @@ import akka.stream.scaladsl.StreamConverters
 import akka.util.Timeout
 import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, RenderPostContent}
 import com.norcane.noble.api.models.dates.{Day, Month}
-import com.norcane.noble.api.models.{Blog, BlogPost, BlogPostMeta, Page}
+import com.norcane.noble.api.models._
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
 import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -118,8 +118,7 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     val startPageNo: Int = zeroBasedPageNo * perPage
     val posts: Seq[BlogPostMeta] = allPosts.slice(startPageNo, startPageNo + perPage)
     val lastPageNo: Int = Math.ceil(allPosts.size.toDouble / perPage.toDouble).toInt
-    val previous: Option[Call] = if (pageNo > 1) Some(route(Page(pageNo - 1, perPage))) else None
-    val next: Option[Call] = if (pageNo < lastPageNo) Some(route(Page(pageNo + 1, perPage))) else None
+    val pagination: Pagination = Pagination(pageNo, perPage, lastPageNo, route)
 
     // load blog posts content
     Future.sequence(posts.map { postMeta =>
@@ -128,7 +127,7 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     }).map { loaded =>
       val theme: BlogTheme = themeByName(req.blog.info.themeName)
       val posts: Seq[BlogPost] = loaded flatMap (_.toSeq)
-      Ok(theme.blogPosts(req.blog, router, title, posts, previous, next))
+      Ok(theme.blogPosts(req.blog, router, title, posts, pagination))
     }
   }
 

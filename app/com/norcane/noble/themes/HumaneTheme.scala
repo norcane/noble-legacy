@@ -20,7 +20,7 @@ package com.norcane.noble.themes
 
 import javax.inject.Singleton
 
-import com.norcane.noble.api.models.{Blog, BlogAuthor, BlogPost}
+import com.norcane.noble.api.models.{Blog, BlogAuthor, BlogPost, Pagination}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
 import com.norcane.noble.themes.HumaneTheme.HumaneProps
 import play.api.i18n.Messages
@@ -42,7 +42,7 @@ class HumaneTheme extends BlogTheme {
   override def name: String = HumaneTheme.ThemeName
 
   override def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
-                         posts: Seq[BlogPost], previous: Option[Call], next: Option[Call])
+                         posts: Seq[BlogPost], pagination: Pagination)
                         (implicit header: RequestHeader, messages: Messages): Html = {
 
     val singleAuthor: Option[BlogAuthor] = for {
