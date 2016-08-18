@@ -117,7 +117,7 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
     val zeroBasedPageNo: Int = pageNo - 1
     val startPageNo: Int = zeroBasedPageNo * perPage
     val posts: Seq[BlogPostMeta] = allPosts.slice(startPageNo, startPageNo + perPage)
-    val lastPageNo: Int = allPosts.size / perPage
+    val lastPageNo: Int = Math.ceil(allPosts.size.toDouble / perPage.toDouble).toInt
     val previous: Option[Call] = if (pageNo > 1) Some(route(Page(pageNo - 1, perPage))) else None
     val next: Option[Call] = if (pageNo < lastPageNo) Some(route(Page(pageNo + 1, perPage))) else None
 

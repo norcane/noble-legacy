@@ -56,7 +56,7 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
   private def withPaging(path: String, page: Page) = {
     val queryString: String = (Nil ++
       (if (page.pageNo != 1) Seq("page=" + page.pageNo) else Nil) ++
-      (if (page.perPage != 5) Seq("per_page=" + page.perPage) else Nil)).mkString("&")
+      (if (page.perPage != 5) Seq("per-page=" + page.perPage) else Nil)).mkString("&")
     if (queryString.isEmpty) path else path + "?" + queryString
   }
 

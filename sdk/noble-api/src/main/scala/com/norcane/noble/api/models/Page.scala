@@ -28,7 +28,7 @@ object Page {
 
   def unapply(header: RequestHeader): Option[Page] = {
     header.queryString match {
-      case q_o"page=${int(page)}" & q_o"page=${int(perPage)}" =>
+      case q_o"page=${int(page)}" & q_o"per-page=${int(perPage)}" =>
         Some(Page(page.getOrElse(1), perPage.getOrElse(5)))
       case _ => None
     }
