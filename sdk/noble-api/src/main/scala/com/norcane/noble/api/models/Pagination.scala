@@ -40,11 +40,25 @@ case class Pagination(pageNo: Int, perPage: Int, pagesTotal: Int, route: Page =>
   def previous: Option[Call] = if (pageNo > 1) page(pageNo - 1) else None
 
   /**
-    * returns the call to the next page (if exists).
+    * Returns the call to the next page (if exists).
     *
     * @return the call to the next page
     */
   def next: Option[Call] = if (pageNo < pagesTotal) page(pageNo + 1) else None
+
+  /**
+    * Returns the call to the very first page (in case that current page is not the first one).
+    *
+    * @return call to the very first page
+    */
+  def first: Option[Call] = if (pageNo > 1) page(1) else None
+
+  /**
+    * Returns the call to the very last page (in case that current page is not the last one).
+    *
+    * @return call to the very last page
+    */
+  def last: Option[Call] = if (pageNo < pagesTotal) page(pagesTotal) else None
 
   /**
     * Returns the call to any available page.
@@ -53,7 +67,7 @@ case class Pagination(pageNo: Int, perPage: Int, pagesTotal: Int, route: Page =>
     * @return the call to the requested page
     */
   def page(number: Int): Option[Call] = {
-    if (number >= 0 && number <= pagesTotal) Some(route(Page(number, perPage))) else None
+    if (number >= 1 && number <= pagesTotal) Some(route(Page(number, perPage))) else None
   }
 }
 

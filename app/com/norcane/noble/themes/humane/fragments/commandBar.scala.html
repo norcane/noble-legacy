@@ -1,0 +1,42 @@
+@(
+        router: com.norcane.noble.api.BlogReverseRouter,
+        title: Option[String],
+        paginationOpt: Option[com.norcane.noble.api.models.Pagination]
+)
+
+<div class="command-bar">
+  <div class="left">
+    <a href="@router.index()">Home</a>@title.map(" / " + _)
+  </div>
+  <div class="right">
+    @for(pagination <- paginationOpt) {
+      <ul class="pagination">
+        <li class="@pagination.first.map(call => "").getOrElse("disabled")">
+          <a href="@pagination.first.getOrElse("#")">&laquo;</a>
+        </li>
+        <li class="@pagination.previous.map(call => "").getOrElse("disabled")">
+          <a href="@pagination.previous.getOrElse("#")">&lsaquo;</a>
+        </li>
+        @for(prev2 <- pagination.page(pagination.pageNo - 2)) {
+          <li><a href="@prev2">@(pagination.pageNo - 2)</a></li>
+        }
+        @for(prev1 <- pagination.page(pagination.pageNo - 1)) {
+          <li><a href="@prev1">@(pagination.pageNo - 1)</a></li>
+        }
+        <li class="current"><a href="#">@pagination.pageNo</a></li>
+        @for(next1 <- pagination.page(pagination.pageNo + 1)) {
+          <li><a href="@next1">@(pagination.pageNo + 1)</a></li>
+        }
+        @for(next2 <- pagination.page(pagination.pageNo + 2)) {
+          <li><a href="@next2">@(pagination.pageNo + 2)</a></li>
+        }
+        <li class="@pagination.next.map(call => "").getOrElse("disabled")">
+          <a href="@pagination.next.getOrElse("#")">&rsaquo;</a>
+        </li>
+        <li class="@pagination.last.map(call => "").getOrElse("disabled")">
+          <a href="@pagination.last.getOrElse("#")">&raquo;</a>
+        </li>
+      </ul>
+    }
+  </div>
+</div>

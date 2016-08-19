@@ -50,7 +50,7 @@ class HumaneTheme extends BlogTheme {
     } yield author.copy(biography = author.biography map md2html)
 
     com.norcane.noble.themes.humane.html.blogPosts(
-      blog, router, title, posts, HumaneProps(singleAuthor))
+      blog, router, title, posts, pagination, HumaneProps(singleAuthor))
   }
 
   override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost)

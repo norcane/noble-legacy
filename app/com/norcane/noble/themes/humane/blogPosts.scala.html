@@ -3,11 +3,12 @@
         router: com.norcane.noble.api.BlogReverseRouter,
         title: Option[String],
         posts: Seq[com.norcane.noble.api.models.BlogPost],
+        pagination: com.norcane.noble.api.models.Pagination,
         humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
 )
 
 
-@com.norcane.noble.themes.humane.html.main(blog, router, title, humaneProps) {
+@com.norcane.noble.themes.humane.html.main(blog, router, title, Some(pagination), humaneProps) {
 
   <div class="posts">
   @for(post <- posts) {

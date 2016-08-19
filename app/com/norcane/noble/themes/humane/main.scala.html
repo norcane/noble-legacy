@@ -2,6 +2,7 @@
         blog: com.norcane.noble.api.models.Blog,
         router: com.norcane.noble.api.BlogReverseRouter,
         title: Option[String],
+        pagination: Option[com.norcane.noble.api.models.Pagination],
         humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
 )(content: Html)
 
@@ -24,7 +25,11 @@
       </header>
 
       <div class="content-wrapper">
-        <div class="content">@content</div>
+        <div class="content">
+          @com.norcane.noble.themes.humane.fragments.html.commandBar(router, title, pagination)
+          @content
+          @com.norcane.noble.themes.humane.fragments.html.commandBar(router, title, pagination)
+        </div>
         <aside>
 
           @** render the 'about author' sidebar module if required **@
