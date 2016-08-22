@@ -120,7 +120,7 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   override def loadBlogPosts(hash: String): BlogStorageError Xor List[BlogPostMeta] = {
-    import cats.std.list._
+    import cats.instances.list._
     import cats.syntax.traverse._
 
     ((for (files <- allFilesInPath(hash, PostsDirName)) yield files map { file =>
@@ -143,7 +143,7 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   private def parseAuthors(authors: Astral): BlogStorageError Xor Seq[BlogAuthor] = {
-    import cats.std.list._
+    import cats.instances.list._
     import cats.syntax.traverse._
 
     if (authors.keys.nonEmpty) {

@@ -55,7 +55,7 @@ class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSu
   private def validateBlogPosts(posts: Seq[BlogPostMeta],
                                 blogInfo: BlogInfo): BlogLoadingFailed Xor Seq[BlogPostMeta] = {
 
-    import cats.std.list._
+    import cats.instances.list._
     import cats.syntax.traverse._
 
     val validated: Seq[Xor[BlogLoadingFailed, BlogPostMeta]] = posts map { post =>
