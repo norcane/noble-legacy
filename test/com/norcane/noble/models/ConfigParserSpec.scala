@@ -46,12 +46,13 @@ class ConfigParserSpec extends mutable.Specification with Matchers {
   private val testValue: String = "testValue"
 
   private def initTestBlogConfig: BlogConfig = BlogConfig(
-    name = testName, path = testPath, storageConfig = StorageConfig(
+    name = testName, path = testPath, reloadToken = Some("token1"), storageConfig = StorageConfig(
       testType, Some(Configuration("testKey" -> testValue).underlying))
   )
 
   private def initTestConfiguration: Configuration = Configuration(
     "path" -> testPath,
+    "reloadToken" -> "token1",
     "storage" -> Map(
       "type" -> testType,
       "config" -> Map(

@@ -23,7 +23,9 @@ package com.norcane.noble.api.models
   *
   * @param name          internal name of the blog
   * @param path          the path of the blog
+  * @param reloadToken   token used to authenticate blog reload requests
   * @param storageConfig configuration of blog storage
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class BlogConfig(name: String, path: String, storageConfig: StorageConfig)
+case class BlogConfig(name: String, path: String, reloadToken: Option[String],
+                      storageConfig: StorageConfig)

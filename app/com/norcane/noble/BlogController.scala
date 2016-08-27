@@ -24,7 +24,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.stream.scaladsl.StreamConverters
 import akka.util.Timeout
-import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, RenderPostContent}
+import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, ReloadBlog, RenderPostContent}
 import com.norcane.noble.api.models.dates.{Day, Month}
 import com.norcane.noble.api.models._
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
@@ -37,8 +37,8 @@ import play.api.mvc._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogReverseRouter,
-                     val messagesApi: MessagesApi)
+class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[BlogTheme],
+                     router: BlogReverseRouter, val messagesApi: MessagesApi)
   extends I18nSupport with Results {
 
   private implicit val defaultTimeout = Timeout(10.seconds)
@@ -95,6 +95,15 @@ class BlogController(blogActor: ActorRef, themes: Set[BlogTheme], router: BlogRe
           MimeTypes.forFileName(path)
         )))
       case _ => Future.successful(NotFound)
+    }
+  }
+
+  def reload(reloadToken: String) = BlogAction { implicit req =>
+    blogConfig.reloadToken match {
+      case Some(token) if token == reloadToken =>
+        blogActor ! ReloadBlog(req.blog.hash)
+        Ok
+      case _ => Forbidden
     }
   }
 

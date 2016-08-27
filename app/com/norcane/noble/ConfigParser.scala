@@ -54,12 +54,13 @@ object ConfigParser {
     */
   def parseBlogConfig(blogName: String, config: Configuration): String Xor BlogConfig = {
     val path: String = config.getString("path").getOrElse("/blog")
+    val reloadToken: Option[String] = config.getString("reloadToken")
     val storageCfgXor: String Xor Configuration = Xor.fromOption(config.getConfig("storage"),
       "missing storage configuration")
 
     for {
       storageCfg <- storageCfgXor
       storageConfig <- parseStorageConfig(storageCfg)
-    } yield BlogConfig(blogName, path, storageConfig)
+    } yield BlogConfig(blogName, path, reloadToken, storageConfig)
   }
 }

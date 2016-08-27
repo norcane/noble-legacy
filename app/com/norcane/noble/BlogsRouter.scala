@@ -41,7 +41,7 @@ class BlogsRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleR
       val globalAssetsPath: String = s"$prefix/${Keys.Defaults.GlobalAssetsPrefix}"
       val reverseRouter: BlogReverseRouter = new BlogReverseRouter(blogPath, globalAssetsPath)
       val controller: BlogController = new BlogController(
-        blog.actor, noble.themes, reverseRouter, messages)
+        blog.actor, blog.config, noble.themes, reverseRouter, messages)
       new BlogRouter(controller).withPrefix(blog.config.path)
     }
 
@@ -97,6 +97,10 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
     // assets
     case GET(p"/assets/$path*") =>
       controller.asset(path)
+
+    // blog reload requests
+    case POST(p"/reload/$reloadToken") =>
+      controller.reload(reloadToken)
   }
 
   override def withPrefix(prefix: String): Router =

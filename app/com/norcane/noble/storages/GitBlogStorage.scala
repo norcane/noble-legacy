@@ -82,6 +82,10 @@ class GitBlogStorage(config: GitStorageConfig,
   private val git: Git = new Git(repository)
 
   override def currentHash: String = {
+    // fetch actual commit from remote (if available)
+    config.remote foreach (git.fetch().setRemote(_).call())
+
+    // and return the last commit ID
     val ref: String = config.remote.map("refs/remotes/" + _ + "/").getOrElse("") + config.branch
     Option(repository.findRef(ref)).map(_.getObjectId.name()).getOrElse(
       throw new RuntimeException(s"Cannot find ref '$ref' in repository '${config.gitRepo}'"))

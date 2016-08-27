@@ -18,15 +18,16 @@
 
 package com.norcane.noble.actors
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import cats.data.Xor
+import com.norcane.noble.actors.BlogActor.ReloadBlog
 import com.norcane.noble.api.models.{Blog, BlogInfo, BlogPostMeta}
 import com.norcane.noble.api.{BlogStorage, BlogStorageError, FormatSupport}
 
 import scala.concurrent.blocking
 
 class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSupport])
-  extends Actor {
+  extends Actor with ActorLogging {
 
   import BlogLoaderActor._
 
@@ -36,6 +37,15 @@ class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSu
         case Xor.Left(err) => sender ! err
         case Xor.Right(blog) => sender ! BlogLoaded(blog)
       }
+    }
+    case ReloadBlog(lastUsedHash) => blocking {
+      if (lastUsedHash != storage.currentHash) {
+        log.info("New blog version available, reloading blog...")
+        loadBlog match {
+          case Xor.Left(err) => sender ! err
+          case Xor.Right(blog) => sender ! BlogLoaded(blog)
+        }
+      } else log.info("Already using the latest version of blog, reloading cancelled")
     }
   }
 
