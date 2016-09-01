@@ -18,7 +18,7 @@
 
 package com.norcane.noble.api.models
 
-import java.time.{LocalDate, ZoneId}
+import java.time.ZonedDateTime
 
 import com.norcane.noble.api.astral.Astral
 import play.utils.UriEncoding
@@ -41,7 +41,7 @@ import play.utils.UriEncoding
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
 case class BlogPostMeta(id: String, author: String, format: String, title: String,
-                        permalinkTitle: String, date: LocalDate, tags: Set[String],
+                        permalinkTitle: String, date: ZonedDateTime, tags: Set[String],
                         properties: Astral) {
 
   def permalink: String = "/%04d/%02d/%02d/%s".format(
@@ -54,6 +54,5 @@ case class BlogPostMeta(id: String, author: String, format: String, title: Strin
   * Companion object for the [[BlogPostMeta]] class.
   */
 object BlogPostMeta {
-  implicit val ordering = Ordering.by((post: BlogPostMeta) =>
-    post.date.atStartOfDay(ZoneId.systemDefault()).toEpochSecond)
+  implicit val ordering = Ordering.by((post: BlogPostMeta) => post.date.toEpochSecond)
 }

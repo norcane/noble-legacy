@@ -19,7 +19,7 @@
 package com.norcane.noble.storages
 
 import java.io.File
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import javax.inject.Singleton
 
 import cats.data.Xor
@@ -187,7 +187,8 @@ class GitBlogStorage(config: GitStorageConfig,
       filename match {
         case DateAndTitleExtractor(AsInt(year), AsInt(month), AsInt(day), title) =>
           val id: String = s"$filename.$extension"
-          Xor.right(BlogPostRecord(id, LocalDate.of(year, month, day), title, title, extension))
+          val date: ZonedDateTime = LocalDate.of(year, month, day).atStartOfDay(ZoneId.of("UTC"))
+          Xor.right(BlogPostRecord(id, date, title, title, extension))
         case _ => Xor.left(
           BlogStorageError(s"cannot parse date and title for file '$filename.$extension'"))
       }

@@ -18,8 +18,6 @@
 
 package com.norcane.noble.astral
 
-import java.time.LocalDate
-
 import com.norcane.noble.api.astral.Astral
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
@@ -66,10 +64,6 @@ class YamlParserSpec extends mutable.Specification with Matchers {
     "properly parse nested ASTral object" >> {
       parsedYaml.get.get[Astral]("testMap")
         .flatMap(yaml => yaml.get[String]("key1")) must beEqualTo(Some("value1"))
-    }
-
-    "properly parse Java8's LocalDate" >> {
-      parsedYaml.get.get[LocalDate]("testDate") must beEqualTo(Some(LocalDate.of(2016, 7, 26)))
     }
   }
 }

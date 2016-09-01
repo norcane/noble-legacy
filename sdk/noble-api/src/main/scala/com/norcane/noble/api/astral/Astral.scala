@@ -18,9 +18,6 @@
 
 package com.norcane.noble.api.astral
 
-import java.time.{LocalDate, ZoneId}
-import java.util.Date
-
 import scala.annotation.{implicitNotFound, tailrec}
 import scala.util.Try
 
@@ -153,13 +150,6 @@ object Astral {
       */
     implicit val astral: AstralType[Astral] = AstralType {
       case astral: Astral => astral
-    }
-
-    /**
-      * Provides support for reading Java 8's `LocalDate` date value.
-      */
-    implicit val localDateValue: AstralType[LocalDate] = AstralType {
-      case date: Date => date.toInstant.atZone(ZoneId.systemDefault()).toLocalDate
     }
   }
 

@@ -19,11 +19,12 @@
 package com.norcane.noble.formatsupport
 
 import java.io.InputStream
-import java.time.LocalDate
+import java.time.{ZoneId, ZonedDateTime}
+import java.util.Date
 import javax.inject.Singleton
 
 import cats.data.Xor
-import com.norcane.noble.api.astral.Astral
+import com.norcane.noble.api.astral.{Astral, AstralType}
 import com.norcane.noble.api.models.BlogPostMeta
 import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
 import com.norcane.noble.astral.{RawYaml, YamlParser}
@@ -77,11 +78,12 @@ class MarkdownFormatSupport extends FormatSupport {
                               record: BlogPostRecord): FormatSupportError Xor BlogPostMeta = {
 
     import Astral.Defaults._
+    import MarkdownFormatSupport.zonedDateTimeValue
 
     val properties: Astral = Astral(
       frontMatter.underlying -- Seq("author", "title", "date", "tags"))
     val title: String = frontMatter.get[String]("title").getOrElse(record.title)
-    val date: LocalDate = frontMatter.get[LocalDate]("date").getOrElse(record.date)
+    val date: ZonedDateTime = frontMatter.get[ZonedDateTime]("date").getOrElse(record.date)
     val tags: Set[String] = frontMatter.get[String]("tags").toSet[String]
       .flatMap(_.split(" +").map(_.replace('+', ' ')))
 
@@ -108,5 +110,18 @@ class MarkdownFormatSupport extends FormatSupport {
         }
       case _ => Xor.left(FormatSupportError(s"Missing YAML front matter in blog post '$title'"))
     }
+  }
+}
+
+/**
+  * Companion object for the [[MarkdownFormatSupport]] class.
+  */
+object MarkdownFormatSupport {
+
+  /**
+    * Provides ''ASTral'' support for reading value of type `ZonedTimeData`.
+    */
+  implicit val zonedDateTimeValue: AstralType[ZonedDateTime] = AstralType {
+    case date: Date => date.toInstant.atZone(ZoneId.of("UTC"))
   }
 }

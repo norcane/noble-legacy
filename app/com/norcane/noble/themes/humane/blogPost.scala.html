@@ -11,7 +11,7 @@
     <article>
       <h1>@post.meta.title</h1>
       <div class="post-meta">
-        posted on <span>@post.meta.date</span> by <span>@post.author.name</span>
+        posted on <span>@post.meta.date.toLocalDate</span> by <span>@post.author.name</span>
       </div>
       <div class="content">@Html(post.content)</div>
     </article>

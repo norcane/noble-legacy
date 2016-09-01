@@ -19,7 +19,7 @@
 package com.norcane.noble.api
 
 import java.io.InputStream
-import java.time.LocalDate
+import java.time.ZonedDateTime
 
 import cats.data.Xor
 import com.norcane.noble.api.models.BlogPostMeta
@@ -41,5 +41,5 @@ trait FormatSupport {
 
 case class FormatSupportError(message: String, cause: Option[Throwable] = None)
 
-case class BlogPostRecord(id: String, date: LocalDate, title: String, permalinkTitle: String,
+case class BlogPostRecord(id: String, date: ZonedDateTime, title: String, permalinkTitle: String,
                           postType: String)

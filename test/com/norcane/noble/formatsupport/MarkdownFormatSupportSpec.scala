@@ -18,7 +18,7 @@
 
 package com.norcane.noble.formatsupport
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 
 import cats.data.Xor
 import com.norcane.noble.api.astral.Astral
@@ -37,7 +37,7 @@ class MarkdownFormatSupportSpec extends mutable.Specification with Matchers {
 
   private val testBlogPostPath: String = "/2016-07-26-test-article.md"
   private val formatSupport: MarkdownFormatSupport = new MarkdownFormatSupport()
-  private val testDate: LocalDate = LocalDate.of(2016, 7, 26)
+  private val testDate: ZonedDateTime = LocalDate.of(2016, 7, 26).atStartOfDay(ZoneId.of("UTC"))
   private val testTitle: String = "test-article"
   private val metadata: FormatSupportError Xor BlogPostMeta = formatSupport.extractPostMetadata(
     getClass.getResourceAsStream(testBlogPostPath),
