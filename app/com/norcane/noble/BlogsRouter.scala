@@ -98,6 +98,10 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
     case GET(p"/assets/$path*") =>
       controller.asset(path)
 
+    // atom feed
+    case GET(p"/atom.xml") =>
+      controller.atom
+
     // blog reload requests
     case POST(p"/reload/$reloadToken") =>
       controller.reload(reloadToken)

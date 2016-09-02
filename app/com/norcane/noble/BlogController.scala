@@ -98,6 +98,18 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     }
   }
 
+  def atom = BlogAction.async { implicit req =>
+    val posts: Seq[BlogPostMeta] = req.blog.posts.take(5)
+
+    Future.sequence(posts map { postMeta =>
+      (blogActor ? RenderPostContent(req.blog, postMeta)).mapTo[Option[String]]
+        .map(createBlogPost(postMeta, _, req.blog))
+    }).map { loaded =>
+      val posts: Seq[BlogPost] = loaded flatMap (_.toSeq)
+      Ok(com.norcane.noble.atom.xml.atom(req.blog, router, posts))
+    }
+  }
+
   def reload(reloadToken: String) = BlogAction { implicit req =>
     blogConfig.reloadToken match {
       case Some(token) if token == reloadToken =>

@@ -46,6 +46,8 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
 
   def asset(file: String): Call = Call("GET", s"$path/assets/$file")
 
+  def atom: Call = Call("GET", s"$path/atom.xml")
+
   def reload(reloadToken: String): Call = Call("POST", s"$path/reload/$reloadToken")
 
   def webJarAsset(file: String): Call = {
