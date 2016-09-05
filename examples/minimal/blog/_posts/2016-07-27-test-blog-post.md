@@ -44,7 +44,7 @@ Below is the code block:
 
 Github Flavoured Markdown fenced code block:
 
-```
+```scala
   val x: String = "hello, world!"
 ```
 

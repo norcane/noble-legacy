@@ -65,8 +65,7 @@ class MarkdownFormatSupport extends FormatSupport {
   private def markdownToHtml(input: String): String = md2html(input)
 
   private def extractContent(is: InputStream, title: String): FormatSupportError Xor String = {
-    val lines: Iterator[String] = Source.fromInputStream(is).getLines()
-      .map(_.trim).dropWhile(_.isEmpty)
+    val lines: Iterator[String] = Source.fromInputStream(is).getLines().dropWhile(_.trim.isEmpty)
     lines.nextOption match {
       case Some(FrontMatterSeparator) =>
         Xor.right(lines.dropWhile(_ != FrontMatterSeparator).drop(1).mkString("\n"))

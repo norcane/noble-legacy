@@ -18,7 +18,7 @@
 
 package com.norcane.noble.utils
 
-import org.pegdown.PegDownProcessor
+import org.pegdown.{Extensions, PegDownProcessor}
 
 /**
   * Simple utility object, providing support for parsing the ''Markdown'' text into the ''HTML''
@@ -34,6 +34,8 @@ object MarkdownProcessor {
     * @param input input ''Markdown'' text
     * @return ''HTML'' output
     */
-  def md2html(input: String): String = new PegDownProcessor().markdownToHtml(input)
+  def md2html(input: String): String = new PegDownProcessor(
+    Extensions.FENCED_CODE_BLOCKS
+  ).markdownToHtml(input)
 
 }
