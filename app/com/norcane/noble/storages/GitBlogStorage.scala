@@ -109,6 +109,7 @@ class GitBlogStorage(config: GitStorageConfig,
       subtitle = info.get[String]("subtitle"),
       authors = authors,
       description = info.get[String]("description"),
+      copyright = info.get[String]("copyright"),
       themeName = themeName,
       properties = info
     )

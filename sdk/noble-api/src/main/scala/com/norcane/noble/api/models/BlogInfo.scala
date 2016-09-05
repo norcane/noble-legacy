@@ -31,9 +31,11 @@ import com.norcane.noble.api.astral.Astral
   * @param subtitle    blog subtitle (optional)
   * @param authors     blog authors (at least one)
   * @param description short blog description (optional)
+  * @param copyright   copyright info (optional)
   * @param themeName   name of the theme to use
   * @param properties  blog properties (includes the values extracted into fields of this class)
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
 case class BlogInfo(title: String, subtitle: Option[String], authors: Seq[BlogAuthor],
-                    description: Option[String], themeName: String, properties: Astral)
+                    description: Option[String], copyright: Option[String],
+                    themeName: String, properties: Astral)

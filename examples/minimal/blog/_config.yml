@@ -7,6 +7,9 @@ subtitle: based on the Humane theme
 ## Name of used blog theme. This uses the default bundled theme called 'humane'
 theme: humane
 
+## Blog copyright info (optional)
+copyright: Copyright © 2016 John Smith
+
 ## Blog authors (at least one author per blog must be defined)
 authors:
 
