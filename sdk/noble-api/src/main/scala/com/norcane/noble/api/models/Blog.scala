@@ -22,14 +22,29 @@ import com.norcane.noble.api.models.dates.{Day, Month, Year}
 
 import scala.collection.immutable.SortedMap
 
-class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
+/**
+  * Represents the single blog. Each blog consists of unique version ID, blog info and collection of
+  * blog posts. Blog version ID is immutable and is used during blog reloading to compare whether
+  * any part of the blog (blog posts, configuration) has changed from actual state. Blog info
+  * represents further details about the blog, such as blog title, used theme, author(s), etc.
+  * Collection of blog posts holds loaded metadata for all blog posts available for this blog.
+  *
+  * @param versionId unique version ID of the current blog instance
+  * @param info      blog info (e.g. title, used theme)
+  * @param blogPosts collection of all blog's posts (as metadata only)
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
+class Blog(val versionId: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
 
-  private val sorted: Seq[BlogPostMeta] = blogPosts.sorted.reverse
+  /**
+    * Sorted collection of all blog posts (metadata only).
+    */
+  val posts: Seq[BlogPostMeta] = blogPosts.sorted.reverse
 
   /**
     * Collection of blog posts, sorted by years of publishing.
     */
-  val years: Seq[Year] = sorted.groupBy(_.date.getYear).map { byYear =>
+  val years: Seq[Year] = posts.groupBy(_.date.getYear).map { byYear =>
     val (year, yearPosts) = byYear
 
     val months: SortedMap[Int, Month] =
@@ -53,7 +68,7 @@ class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
     * Represents the map of tags, where key is the tag name and value collection of blog posts
     * for the tag.
     */
-  val tags: Map[String, Seq[BlogPostMeta]] = sorted
+  val tags: Map[String, Seq[BlogPostMeta]] = posts
     .flatMap(postMeta => postMeta.tags map (_ -> postMeta))
     .groupBy(_._1).mapValues(_ map (_._2))
 
@@ -65,13 +80,23 @@ class Blog(val hash: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
     val rankFactor: Double = Math.max(1.0, 10.0 / tags.map(_._2.size).fold(0)(Math.max))
 
     tags.map {
-      case (tag, posts) => Tag(tag, posts.size, Math.ceil(rankFactor * posts.size).toInt)
+      case (tag, postsMeta) => Tag(tag, postsMeta.size, Math.ceil(rankFactor * postsMeta.size).toInt)
     }.toSeq.sortBy(_.name)
   }
 
-  def posts: Seq[BlogPostMeta] = sorted
-
+  /**
+    * Returns collection of all blog posts, published in the specified year.
+    *
+    * @param year year of publication
+    * @return collection of all blog posts, published in the specified year
+    */
   def forYear(year: Int): Year = years.find(_.year == year).getOrElse(Year.empty(year))
 
+  /**
+    * Returns collection of all blog posts for specified tag.
+    *
+    * @param name name of the tag
+    * @return collection of all blog posts for specified tag
+    */
   def forTag(name: String): Option[Seq[BlogPostMeta]] = tags.get(name)
 }

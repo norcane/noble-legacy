@@ -113,7 +113,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   def reload(reloadToken: String) = BlogAction { implicit req =>
     blogConfig.reloadToken match {
       case Some(token) if token == reloadToken =>
-        blogActor ! ReloadBlog(req.blog.hash)
+        blogActor ! ReloadBlog(req.blog.versionId)
         Ok
       case _ => Forbidden
     }
@@ -179,7 +179,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     }
 
     private def eTagFor(blog: Blog): String =
-      blog.hash.take(8) + blog.info.themeName.take(8)
+      blog.versionId.take(8) + blog.info.themeName.take(8)
   }
 
   case class ThemeNotFoundError(message: String, cause: Option[Throwable] = None)

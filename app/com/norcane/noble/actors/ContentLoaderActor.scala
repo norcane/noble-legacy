@@ -36,7 +36,7 @@ class ContentLoaderActor(storage: BlogStorage) extends Actor with ActorLogging {
   }
 
   private def loadAsset(blog: Blog, path: String): Option[ContentStream] = blocking {
-    storage.loadAsset(blog.hash, path) match {
+    storage.loadAsset(blog.versionId, path) match {
       case Xor.Right(stream) => Some(stream)
       case Xor.Left(err) =>
         log.error(err.cause.orNull, err.message)
@@ -45,7 +45,7 @@ class ContentLoaderActor(storage: BlogStorage) extends Actor with ActorLogging {
   }
 
   private def loadPostContent(blog: Blog, post: BlogPostMeta): Option[String] = blocking {
-    storage.loadPostContent(blog.hash, post) match {
+    storage.loadPostContent(blog.versionId, post) match {
       case Xor.Right(content) => Some(content)
       case Xor.Left(err) =>
         log.error(err.cause.orNull, err.message)

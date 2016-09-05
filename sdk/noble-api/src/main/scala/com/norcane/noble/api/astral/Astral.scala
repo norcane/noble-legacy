@@ -66,7 +66,7 @@ case class Astral(underlying: Map[String, Any]) {
 
   /**
     * Checks whether the value of the type `T` for given `key` exists. To check the existence of
-    * value regardless its type, use [[Any]] as value type.
+    * value regardless its type, use `Any` as value type.
     *
     * = Example of use =
     * {{{

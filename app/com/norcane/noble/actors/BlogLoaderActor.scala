@@ -39,7 +39,7 @@ class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSu
       }
     }
     case ReloadBlog(lastUsedHash) => blocking {
-      if (lastUsedHash != storage.currentHash) {
+      if (lastUsedHash != storage.currentVersionId) {
         log.info("New blog version available, reloading blog...")
         loadBlog match {
           case Xor.Left(err) => sender ! err
@@ -50,16 +50,16 @@ class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSu
   }
 
   private def loadBlog: BlogLoadingFailed Xor Blog = {
-    val hash: String = storage.currentHash
+    val versionId: String = storage.currentVersionId
 
     def wrapErr[T](xor: BlogStorageError Xor T): BlogLoadingFailed Xor T =
       xor.leftMap(err => BlogLoadingFailed(err.message, err.cause))
 
     for {
-      blogInfo <- wrapErr(storage.loadInfo(hash))
-      blogPosts <- wrapErr(storage.loadBlogPosts(hash))
+      blogInfo <- wrapErr(storage.loadInfo(versionId))
+      blogPosts <- wrapErr(storage.loadBlogPosts(versionId))
       validatedBlogPosts <- validateBlogPosts(blogPosts, blogInfo)
-    } yield new Blog(hash, blogInfo, validatedBlogPosts)
+    } yield new Blog(versionId, blogInfo, validatedBlogPosts)
   }
 
   private def validateBlogPosts(posts: Seq[BlogPostMeta],
