@@ -40,4 +40,7 @@ trait BlogTheme {
 
   def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost)
               (implicit header: RequestHeader, messages: Messages): Html
+
+  def notFound(blog: Blog, router: BlogReverseRouter)
+              (implicit header: RequestHeader, messages: Messages): Html
 }

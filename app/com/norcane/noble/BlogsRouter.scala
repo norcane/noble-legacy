@@ -105,6 +105,10 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
     // blog reload requests
     case POST(p"/reload/$reloadToken") =>
       controller.reload(reloadToken)
+
+    // in case that none of routes match, return 404 not found
+    case other =>
+      controller.notFound
   }
 
   override def withPrefix(prefix: String): Router =

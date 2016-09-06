@@ -1,0 +1,12 @@
+@(
+        blog: com.norcane.noble.api.models.Blog,
+        router: com.norcane.noble.api.BlogReverseRouter,
+        humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
+)(implicit m: Messages)
+
+@com.norcane.noble.themes.humane.html.main(blog, router, Some(Messages("noble.humane.not-found")), None, humaneProps) {
+  <div class="not-found">
+    <h1>404</h1>
+    <h2>@Messages("noble.humane.not-found")</h2>
+  </div>
+}

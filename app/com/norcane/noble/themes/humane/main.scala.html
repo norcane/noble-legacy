@@ -30,9 +30,13 @@
 
       <div class="content-wrapper">
         <div class="content">
-          @com.norcane.noble.themes.humane.fragments.html.commandBar(router, title, pagination)
+          @if(humaneProps.toolbar.displayOnTop) {
+            @com.norcane.noble.themes.humane.fragments.html.commandBar(router, title, pagination)
+          }
           @content
-          @com.norcane.noble.themes.humane.fragments.html.commandBar(router, title, pagination)
+          @if(humaneProps.toolbar.displayOnBottom) {
+            @com.norcane.noble.themes.humane.fragments.html.commandBar(router, title, pagination)
+          }
         </div>
         <aside>
 
@@ -53,7 +57,7 @@
 
     <footer>
       <div class="copyright">
-        @blog.info.copyright.getOrElse("")
+      @blog.info.copyright.getOrElse("")
       </div>
       <div>
         Powered by the <a href="#">noble</a> blog engine.

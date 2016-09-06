@@ -55,9 +55,9 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
 
           case Some(blogPost) =>
             Ok(themeByName(req.blog.info.themeName).blogPost(req.blog, router, blogPost))
-          case None => notFound
+          case None => notFoundResp(req.blog)
         }
-      case None => Future.successful(notFound)
+      case None => Future.successful(notFoundResp(req.blog))
     }
   }
 
@@ -119,7 +119,12 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     }
   }
 
-  def notFound = NotFound
+  def notFound = BlogAction { implicit req =>
+    notFoundResp(req.blog)
+  }
+
+  private def notFoundResp(blog: Blog)(implicit header: RequestHeader) =
+    NotFound(themeByName(blog.info.themeName).notFound(blog, router))
 
   private def message(key: String, args: Any*)(implicit header: RequestHeader): String =
     messagesApi.preferred(header).apply(key, args: _*)

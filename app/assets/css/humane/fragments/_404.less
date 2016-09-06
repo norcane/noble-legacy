@@ -1,0 +1,57 @@
+@import "_shared";
+
+.not-found {
+  // Appearance
+  text-align: center;
+}
+
+.not-found > h1 {
+  // Positioning
+  margin: 0;
+
+  // Appearance
+  font-family: "Oswald", sans-serif;
+  color: @color_gray;
+}
+
+.not-found > h2 {
+  // Positioning
+  margin: 0;
+
+  // Appearance
+  text-transform: lowercase;
+}
+
+@media (min-width: 320px) {
+  .not-found {
+    // Positioning
+    margin: 50px 0;
+  }
+
+  .not-found > h1 {
+    // Appearance
+    font-size: 3em;
+  }
+
+  .not-found > h2 {
+    // Appearance
+    font-size: 1.5em;
+  }
+}
+
+@media (min-width: 1000px) {
+  .not-found {
+    // Positioning
+    margin: 100px 0 0 0;
+  }
+
+  .not-found > h1 {
+    // Appearance
+    font-size: 4em;
+  }
+
+  .not-found > h2 {
+    // Appearance
+    font-size: 2em;
+  }
+}

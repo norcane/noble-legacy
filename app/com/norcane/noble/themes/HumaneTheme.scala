@@ -22,9 +22,9 @@ import javax.inject.Singleton
 
 import com.norcane.noble.api.models.{Blog, BlogAuthor, BlogPost, Pagination}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
-import com.norcane.noble.themes.HumaneTheme.HumaneProps
+import com.norcane.noble.themes.HumaneTheme.{HumaneProps, Toolbar}
 import play.api.i18n.Messages
-import play.api.mvc.{Call, RequestHeader}
+import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 
 @Singleton
@@ -45,26 +45,36 @@ class HumaneTheme extends BlogTheme {
                          posts: Seq[BlogPost], pagination: Pagination)
                         (implicit header: RequestHeader, messages: Messages): Html = {
 
-    val singleAuthor: Option[BlogAuthor] = for {
-      author <- blog.info.authors.headOption if blog.info.authors.size == 1
-    } yield author.copy(biography = author.biography map md2html)
-
     com.norcane.noble.themes.humane.html.blogPosts(
-      blog, router, title, posts, pagination, HumaneProps(singleAuthor))
+      blog, router, title, posts, pagination,
+      HumaneProps(singleAuthor(blog), Toolbar()))
   }
 
   override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost)
                        (implicit header: RequestHeader, messages: Messages): Html = {
 
     com.norcane.noble.themes.humane.html.blogPost(blog, router, post,
-      HumaneProps(Some(post.author)))
+      HumaneProps(Some(post.author), Toolbar(displayOnBottom = false)))
   }
+
+  override def notFound(blog: Blog, router: BlogReverseRouter)
+                       (implicit header: RequestHeader, messages: Messages): Html = {
+
+    com.norcane.noble.themes.humane.html.notFound(blog, router,
+      HumaneProps(singleAuthor(blog), Toolbar(displayOnBottom = false)))
+  }
+
+  private def singleAuthor(blog: Blog): Option[BlogAuthor] = for {
+    author <- blog.info.authors.headOption if blog.info.authors.size == 1
+  } yield author.copy(biography = author.biography map md2html)
 }
 
 object HumaneTheme {
 
   val ThemeName: String = "humane"
 
-  case class HumaneProps(singleAuthor: Option[BlogAuthor])
+  case class HumaneProps(singleAuthor: Option[BlogAuthor], toolbar: Toolbar)
+
+  case class Toolbar(displayOnTop: Boolean = true, displayOnBottom: Boolean = true)
 
 }
