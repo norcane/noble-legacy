@@ -3,4 +3,11 @@ noble.posts-by-year = All posts for {0,number,####}
 noble.posts-by-month = All posts for {1} {0,number,####}
 noble.posts-by-day = All posts for {2,number,#} {1} {0,number,####}
 
+noble.humane.about-the-author = about the author
+noble.humane.home = Home
+noble.humane.navigation = navigation
 noble.humane.not-found = Page not found
+noble.humane.posted-on = posted on
+noble.humane.posted-by = by
+noble.humane.read-full-article = read full article
+noble.humane.tags = tags

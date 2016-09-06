@@ -2,11 +2,11 @@
         router: com.norcane.noble.api.BlogReverseRouter,
         title: Option[String],
         paginationOpt: Option[com.norcane.noble.api.models.Pagination]
-)
+)(implicit m: Messages)
 
 <div class="command-bar">
   <div class="left">
-    <a href="@router.index()">Home</a>@title.map(" / " + _)
+    <a href="@router.index()">@Messages("noble.humane.home")</a>@title.map(" / " + _)
   </div>
   <div class="right">
     @for(pagination <- paginationOpt) {

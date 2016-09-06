@@ -5,8 +5,7 @@
         posts: Seq[com.norcane.noble.api.models.BlogPost],
         pagination: com.norcane.noble.api.models.Pagination,
         humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
-)
-
+)(implicit m: Messages)
 
 @com.norcane.noble.themes.humane.html.main(blog, router, title, Some(pagination), humaneProps) {
 
@@ -15,10 +14,15 @@
     <article class="preview">
       <h1>@post.meta.title</h1>
       <div class="post-meta">
-        posted on <span>@post.meta.date.toLocalDate</span> by <span>@post.author.name</span>
+        @Messages("noble.humane.posted-on")
+      <span>@post.meta.date.toLocalDate</span>
+        @Messages("noble.humane.posted-by")
+      <span>@post.author.name</span>
       </div>
       <div class="content">@Html(post.content)</div>
-      <div class="read-more"><a href="@router.blogPost(post.meta)">read full article</a></div>
+      <div class="read-more">
+        <a href="@router.blogPost(post.meta)">@Messages("noble.humane.read-full-article")</a>
+      </div>
     </article>
   }
   </div>

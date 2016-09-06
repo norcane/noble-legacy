@@ -1,11 +1,11 @@
 @(
         years: Seq[com.norcane.noble.api.models.dates.Year],
         router: com.norcane.noble.api.BlogReverseRouter
-)
+)(implicit m: Messages)
 
 <div class="module navigation">
   <div class="content">
-    <h1><span>navigation</span></h1>
+    <h1><span>@Messages("noble.humane.navigation")</span></h1>
     <ul class="years">
       @for(year <- years) {
         <li>

@@ -3,7 +3,7 @@
         router: com.norcane.noble.api.BlogReverseRouter,
         post: com.norcane.noble.api.models.BlogPost,
         humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
-)
+)(implicit m: Messages)
 
 @com.norcane.noble.themes.humane.html.main(blog, router, Some(post.meta.title), None, humaneProps) {
 
@@ -11,7 +11,10 @@
     <article>
       <h1>@post.meta.title</h1>
       <div class="post-meta">
-        posted on <span>@post.meta.date.toLocalDate</span> by <span>@post.author.name</span>
+        @Messages("noble.humane.posted-on")
+        <span>@post.meta.date.toLocalDate</span>
+        @Messages("noble.humane.posted-by")
+        <span>@post.author.name</span>
       </div>
       <div class="content">@Html(post.content)</div>
     </article>
