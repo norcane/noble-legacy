@@ -133,7 +133,7 @@ class GitBlogStorage(config: GitStorageConfig,
       val Some(stream) = loadStream(versionId, path)
       for {
         postRecord <- parsePostRecord(file)
-        formatSupport <- selectFormatSupport(postRecord.postType)
+        formatSupport <- selectFormatSupport(postRecord.formatName)
         blogPost <- formatSupport.extractPostMetadata(stream.stream, postRecord)
           .leftMap(err => BlogStorageError(err.message, err.cause))
       } yield blogPost
@@ -175,9 +175,9 @@ class GitBlogStorage(config: GitStorageConfig,
     } else Xor.left(BlogStorageError("At least one author must be defined for each blog"))
   }
 
-  private def selectFormatSupport(postType: String): BlogStorageError Xor FormatSupport =
-    Xor.fromOption(formatSupports.get(postType),
-      BlogStorageError(s"no format support available for type '$postType'"))
+  private def selectFormatSupport(formatName: String): BlogStorageError Xor FormatSupport =
+    Xor.fromOption(formatSupports.get(formatName),
+      BlogStorageError(s"no format support available for type '$formatName'"))
 
   private def parsePostRecord(path: String): BlogStorageError Xor BlogPostRecord = {
     def parseFilename: BlogStorageError Xor (String, String) = path match {

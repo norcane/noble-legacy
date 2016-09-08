@@ -76,7 +76,7 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
   }
 
   private def formatSupports: Map[String, FormatSupport] =
-    (formatSupportFactories map (factory => factory.postType -> factory.create)).toMap
+    (formatSupportFactories map (factory => factory.formatName -> factory.create)).toMap
 
   private def findStorage(config: StorageConfig): String Xor BlogStorage = {
     def available: String = if (storageFactories.nonEmpty)

@@ -35,7 +35,7 @@ import scala.util.{Failure, Success}
 @Singleton
 class MarkdownFormatSupportFactory extends FormatSupportFactory {
 
-  override def postType: String = "md"
+  override def formatName: String = "md"
 
   override def create: FormatSupport = new MarkdownFormatSupport()
 }
@@ -89,7 +89,7 @@ class MarkdownFormatSupport extends FormatSupport {
     for {
       author <- Xor.fromOption(frontMatter.get[String]("author"),
         FormatSupportError(s"No author nickname defined for blog post '${record.id}'"))
-    } yield BlogPostMeta(record.id, author, record.postType, title, record.permalinkTitle,
+    } yield BlogPostMeta(record.id, author, record.formatName, title, record.permalinkTitle,
       date, tags, properties)
   }
 
