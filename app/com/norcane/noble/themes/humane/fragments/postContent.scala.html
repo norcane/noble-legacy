@@ -1,0 +1,21 @@
+@(
+        router: com.norcane.noble.api.BlogReverseRouter,
+        post: com.norcane.noble.api.models.BlogPost,
+        previewOnly: Boolean
+)(implicit m: Messages)
+
+<article class="@{if (previewOnly) "preview" else ""}">
+  <h1>@post.meta.title</h1>
+  <div class="post-meta">
+    @Messages("noble.humane.posted-on")
+    <span>@post.meta.date.toLocalDate</span>
+    @Messages("noble.humane.posted-by")
+    <span>@post.author.name</span>
+  </div>
+  <div class="content">@Html(post.content)</div>
+  @if(previewOnly) {
+    <div class="read-more">
+      <a href="@router.blogPost(post.meta)">@Messages("noble.humane.read-full-article")</a>
+    </div>
+  }
+</article>

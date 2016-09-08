@@ -8,16 +8,7 @@
 @com.norcane.noble.themes.humane.html.main(blog, router, Some(post.meta.title), None, humaneProps) {
 
   <div class="posts">
-    <article>
-      <h1>@post.meta.title</h1>
-      <div class="post-meta">
-        @Messages("noble.humane.posted-on")
-        <span>@post.meta.date.toLocalDate</span>
-        @Messages("noble.humane.posted-by")
-        <span>@post.author.name</span>
-      </div>
-      <div class="content">@Html(post.content)</div>
-    </article>
+    @com.norcane.noble.themes.humane.fragments.html.postContent(router, post, false)
   </div>
 
 }

@@ -11,19 +11,7 @@
 
   <div class="posts">
   @for(post <- posts) {
-    <article class="preview">
-      <h1>@post.meta.title</h1>
-      <div class="post-meta">
-        @Messages("noble.humane.posted-on")
-      <span>@post.meta.date.toLocalDate</span>
-        @Messages("noble.humane.posted-by")
-      <span>@post.author.name</span>
-      </div>
-      <div class="content">@Html(post.content)</div>
-      <div class="read-more">
-        <a href="@router.blogPost(post.meta)">@Messages("noble.humane.read-full-article")</a>
-      </div>
-    </article>
+    @com.norcane.noble.themes.humane.fragments.html.postContent(router, post, true)
   }
   </div>
 
