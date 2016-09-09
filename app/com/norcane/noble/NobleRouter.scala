@@ -28,7 +28,7 @@ import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
 
 @Singleton
-class BlogsRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleRouter {
+class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleRouter {
 
   private var prefix: String = ""
 
