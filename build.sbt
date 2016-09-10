@@ -7,7 +7,7 @@ description := "norcane blog engine"
 
 version := "0.1.0-SNAPSHOT"
 
-organization := "com.norcane"
+organization := "com.norcane.noble"
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
@@ -33,6 +33,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 lazy val nobleApi = (project in file("sdk/noble-api"))
   .settings(
+    name := "noble-api",
     libraryDependencies ++= Seq(
       specs2 % Test,
       "net.codingwell" %% "scala-guice" % "4.0.1",
