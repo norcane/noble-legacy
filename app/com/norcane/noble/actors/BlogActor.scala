@@ -31,7 +31,7 @@ class BlogActor(storage: BlogStorage,
                 formatSupports: Map[String, FormatSupport]) extends Actor with ActorLogging {
 
   private val blogLoaderActor: ActorRef = context.actorOf(
-    BlogLoaderActor.props(storage, formatSupports))
+    BlogLoaderActor.props(blogConfig, storage, formatSupports))
 
   private val contentLoaderActors: ActorRef = context.actorOf(
     ContentLoaderActor.props(storage)

@@ -29,12 +29,14 @@ import scala.collection.immutable.SortedMap
   * represents further details about the blog, such as blog title, used theme, author(s), etc.
   * Collection of blog posts holds loaded metadata for all blog posts available for this blog.
   *
+  * @param name      unique internal name of the blog
   * @param versionId unique version ID of the current blog instance
   * @param info      blog info (e.g. title, used theme)
   * @param blogPosts collection of all blog's posts (as metadata only)
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-class Blog(val versionId: String, val info: BlogInfo, blogPosts: Seq[BlogPostMeta]) {
+class Blog(val name: String, val versionId: String, val info: BlogInfo,
+           blogPosts: Seq[BlogPostMeta]) {
 
   /**
     * Sorted collection of all blog posts (metadata only).

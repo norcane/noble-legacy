@@ -21,13 +21,13 @@ package com.norcane.noble.actors
 import akka.actor.{Actor, ActorLogging, Props}
 import cats.data.Xor
 import com.norcane.noble.actors.BlogActor.ReloadBlog
-import com.norcane.noble.api.models.{Blog, BlogInfo, BlogPostMeta}
+import com.norcane.noble.api.models.{Blog, BlogConfig, BlogInfo, BlogPostMeta}
 import com.norcane.noble.api.{BlogStorage, BlogStorageError, FormatSupport}
 
 import scala.concurrent.blocking
 
-class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSupport])
-  extends Actor with ActorLogging {
+class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
+                      formatSupports: Map[String, FormatSupport]) extends Actor with ActorLogging {
 
   import BlogLoaderActor._
 
@@ -59,7 +59,7 @@ class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSu
       blogInfo <- wrapErr(storage.loadInfo(versionId))
       blogPosts <- wrapErr(storage.loadBlogPosts(versionId))
       validatedBlogPosts <- validateBlogPosts(blogPosts, blogInfo)
-    } yield new Blog(versionId, blogInfo, validatedBlogPosts)
+    } yield new Blog(config.name, versionId, blogInfo, validatedBlogPosts)
   }
 
   private def validateBlogPosts(posts: Seq[BlogPostMeta],
@@ -82,8 +82,9 @@ class BlogLoaderActor(storage: BlogStorage, formatSupports: Map[String, FormatSu
 
 object BlogLoaderActor {
 
-  def props(storage: BlogStorage, formatSupports: Map[String, FormatSupport]): Props =
-    Props(new BlogLoaderActor(storage, formatSupports))
+  def props(config: BlogConfig, storage: BlogStorage,
+            formatSupports: Map[String, FormatSupport]): Props =
+    Props(new BlogLoaderActor(config, storage, formatSupports))
 
   case class LoadBlog()
 
