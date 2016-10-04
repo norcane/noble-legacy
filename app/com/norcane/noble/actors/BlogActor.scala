@@ -80,7 +80,7 @@ object BlogActor {
 
   case class ReloadBlog(lastUsedHash: String)
 
-  case class RenderPostContent(blog: Blog, post: BlogPostMeta)
+  case class RenderPostContent(blog: Blog, post: BlogPostMeta, placeholders: Map[String, Any])
 
   case class LoadAsset(blog: Blog, path: String)
 

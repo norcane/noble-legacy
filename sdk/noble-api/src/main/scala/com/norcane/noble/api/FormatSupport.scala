@@ -75,13 +75,19 @@ trait FormatSupport {
 
   /**
     * Extracts and parses the blog post content from raw stream. Output of this method should always
-    * be the string with parsed HTML blog post content.
+    * be the string with parsed HTML blog post content. Note that implementation of this method
+    * must replace all placeholders with their actual values, using the given `placeholders` map
+    * (as placeholder name -> actual placeholder value). Actual placeholder name syntax
+    * (e.g. `@@foo@@` or `{{foo}}`) is left on this implementation.
     *
-    * @param is   blog post content stream
-    * @param post blog post metadata
+    * @param is           blog post content stream
+    * @param post         blog post metadata
+    * @param placeholders text placeholders (as map of their names and actual values to
+    *                     replace placeholders with)
     * @return extracted and parsed blog post content (in HTML format)
     */
-  def extractPostContent(is: InputStream, post: BlogPostMeta): FormatSupportError Xor String
+  def extractPostContent(is: InputStream, post: BlogPostMeta,
+                         placeholders: Map[String, Any]): FormatSupportError Xor String
 
 }
 

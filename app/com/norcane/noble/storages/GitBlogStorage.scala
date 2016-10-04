@@ -115,11 +115,12 @@ class GitBlogStorage(config: GitStorageConfig,
     )
   }
 
-  override def loadPostContent(versionId: String, post: BlogPostMeta): BlogStorageError Xor String = {
+  override def loadPostContent(versionId: String, post: BlogPostMeta,
+                               placeholders: Map[String, Any]): BlogStorageError Xor String = {
     val Some(stream) = loadStream(versionId, s"$PostsDirName/${post.id}")
     for {
       formatSupport <- selectFormatSupport(post.format)
-      content <- formatSupport.extractPostContent(stream.stream, post)
+      content <- formatSupport.extractPostContent(stream.stream, post, placeholders)
         .leftMap(err => BlogStorageError(err.message, err.cause))
     } yield content
   }

@@ -58,9 +58,19 @@ class MarkdownFormatSupport extends FormatSupport {
     } yield blogPost
   }
 
-  override def extractPostContent(is: InputStream, post: BlogPostMeta): FormatSupportError Xor String = {
-    for (content <- extractContent(is, post.title)) yield markdownToHtml(content)
+  override def extractPostContent(is: InputStream, post: BlogPostMeta,
+                                  placeholders: Map[String, Any]): FormatSupportError Xor String = {
+    for (content <- extractContent(is, post.title))
+      yield markdownToHtml(replaceIn(content, placeholders))
   }
+
+  private def replaceIn(input: String, placeholders: Map[String, Any]): String = {
+    placeholders.foldLeft(input) {
+      case (tmp, (key, value)) => tmp.replaceAll(placeholder(key), value.toString)
+    }
+  }
+
+  private def placeholder(name: String): String = s"@@$name@@"
 
   private def markdownToHtml(input: String): String = md2html(input)
 

@@ -91,11 +91,14 @@ trait BlogStorage {
     * the ID of the content version. Blog post content must be formatted either as a plain text or
     * HTML.
     *
-    * @param versionId version ID
-    * @param post      blog post metadata
+    * @param versionId    version ID
+    * @param post         blog post metadata
+    * @param placeholders text placeholders (as map of their names and actual values to
+    *                     replace placeholders with)
     * @return blog post content or error details in case of failure
     */
-  def loadPostContent(versionId: String, post: BlogPostMeta): BlogStorageError Xor String
+  def loadPostContent(versionId: String, post: BlogPostMeta,
+                      placeholders: Map[String, Any]): BlogStorageError Xor String
 
   /**
     * Loads the collection of all blog posts (metadata only), using the `versionId` parameter as

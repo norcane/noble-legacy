@@ -38,7 +38,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[BlogTheme],
-                     router: BlogReverseRouter, val messagesApi: MessagesApi)
+                     router: BlogReverseRouter, blogPath: String, val messagesApi: MessagesApi)
   extends I18nSupport with Results {
 
   private implicit val defaultTimeout = Timeout(10.seconds)
@@ -50,7 +50,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   def post(year: Int, month: Int, day: Int, permalink: String) = BlogAction.async { implicit req =>
     req.blog.forYear(year).forMonth(month).forDay(day).forPermalink(permalink) match {
       case Some(postMeta) =>
-        (blogActor ? RenderPostContent(req.blog, postMeta))
+        (blogActor ? RenderPostContent(req.blog, postMeta, placeholders))
           .mapTo[Option[String]].map(createBlogPost(postMeta, _, req.blog)) map {
 
           case Some(blogPost) =>
@@ -102,7 +102,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     val posts: Seq[BlogPostMeta] = req.blog.posts.take(5)
 
     Future.sequence(posts map { postMeta =>
-      (blogActor ? RenderPostContent(req.blog, postMeta)).mapTo[Option[String]]
+      (blogActor ? RenderPostContent(req.blog, postMeta, placeholders)).mapTo[Option[String]]
         .map(createBlogPost(postMeta, _, req.blog))
     }).map { loaded =>
       val posts: Seq[BlogPost] = loaded flatMap (_.toSeq)
@@ -122,6 +122,10 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   def notFound = BlogAction { implicit req =>
     notFoundResp(req.blog)
   }
+
+  private def placeholders: Map[String, Any] = Map(
+    Keys.Placeholders.Assets -> s"$blogPath/assets"
+  )
 
   private def notFoundResp(blog: Blog)(implicit header: RequestHeader) =
     NotFound(themeByName(blog.info.themeName).notFound(blog, router))
@@ -148,7 +152,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
 
     // load blog posts content
     Future.sequence(posts.map { postMeta =>
-      (blogActor ? RenderPostContent(req.blog, postMeta)).mapTo[Option[String]]
+      (blogActor ? RenderPostContent(req.blog, postMeta, placeholders)).mapTo[Option[String]]
         .map(createBlogPost(postMeta, _, req.blog))
     }).map { loaded =>
       val theme: BlogTheme = themeByName(req.blog.info.themeName)

@@ -22,6 +22,10 @@ object Keys {
 
   val Namespace: String = getClass.getPackage.getName
 
+  object Placeholders {
+    val Assets: String = "assets"
+  }
+
   object Defaults {
     val GlobalAssetsPrefix: String = "_assets"
   }

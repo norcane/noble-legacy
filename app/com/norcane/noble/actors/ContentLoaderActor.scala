@@ -31,8 +31,10 @@ class ContentLoaderActor(storage: BlogStorage) extends Actor with ActorLogging {
   import BlogActor.RenderPostContent
 
   override def receive: Receive = {
-    case RenderPostContent(blog, post) => sender ! loadPostContent(blog, post)
-    case LoadAsset(blog, path) => sender ! loadAsset(blog, path)
+    case RenderPostContent(blog, post, placeholders) =>
+      sender ! loadPostContent(blog, post, placeholders)
+    case LoadAsset(blog, path) =>
+      sender ! loadAsset(blog, path)
   }
 
   private def loadAsset(blog: Blog, path: String): Option[ContentStream] = blocking {
@@ -44,8 +46,9 @@ class ContentLoaderActor(storage: BlogStorage) extends Actor with ActorLogging {
     }
   }
 
-  private def loadPostContent(blog: Blog, post: BlogPostMeta): Option[String] = blocking {
-    storage.loadPostContent(blog.versionId, post) match {
+  private def loadPostContent(blog: Blog, post: BlogPostMeta,
+                              placeholders: Map[String, Any]): Option[String] = blocking {
+    storage.loadPostContent(blog.versionId, post, placeholders) match {
       case Xor.Right(content) => Some(content)
       case Xor.Left(err) =>
         log.error(err.cause.orNull, err.message)
