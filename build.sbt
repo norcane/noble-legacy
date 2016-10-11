@@ -39,7 +39,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "net.codingwell" %% "scala-guice" % "4.0.1",
       "com.typesafe" % "config" % "1.3.1",
       "org.typelevel" %% "cats" % "0.7.2",
-      "com.typesafe.play" %% "play" % "2.5.8"
+      "com.typesafe.play" %% "play" % "2.5.9"
     )
   )
 
