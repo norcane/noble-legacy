@@ -55,7 +55,7 @@ Github Flavoured Markdown fenced code block:
 ## Images
 Inline image below:
 
-![blue box image](/assets/images/bluebox.png)
+![blue box image](@@assets@@/images/bluebox.png)
 
 
   [1]: http://github.com/norcane/noble

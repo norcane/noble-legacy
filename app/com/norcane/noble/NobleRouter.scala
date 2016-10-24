@@ -95,7 +95,7 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
       controller.tag(name, page)
 
     // assets
-    case GET(p"/assets/$path*") =>
+    case GET(p"/blog-assets/$path*") =>
       controller.asset(path)
 
     // atom feed

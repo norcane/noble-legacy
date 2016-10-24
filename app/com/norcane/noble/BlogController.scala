@@ -124,7 +124,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   }
 
   private def placeholders: Map[String, Any] = Map(
-    Keys.Placeholders.Assets -> s"$blogPath/assets"
+    Keys.Placeholders.Assets -> s"$blogPath/blog-assets"
   )
 
   private def notFoundResp(blog: Blog)(implicit header: RequestHeader) =

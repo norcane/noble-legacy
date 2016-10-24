@@ -118,7 +118,7 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
     * @param filePath path of the blog asset file
     * @return call to blog asset file
     */
-  def asset(filePath: String): Call = Call("GET", s"$path/assets/$filePath")
+  def asset(filePath: String): Call = Call("GET", s"$path/blog-assets/$filePath")
 
   /**
     * Creates call to Atom RSS feed.
