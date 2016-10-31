@@ -21,7 +21,7 @@ package com.norcane.noble
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
-import cats.data.Xor
+import cats.syntax.either._
 import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.api._
 import com.norcane.noble.api.models.StorageConfig
@@ -45,30 +45,29 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
 
   private def loadBlogDefinitions: Seq[BlogDefinition] = {
     logger.info("Loading blog configurations")
-    val blogsConfigKey: String = s"${Keys.Namespace}.blogs"
-    val blogsConfigXor: String Xor Configuration = Xor.fromOption(
-      configuration.getConfig(s"${Keys.Namespace}.blogs"),
+    val blogsConfigKey = s"${Keys.Namespace}.blogs"
+    val blogsConfigE = Either.fromOption(configuration.getConfig(s"${Keys.Namespace}.blogs"),
       s"missing blogs configuration under the '$blogsConfigKey'")
 
-    val blogDefinitionsXor: Xor[String, Seq[BlogDefinition]] = blogsConfigXor map { blogsConfig =>
+    val blogDefinitionsE = blogsConfigE map { blogsConfig =>
       blogsConfig.subKeys.toSeq map { blogName =>
-        val blogCfgXor: String Xor Configuration = Xor.fromOption(
-          blogsConfig.getConfig(blogName), s"invalid configuration for blog '$blogName'")
+        val blogCfgE = Either.fromOption(blogsConfig.getConfig(blogName),
+          s"invalid configuration for blog '$blogName'")
 
-        val blogDefinitionXor: Xor[String, BlogDefinition] = for {
-          blogCfg <- blogCfgXor
+        val blogDefinitionE = for {
+          blogCfg <- blogCfgE
           blogConfig <- ConfigParser.parseBlogConfig(blogName, blogCfg)
           storage <- findStorage(blogConfig.storageConfig)
         } yield BlogDefinition(blogConfig, storage, actorSystem.actorOf(
           BlogActor.props(storage, blogConfig, formatSupports)))
 
-        blogDefinitionXor.fold(
+        blogDefinitionE.fold(
           error => throw InvalidBlogConfigError(s"cannot initialize blog '$blogName': $error"),
           identity)
       }
     }
 
-    blogDefinitionsXor.fold(error => throw InvalidBlogConfigError(error), definitions => {
+    blogDefinitionsE.fold(error => throw InvalidBlogConfigError(error), definitions => {
       val blogNames: Seq[String] = definitions map (_.config.name)
       logger.info(s"Following blogs were successfully loaded: ${blogNames.mkString(",")}")
       definitions
@@ -78,15 +77,15 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
   private def formatSupports: Map[String, FormatSupport] =
     (formatSupportFactories map (factory => factory.formatName -> factory.create)).toMap
 
-  private def findStorage(config: StorageConfig): String Xor BlogStorage = {
-    def available: String = if (storageFactories.nonEmpty)
+  private def findStorage(config: StorageConfig): Either[String, BlogStorage] = {
+    def available = if (storageFactories.nonEmpty) {
       storageFactories.map(_.storageType).mkString(",")
-    else "-no storages registered-"
+    } else "-no storages registered-"
 
     storageFactories.find(_.storageType == config.storageType) match {
       case Some(factory) =>
         factory.create(config, formatSupports).leftMap(_.message)
-      case None => Xor.left(
+      case None => Left(
         s"""Cannot find any registered blog storage factory for type
             |'${config.storageType}' (available types are: $available)"""
           .stripMargin.replaceAll("\n", " "))

@@ -20,7 +20,7 @@ package com.norcane.noble.formatsupport
 
 import java.time.{LocalDate, ZoneId, ZonedDateTime}
 
-import cats.data.Xor
+import cats.syntax.either._
 import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models.BlogPostMeta
 import com.norcane.noble.api.{BlogPostRecord, FormatSupportError}
@@ -39,7 +39,7 @@ class MarkdownFormatSupportSpec extends mutable.Specification with Matchers {
   private val formatSupport: MarkdownFormatSupport = new MarkdownFormatSupport()
   private val testDate: ZonedDateTime = LocalDate.of(2016, 7, 26).atStartOfDay(ZoneId.of("UTC"))
   private val testTitle: String = "test-article"
-  private val metadata: FormatSupportError Xor BlogPostMeta = formatSupport.extractPostMetadata(
+  private val metadata: Either[FormatSupportError, BlogPostMeta] = formatSupport.extractPostMetadata(
     getClass.getResourceAsStream(testBlogPostPath),
     BlogPostRecord("2016-07-26-test-article.md", testDate, testTitle, testTitle, "md")
   )

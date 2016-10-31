@@ -18,9 +18,8 @@
 
 package com.norcane.noble.models
 
-import cats.data.Xor
-import com.norcane.noble.api.models.{BlogConfig, StorageConfig}
 import com.norcane.noble.ConfigParser
+import com.norcane.noble.api.models.{BlogConfig, StorageConfig}
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
 import play.api.Configuration
@@ -36,7 +35,7 @@ class ConfigParserSpec extends mutable.Specification with Matchers {
   s"The $className should" >> {
     s"properly initialize ${BlogConfig.getClass.getSimpleName} from configuration" >> {
       ConfigParser.parseBlogConfig(testName, initTestConfiguration) must
-        beEqualTo(Xor.right(initTestBlogConfig))
+        beEqualTo(Right(initTestBlogConfig))
     }
   }
 

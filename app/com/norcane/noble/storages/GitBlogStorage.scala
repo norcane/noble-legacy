@@ -22,14 +22,15 @@ import java.io.File
 import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import javax.inject.Singleton
 
-import cats.data.Xor
+import cats.instances.either._
+import cats.syntax.either._
 import com.norcane.noble.api._
 import com.norcane.noble.api.astral.{Astral, AstralType}
 import com.norcane.noble.api.models.{BlogAuthor, BlogInfo, BlogPostMeta, StorageConfig}
 import com.norcane.noble.astral.{RawYaml, YamlParser}
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.{ObjectId, Repository, RepositoryBuilder}
-import org.eclipse.jgit.revwalk.{RevTree, RevWalk}
+import org.eclipse.jgit.lib.{ObjectId, RepositoryBuilder}
+import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.{PathFilter, TreeFilter}
 import play.api.Configuration
@@ -46,11 +47,11 @@ class GitBlogStorageFactory extends BlogStorageFactory {
   override def storageType: String = "git"
 
   override def create(config: StorageConfig,
-                      formatSupports: Map[String, FormatSupport]): BlogStorageError Xor BlogStorage = {
+                      formatSupports: Map[String, FormatSupport]): Either[BlogStorageError, BlogStorage] = {
     (for {
-      cfg <- Xor.fromOption(config.config.map(Configuration(_)),
+      cfg <- Either.fromOption(config.config.map(Configuration(_)),
         s"no storage config for storage type '${config.storageType}")
-      repoPath <- Xor.fromOption(cfg.getString("repoPath"),
+      repoPath <- Either.fromOption(cfg.getString("repoPath"),
         s"no Git repo path found for storage type '${config.storageType}")
     } yield new GitBlogStorage(GitStorageConfig(
       gitRepo = new File(repoPath),
@@ -77,33 +78,32 @@ class GitBlogStorage(config: GitStorageConfig,
     def unapply(string: String): Option[Int] = Try(string.toInt).toOption
   }
 
-  private val repository: Repository = new RepositoryBuilder()
-    .setGitDir(new File(config.gitRepo, ".git")).build()
-  private val git: Git = new Git(repository)
+  private val repository = new RepositoryBuilder().setGitDir(new File(config.gitRepo, ".git")).build()
+  private val git = new Git(repository)
 
   override def currentVersionId: String = {
     // fetch actual commit from remote (if available)
     config.remote foreach (git.fetch().setRemote(_).call())
 
     // and return the last commit ID
-    val ref: String = config.remote.map("refs/remotes/" + _ + "/").getOrElse("") + config.branch
+    val ref = config.remote.map("refs/remotes/" + _ + "/").getOrElse("") + config.branch
     Option(repository.findRef(ref)).map(_.getObjectId.name()).getOrElse(
       throw new RuntimeException(s"Cannot find ref '$ref' in repository '${config.gitRepo}'"))
   }
 
-  override def loadInfo(versionId: String): BlogStorageError Xor BlogInfo = {
-    implicit val yamlParser: YamlParser = YamlParser.parser
+  override def loadInfo(versionId: String): Either[BlogStorageError, BlogInfo] = {
+    implicit val yamlParser = YamlParser.parser
 
-    val info: Astral = loadContent(versionId, ConfigFileName)
+    val info = loadContent(versionId, ConfigFileName)
       .flatMap(content => Astral.parse(RawYaml(content)).toOption).getOrElse(Astral.empty)
-    def asXor[T: AstralType](key: String, errMsg: String): BlogStorageError Xor T =
-      Xor.fromOption(info.get[T](key), BlogStorageError(errMsg))
+    def asEither[T: AstralType](key: String, errMsg: String): Either[BlogStorageError, T] =
+      Either.fromOption(info.get[T](key), BlogStorageError(errMsg))
 
     for {
-      title <- asXor[String]("title", s"no blog title specified in $ConfigFileName")
-      authors <- asXor[Astral]("authors", s"no authors info specified in $ConfigFileName")
+      title <- asEither[String]("title", s"no blog title specified in $ConfigFileName")
+      authors <- asEither[Astral]("authors", s"no authors info specified in $ConfigFileName")
         .flatMap(parseAuthors)
-      themeName <- asXor[String]("theme", s"no blog theme name specified in $ConfigFileName")
+      themeName <- asEither[String]("theme", s"no blog theme name specified in $ConfigFileName")
     } yield BlogInfo(
       title = title,
       subtitle = info.get[String]("subtitle"),
@@ -116,7 +116,7 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   override def loadPostContent(versionId: String, post: BlogPostMeta,
-                               placeholders: Map[String, Any]): BlogStorageError Xor String = {
+                               placeholders: Map[String, Any]): Either[BlogStorageError, String] = {
     val Some(stream) = loadStream(versionId, s"$PostsDirName/${post.id}")
     for {
       formatSupport <- selectFormatSupport(post.format)
@@ -125,12 +125,12 @@ class GitBlogStorage(config: GitStorageConfig,
     } yield content
   }
 
-  override def loadBlogPosts(versionId: String): BlogStorageError Xor List[BlogPostMeta] = {
+  override def loadBlogPosts(versionId: String): Either[BlogStorageError, List[BlogPostMeta]] = {
     import cats.instances.list._
     import cats.syntax.traverse._
 
     ((for (files <- allFilesInPath(versionId, PostsDirName)) yield files map { file =>
-      val path: String = s"$PostsDirName/$file"
+      val path = s"$PostsDirName/$file"
       val Some(stream) = loadStream(versionId, path)
       for {
         postRecord <- parsePostRecord(file)
@@ -143,23 +143,23 @@ class GitBlogStorage(config: GitStorageConfig,
     // issue is reported here: https://youtrack.jetbrains.com/issue/SCL-9752
   }
 
-  override def loadAsset(versionId: String, path: String): BlogStorageError Xor ContentStream = {
-    Xor.fromOption(loadStream(versionId, AssetsDirName + path),
+  override def loadAsset(versionId: String, path: String): Either[BlogStorageError, ContentStream] = {
+    Either.fromOption(loadStream(versionId, AssetsDirName + path),
       BlogStorageError(s"Cannot load asset for path '$path'"))
   }
 
-  private def parseAuthors(authors: Astral): BlogStorageError Xor Seq[BlogAuthor] = {
+  private def parseAuthors(authors: Astral): Either[BlogStorageError, Seq[BlogAuthor]] = {
     import cats.instances.list._
     import cats.syntax.traverse._
 
     if (authors.keys.nonEmpty) {
       (authors.keys map { nickname =>
-        val authorAst: Xor[String, Astral] = Xor.fromOption(authors.get[Astral](nickname),
+        val authorAst = Either.fromOption(authors.get[Astral](nickname),
           s"invalid configuration for author with nickname '$nickname'")
 
-        val authorXor: Xor[String, BlogAuthor] = for {
+        val authorE = for {
           author <- authorAst
-          name <- Xor.fromOption(author.get[String]("name"),
+          name <- Either.fromOption(author.get[String]("name"),
             s"missing name for author with nickname '$nickname")
         } yield BlogAuthor(
           nickname = nickname,
@@ -169,29 +169,29 @@ class GitBlogStorage(config: GitStorageConfig,
           properties = author
         )
 
-        authorXor.leftMap(BlogStorageError(_))
+        authorE.leftMap(BlogStorageError(_))
         // IntelliJ Idea will highlight an error here, but the code is compilable and working,
         // issue is reported here: https://youtrack.jetbrains.com/issue/SCL-9752
       }).toList.sequenceU
-    } else Xor.left(BlogStorageError("At least one author must be defined for each blog"))
+    } else Left(BlogStorageError("At least one author must be defined for each blog"))
   }
 
-  private def selectFormatSupport(formatName: String): BlogStorageError Xor FormatSupport =
-    Xor.fromOption(formatSupports.get(formatName),
+  private def selectFormatSupport(formatName: String): Either[BlogStorageError, FormatSupport] =
+    Either.fromOption(formatSupports.get(formatName),
       BlogStorageError(s"no format support available for type '$formatName'"))
 
-  private def parsePostRecord(path: String): BlogStorageError Xor BlogPostRecord = {
-    def parseFilename: BlogStorageError Xor (String, String) = path match {
-      case FilenameExtractor(filename, extension) => Xor.right((filename, extension))
-      case _ => Xor.left(BlogStorageError(s"cannot parse extension for file '$path'"))
+  private def parsePostRecord(path: String): Either[BlogStorageError, BlogPostRecord] = {
+    def parseFilename: Either[BlogStorageError, (String, String)] = path match {
+      case FilenameExtractor(filename, extension) => Right((filename, extension))
+      case _ => Left(BlogStorageError(s"cannot parse extension for file '$path'"))
     }
-    def parseDateAndTitle(filename: String, extension: String): BlogStorageError Xor BlogPostRecord =
+    def parseDateAndTitle(filename: String, extension: String): Either[BlogStorageError, BlogPostRecord] =
       filename match {
         case DateAndTitleExtractor(AsInt(year), AsInt(month), AsInt(day), title) =>
           val id: String = s"$filename.$extension"
           val date: ZonedDateTime = LocalDate.of(year, month, day).atStartOfDay(ZoneId.of("UTC"))
-          Xor.right(BlogPostRecord(id, date, title, title, extension))
-        case _ => Xor.left(
+          Either.right(BlogPostRecord(id, date, title, title, extension))
+        case _ => Left(
           BlogStorageError(s"cannot parse date and title for file '$filename.$extension'"))
       }
 
@@ -202,7 +202,7 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   private def allFilesInPath(versionId: String, path: String): Option[Seq[String]] = {
-    val prefixedPath: String = config.blogPath + path
+    val prefixedPath = config.blogPath + path
     scanFiles(versionId, PathFilter.create(prefixedPath)) { treeWalk =>
       @tailrec def extract(list: List[String]): List[String] = {
         if (!treeWalk.next())
@@ -235,11 +235,11 @@ class GitBlogStorage(config: GitStorageConfig,
 
   private def scanFiles[T](versionId: String, filter: TreeFilter)
                           (block: TreeWalk => Option[T]): Option[T] = {
-    val revWalk: RevWalk = new RevWalk(repository)
+    val revWalk = new RevWalk(repository)
 
     try {
-      val tree: RevTree = revWalk.parseCommit(ObjectId.fromString(versionId)).getTree
-      val treeWalk: TreeWalk = new TreeWalk(repository)
+      val tree = revWalk.parseCommit(ObjectId.fromString(versionId)).getTree
+      val treeWalk = new TreeWalk(repository)
       try {
         treeWalk.addTree(tree)
         treeWalk.setRecursive(true)

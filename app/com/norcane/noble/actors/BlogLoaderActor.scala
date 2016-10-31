@@ -19,7 +19,8 @@
 package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, Props}
-import cats.data.Xor
+import cats.instances.either._
+import cats.syntax.either._
 import com.norcane.noble.actors.BlogActor.ReloadBlog
 import com.norcane.noble.api.models.{Blog, BlogConfig, BlogInfo, BlogPostMeta}
 import com.norcane.noble.api.{BlogStorage, BlogStorageError, FormatSupport}
@@ -34,26 +35,26 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
   override def receive: Receive = {
     case LoadBlog() => blocking {
       loadBlog match {
-        case Xor.Left(err) => sender ! err
-        case Xor.Right(blog) => sender ! BlogLoaded(blog)
+        case Left(err) => sender ! err
+        case Right(blog) => sender ! BlogLoaded(blog)
       }
     }
     case ReloadBlog(lastUsedHash) => blocking {
       if (lastUsedHash != storage.currentVersionId) {
         log.info("New blog version available, reloading blog...")
         loadBlog match {
-          case Xor.Left(err) => sender ! err
-          case Xor.Right(blog) => sender ! BlogLoaded(blog)
+          case Left(err) => sender ! err
+          case Right(blog) => sender ! BlogLoaded(blog)
         }
       } else log.info("Already using the latest version of blog, reloading cancelled")
     }
   }
 
-  private def loadBlog: BlogLoadingFailed Xor Blog = {
+  private def loadBlog: Either[BlogLoadingFailed, Blog] = {
     val versionId: String = storage.currentVersionId
 
-    def wrapErr[T](xor: BlogStorageError Xor T): BlogLoadingFailed Xor T =
-      xor.leftMap(err => BlogLoadingFailed(err.message, err.cause))
+    def wrapErr[T](either: Either[BlogStorageError, T]): Either[BlogLoadingFailed, T] =
+      either.leftMap(err => BlogLoadingFailed(err.message, err.cause))
 
     for {
       blogInfo <- wrapErr(storage.loadInfo(versionId))
@@ -62,16 +63,16 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
     } yield new Blog(config.name, versionId, blogInfo, validatedBlogPosts)
   }
 
-  private def validateBlogPosts(posts: Seq[BlogPostMeta],
-                                blogInfo: BlogInfo): BlogLoadingFailed Xor Seq[BlogPostMeta] = {
+  private def validateBlogPosts(posts: Seq[BlogPostMeta], blogInfo: BlogInfo
+                               ): Either[BlogLoadingFailed, Seq[BlogPostMeta]] = {
 
     import cats.instances.list._
     import cats.syntax.traverse._
 
-    val validated: Seq[Xor[BlogLoadingFailed, BlogPostMeta]] = posts map { post =>
+    val validated: Seq[Either[BlogLoadingFailed, BlogPostMeta]] = posts map { post =>
       blogInfo.authors find (_.nickname == post.author) match {
-        case Some(author) => Xor.right(post)
-        case None => Xor.left(BlogLoadingFailed(s"Cannot find author definition for nickname " +
+        case Some(author) => Right(post)
+        case None => Left(BlogLoadingFailed(s"Cannot find author definition for nickname " +
           s"'${post.author}' mentioned in blog post '${post.id}'"))
       }
     }

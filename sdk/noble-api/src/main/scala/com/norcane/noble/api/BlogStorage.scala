@@ -20,7 +20,6 @@ package com.norcane.noble.api
 
 import java.io.InputStream
 
-import cats.data.Xor
 import com.norcane.noble.api.models.{BlogInfo, BlogPostMeta, StorageConfig}
 
 /**
@@ -52,7 +51,7 @@ trait BlogStorageFactory {
     * @return [[BlogStorage]] instance or error details in case of failure
     */
   def create(config: StorageConfig,
-             formatSupports: Map[String, FormatSupport]): BlogStorageError Xor BlogStorage
+             formatSupports: Map[String, FormatSupport]): Either[BlogStorageError, BlogStorage]
 }
 
 /**
@@ -84,7 +83,7 @@ trait BlogStorage {
     * @param versionId version ID
     * @return loaded blog info or error details in case of failure
     */
-  def loadInfo(versionId: String): BlogStorageError Xor BlogInfo
+  def loadInfo(versionId: String): Either[BlogStorageError, BlogInfo]
 
   /**
     * Loads the content for blog post specified by its metadata, using the `versionId` parameter as
@@ -98,7 +97,7 @@ trait BlogStorage {
     * @return blog post content or error details in case of failure
     */
   def loadPostContent(versionId: String, post: BlogPostMeta,
-                      placeholders: Map[String, Any]): BlogStorageError Xor String
+                      placeholders: Map[String, Any]): Either[BlogStorageError, String]
 
   /**
     * Loads the collection of all blog posts (metadata only), using the `versionId` parameter as
@@ -107,7 +106,7 @@ trait BlogStorage {
     * @param versionId version ID
     * @return collection of all blog posts (metadata only)
     */
-  def loadBlogPosts(versionId: String): BlogStorageError Xor Seq[BlogPostMeta]
+  def loadBlogPosts(versionId: String): Either[BlogStorageError, Seq[BlogPostMeta]]
 
   /**
     * Loads the blog asset, specified by its path, using the `versionId` parameter as
@@ -117,7 +116,7 @@ trait BlogStorage {
     * @param path      blog asset path
     * @return blog asset stream or error details in case of failure
     */
-  def loadAsset(versionId: String, path: String): BlogStorageError Xor ContentStream
+  def loadAsset(versionId: String, path: String): Either[BlogStorageError, ContentStream]
 }
 
 /**

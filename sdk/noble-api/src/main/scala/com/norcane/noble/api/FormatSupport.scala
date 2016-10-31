@@ -21,7 +21,6 @@ package com.norcane.noble.api
 import java.io.InputStream
 import java.time.ZonedDateTime
 
-import cats.data.Xor
 import com.norcane.noble.api.models.BlogPostMeta
 
 
@@ -71,7 +70,7 @@ trait FormatSupport {
     * @param record blog post ''raw'' metadata
     * @return extracted blog post metadata, or error detail in case of failure
     */
-  def extractPostMetadata(is: InputStream, record: BlogPostRecord): FormatSupportError Xor BlogPostMeta
+  def extractPostMetadata(is: InputStream, record: BlogPostRecord): Either[FormatSupportError, BlogPostMeta]
 
   /**
     * Extracts and parses the blog post content from raw stream. Output of this method should always
@@ -87,7 +86,7 @@ trait FormatSupport {
     * @return extracted and parsed blog post content (in HTML format)
     */
   def extractPostContent(is: InputStream, post: BlogPostMeta,
-                         placeholders: Map[String, Any]): FormatSupportError Xor String
+                         placeholders: Map[String, Any]): Either[FormatSupportError, String]
 
 }
 

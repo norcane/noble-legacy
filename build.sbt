@@ -21,7 +21,7 @@ excludeFilter in(Assets, LessKeys.less) := "_*.less"
 
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
-  "org.typelevel" %% "cats" % "0.7.2",
+  "org.typelevel" %% "cats" % "0.8.0",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.5.0.201609210915-r",
   "org.yaml" % "snakeyaml" % "1.17",
   "org.pegdown" % "pegdown" % "1.6.0"
@@ -38,7 +38,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       specs2 % Test,
       "net.codingwell" %% "scala-guice" % "4.0.1",
       "com.typesafe" % "config" % "1.3.1",
-      "org.typelevel" %% "cats" % "0.7.2",
+      "org.typelevel" %% "cats" % "0.8.0",
       "com.typesafe.play" %% "play" % "2.5.9"
     )
   )

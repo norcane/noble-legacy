@@ -19,10 +19,11 @@
 package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, Props}
-import cats.data.Xor
 import com.norcane.noble.actors.BlogActor.LoadAsset
 import com.norcane.noble.api.models.{Blog, BlogPostMeta}
 import com.norcane.noble.api.{BlogStorage, ContentStream}
+import cats.syntax.either._
+import cats.instances.either._
 
 import scala.concurrent.blocking
 
@@ -39,8 +40,8 @@ class ContentLoaderActor(storage: BlogStorage) extends Actor with ActorLogging {
 
   private def loadAsset(blog: Blog, path: String): Option[ContentStream] = blocking {
     storage.loadAsset(blog.versionId, path) match {
-      case Xor.Right(stream) => Some(stream)
-      case Xor.Left(err) =>
+      case Right(stream) => Some(stream)
+      case Left(err) =>
         log.error(err.cause.orNull, err.message)
         None
     }
@@ -49,8 +50,8 @@ class ContentLoaderActor(storage: BlogStorage) extends Actor with ActorLogging {
   private def loadPostContent(blog: Blog, post: BlogPostMeta,
                               placeholders: Map[String, Any]): Option[String] = blocking {
     storage.loadPostContent(blog.versionId, post, placeholders) match {
-      case Xor.Right(content) => Some(content)
-      case Xor.Left(err) =>
+      case Right(content) => Some(content)
+      case Left(err) =>
         log.error(err.cause.orNull, err.message)
         None
     }

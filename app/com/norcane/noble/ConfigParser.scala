@@ -18,9 +18,8 @@
 
 package com.norcane.noble
 
-import cats.data.Xor
+import cats.syntax.either._
 import com.norcane.noble.api.models.{BlogConfig, StorageConfig}
-import com.typesafe.config.Config
 import play.api.Configuration
 
 /**
@@ -37,12 +36,10 @@ object ConfigParser {
     * @param config configuration to parse
     * @return instance of `StorageConfig` or error message in case of failure
     */
-  def parseStorageConfig(config: Configuration): String Xor StorageConfig = {
-    val storageTypeXor: String Xor String = Xor.fromOption(config.getString("type"),
-      "missing storage type configuration")
-    val storageConfig: Option[Config] = config.getConfig("config") map (_.underlying)
-
-    for (storageType <- storageTypeXor) yield StorageConfig(storageType, storageConfig)
+  def parseStorageConfig(config: Configuration): Either[String, StorageConfig] = {
+    val storageTypeE = Either.fromOption(config.getString("type"), "missing storage type configuration")
+    val storageConfig = config.getConfig("config") map (_.underlying)
+    storageTypeE map (storageType => StorageConfig(storageType, storageConfig))
   }
 
   /**
@@ -52,14 +49,13 @@ object ConfigParser {
     * @param config configuration to parse
     * @return instance of `BlogConfig` or error message in case of failure
     */
-  def parseBlogConfig(blogName: String, config: Configuration): String Xor BlogConfig = {
-    val path: String = config.getString("path").getOrElse("/blog")
-    val reloadToken: Option[String] = config.getString("reloadToken")
-    val storageCfgXor: String Xor Configuration = Xor.fromOption(config.getConfig("storage"),
-      "missing storage configuration")
+  def parseBlogConfig(blogName: String, config: Configuration): Either[String, BlogConfig] = {
+    val path = config.getString("path").getOrElse("/blog")
+    val reloadToken = config.getString("reloadToken")
+    val storageCfgE = Either.fromOption(config.getConfig("storage"), "missing storage configuration")
 
     for {
-      storageCfg <- storageCfgXor
+      storageCfg <- storageCfgE
       storageConfig <- parseStorageConfig(storageCfg)
     } yield BlogConfig(blogName, path, reloadToken, storageConfig)
   }
