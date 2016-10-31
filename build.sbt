@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
   "org.pegdown" % "pegdown" % "1.6.0"
 )
 
-unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
+unmanagedResourceDirectories in Test += baseDirectory(_ / "target/web/public/test").value
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
