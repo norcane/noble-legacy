@@ -226,3 +226,8 @@ using the following steps. This tutorial expects you to use the default *Git* bl
    ```
    
    The blog will now be accessible at [http://localhost:9000/myBlog](http://localhost:9000/myBlog).
+   
+   ---
+   
+   > This documentation is currently not complete. More chapters about writting own storage supports,
+     format supports and themes coming soon!
