@@ -27,7 +27,7 @@ import com.norcane.noble.api.models.BlogPostMeta
 /**
   * Factory class used by the ''Noble'' to create new instance of selected [[FormatSupport]] class.
   * The field `formatName` represents the unique name of the content format this particular
-  * implementation supports (e.g. `md` for ''Markdown'') and is refered from blog posts and static
+  * implementation supports (e.g. `md` for ''Markdown'') and is referred from blog posts and static
   * pages to let ''Noble'' know which format support should be selected for it.
   *
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
@@ -91,7 +91,7 @@ trait FormatSupport {
 }
 
 /**
-  * Error indicating failure occured during parsing the input data in the [[FormatSupport]] class.
+  * Error indicating failure occurred during parsing the input data in the [[FormatSupport]] class.
   *
   * @param message error message
   * @param cause   error cause (optional)
@@ -101,12 +101,12 @@ case class FormatSupportError(message: String, cause: Option[Throwable] = None)
 /**
   * Represents ''raw'' blog post metadata, as directly provided by the storage. Those values might
   * be overwritten by new values, extracted from the blog post stream (for example in case that
-  * blog post medatata are part of the blog post document content).
+  * blog post metadata are part of the blog post document content).
   *
   * @param id             unique ID of the blog post
   * @param date           date when the blog post was published
   * @param title          blog post title
-  * @param permalinkTitle permaling title (i.e. title used in URI)
+  * @param permalinkTitle permalink title (i.e. title used in URI)
   * @param formatName     format of the blog post
   */
 case class BlogPostRecord(id: String, date: ZonedDateTime, title: String, permalinkTitle: String,
