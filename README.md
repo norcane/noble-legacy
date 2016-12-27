@@ -1,11 +1,11 @@
 # noble. The norcane blog engine.
 *Norcane blog engine (noble)* is the blog engine written **by developers for developers**. It's
-built using the [Play! Framework](https://www.playframework.com), so it can be seamlessly embedded
-into your existing *Play!* applications. But the main idea is to **keep it simple**. No obscure ways
+built using the [Play Framework](https://www.playframework.com), so it can be seamlessly embedded
+into your existing *Play* applications. But the main idea is to **keep it simple**. No obscure ways
 of storing blog posts, no annoying embedded *WYSIWYG* editors for more bizarre blog post format.
 *Noble* by default uses as much tools you probably use every day: [Git](https://git-scm.com) as a
 blog posts and assets storage, [Markdown](http://daringfireball.net/projects/markdown/) for blog
-posts format and all *Play!*'s goodies for writing themes, such as
+posts format and all *Play*'s goodies for writing themes, such as
 [Twirl](https://www.playframework.com/documentation/2.5.x/ScalaTemplates) templates,
 [Sass](http://sass-lang.com) or [Less](http://lesscss.org) for styling,
 [Scala.js](https://www.scala-js.org) for scripting and much more! Don't like this selection? Never
@@ -18,8 +18,8 @@ and is still under heavy development. It means it's NOT feature complete yet (se
 also not yet released into the *Maven* repository, although this is planned to be done soon.
 
 ## Key features
-- [x] Can be easily embedded into any existing *Play!* using few simple steps (see chapter
-  *Embedding in your Play! application* below).
+- [x] Can be easily embedded into any existing *Play* using few simple steps (see chapter
+  *Embedding in your Play application* below).
 - [x] Modular blog storage support. Default bundled implementation uses *Git* with directory
   structure similar to [Jekyll](https://jekyllrb.com).
 - [x] Modular blog post format support, your blog posts can use in **multiple blog post formats**
@@ -50,12 +50,12 @@ try out using the following steps:
    At this moment, *Example* blog should be accessible by your browser at
    [http://localhost:9000](http://localhost:9000).
 
-## Embedding in your Play! application
-Embedding *Noble* into an existing *Play!* application should be pretty easy and straightforward
+## Embedding in your Play application
+Embedding *Noble* into an existing *Play* application should be pretty easy and straightforward
 using the following steps. This tutorial expects you to use the default *Git* blog post storage and
 *Markdown* blog post format support.
 
-1. **Add the *Noble* dependency into your *Play!* SBT project**
+1. **Add the *Noble* dependency into your *Play* SBT project**
    
    > This step cannot be performed at this moment, because *Noble* has not been released yet. We're
      working hard to publish it as soon as possible. Sorry for inconvenience.
@@ -216,7 +216,7 @@ using the following steps. This tutorial expects you to use the default *Git* bl
 
 7. **Commit the changes in *Git* repo and start your application**
 
-   Now *Noble* should be fully embedded into your application. When you start your *Play!*
+   Now *Noble* should be fully embedded into your application. When you start your *Play*
    application, it should be accessible at [http://localhost:9000](http://localhost:9000). You can
    change the context root of the entire blog by changing the route in your *routes* file, like the
    following:
