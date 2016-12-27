@@ -22,7 +22,7 @@ excludeFilter in(Assets, LessKeys.less) := "_*.less"
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
   "org.typelevel" %% "cats" % "0.8.1",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.5.0.201609210915-r",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.6.0.201612231935-r",
   "org.yaml" % "snakeyaml" % "1.17",
   "org.pegdown" % "pegdown" % "1.6.0"
 )
