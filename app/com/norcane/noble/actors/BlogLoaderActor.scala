@@ -2,7 +2,7 @@
  *              _     _
  *  _ __   ___ | |__ | | ___
  * | '_ \ / _ \| '_ \| |/ _ \       noble :: norcane blog engine
- * | | | | (_) | |_) | |  __/       Copyright (c) 2016 norcane
+ * | | | | (_) | |_) | |  __/       Copyright (c) 2016-2017 norcane
  * |_| |_|\___/|_.__/|_|\___|
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
