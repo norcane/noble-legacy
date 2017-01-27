@@ -1,7 +1,7 @@
 //              _     _
 //  _ __   ___ | |__ | | ___
 // | '_ \ / _ \| '_ \| |/ _ \       noble :: norcane blog engine
-// | | | | (_) | |_) | |  __/       Copyright (c) 2016 norcane
+// | | | | (_) | |_) | |  __/       Copyright (c) 2016-2017 norcane
 // |_| |_|\___/|_.__/|_|\___|
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -36,7 +36,7 @@ aside .module > .content > h1 {
   overflow: hidden;
 
   // Appearance
-  color: @color_gray;
+  color: $color_gray;
   font-family: "Oswald", sans-serif;
   font-size: 1em;
   letter-spacing: 2px;
@@ -59,7 +59,7 @@ aside .module > .content > h1 > span::after {
   position: absolute;
   top: 50%;
   border-bottom: 1px solid;
-  border-color: @color_gray;
+  border-color: $color_gray;
   width: 410px;
   margin: 0 14px;
 }

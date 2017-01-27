@@ -1,7 +1,7 @@
 //              _     _
 //  _ __   ___ | |__ | | ___
 // | '_ \ / _ \| '_ \| |/ _ \       noble :: norcane blog engine
-// | | | | (_) | |_) | |  __/       Copyright (c) 2016 norcane
+// | | | | (_) | |_) | |  __/       Copyright (c) 2016-2017 norcane
 // |_| |_|\___/|_.__/|_|\___|
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -32,7 +32,7 @@
   padding: 30px 10px;
 
   // Appearance
-  color: @color_dark;
+  color: $color_dark;
   text-align: center;
   font-weight: 700;
 }
@@ -42,7 +42,7 @@
   padding-bottom: 30px;
 
   // Appearance
-  color: @color_gray;
+  color: $color_gray;
   text-align: center;
   font-size: 0.9em;
   font-style: italic;
@@ -51,7 +51,7 @@
 .posts article > .post-meta span {
   // Appearance
   font-weight: 700;
-  color: @color_dark;
+  color: $color_dark;
 }
 
 .posts article > .content {
@@ -67,17 +67,17 @@
 
 .posts article > .content > h1 {
   // Appearance
-  color: @color_gold;
+  color: $color_gold;
 }
 
 .posts article > .content > h2 {
   // Appearance
-  color: @color_dark;
+  color: $color_dark;
 }
 
 .posts article > .content > h3 {
   // Appearance
-  color: @color_gray;
+  color: $color_gray;
 }
 
 .posts article.preview {
@@ -118,7 +118,7 @@
   height: 30px;
   background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), #FFFFFF);
   content: "";
-  
+
 }
 
 @media (min-width: 320px) {

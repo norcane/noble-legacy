@@ -15,9 +15,6 @@ scalaVersion in Global := "2.11.8"
 
 autoAPIMappings := true
 
-includeFilter in(Assets, LessKeys.less) := "*.less"
-
-excludeFilter in(Assets, LessKeys.less) := "_*.less"
 
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,

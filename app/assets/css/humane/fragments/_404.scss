@@ -1,7 +1,7 @@
 //              _     _
 //  _ __   ___ | |__ | | ___
 // | '_ \ / _ \| '_ \| |/ _ \       noble :: norcane blog engine
-// | | | | (_) | |_) | |  __/       Copyright (c) 2016 norcane
+// | | | | (_) | |_) | |  __/       Copyright (c) 2016-2017 norcane
 // |_| |_|\___/|_.__/|_|\___|
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -16,55 +16,58 @@
 //
 @import "_shared";
 
-header {
+.not-found {
   // Appearance
-  background: #FFFFFF;
-
-  // Positioning
-  margin-top: 40px;
-  padding: 40px 0;
+  text-align: center;
 }
 
-header > h1 {
+.not-found > h1 {
   // Positioning
-  text-align: center;
   margin: 0;
 
   // Appearance
-  color: @color_gold;
+  font-family: "Oswald", sans-serif;
+  color: $color_gray;
 }
 
-header > h2 {
+.not-found > h2 {
   // Positioning
-  text-align: center;
   margin: 0;
 
   // Appearance
-  color: @color_gray;
+  text-transform: lowercase;
 }
 
 @media (min-width: 320px) {
-
-  header > h1 {
-    // Appearance
-    font-size: 2em;
+  .not-found {
+    // Positioning
+    margin: 50px 0;
   }
 
-  header > h2 {
+  .not-found > h1 {
     // Appearance
-    font-size: 1.2em;
+    font-size: 3em;
+  }
+
+  .not-found > h2 {
+    // Appearance
+    font-size: 1.5em;
   }
 }
 
-@media (min-width: 800px) {
-
-  header > h1 {
-    // Appearance
-    font-size: 2.5em;
+@media (min-width: 1000px) {
+  .not-found {
+    // Positioning
+    margin: 100px 0 0 0;
   }
 
-  header > h2 {
+  .not-found > h1 {
     // Appearance
-    font-size: 1.5em;
+    font-size: 4em;
+  }
+
+  .not-found > h2 {
+    // Appearance
+    font-size: 2em;
   }
 }
