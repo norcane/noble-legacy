@@ -121,6 +121,14 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
   def asset(filePath: String): Call = Call("GET", s"$path/blog-assets/$filePath")
 
   /**
+    * Creates call to static page, specified by its permanent link.
+    *
+    * @param permalink permanent link of the static page
+    * @return call to static page
+    */
+  def page(permalink: String): Call = Call("GET", s"path/$permalink")
+
+  /**
     * Creates call to Atom RSS feed.
     *
     * @return call to Atom RSS feed

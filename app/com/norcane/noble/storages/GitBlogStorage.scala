@@ -26,7 +26,7 @@ import cats.instances.either._
 import cats.syntax.either._
 import com.norcane.noble.api._
 import com.norcane.noble.api.astral.{Astral, AstralType}
-import com.norcane.noble.api.models.{BlogAuthor, BlogInfo, BlogPostMeta, StorageConfig}
+import com.norcane.noble.api.models._
 import com.norcane.noble.astral.{RawYaml, YamlParser}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ObjectId, RepositoryBuilder}
@@ -69,6 +69,7 @@ class GitBlogStorage(config: GitStorageConfig,
 
   val ConfigFileName: String = "_config.yml"
   val PostsDirName: String = "_posts"
+  val PagesDirName: String = "_pages"
   val AssetsDirName: String = "_assets"
 
   private val FilenameExtractor: Regex = """(.+)\.([^\.]+)""".r
@@ -96,6 +97,7 @@ class GitBlogStorage(config: GitStorageConfig,
 
     val info = loadContent(versionId, ConfigFileName)
       .flatMap(content => Astral.parse(RawYaml(content)).toOption).getOrElse(Astral.empty)
+
     def asEither[T: AstralType](key: String, errMsg: String): Either[BlogStorageError, T] =
       Either.fromOption(info.get[T](key), BlogStorageError(errMsg))
 
@@ -125,6 +127,16 @@ class GitBlogStorage(config: GitStorageConfig,
     } yield content
   }
 
+  override def loadPageContent(versionId: String, page: StaticPageMeta,
+                               placeholders: Map[String, Any]): Either[BlogStorageError, String] = {
+    val Some(stream) = loadStream(versionId, s"$PagesDirName/${page.id}")
+    for {
+      formatSupport <- selectFormatSupport(page.format)
+      content <- formatSupport.extractPageContent(stream.stream, page, placeholders)
+        .leftMap(err => BlogStorageError(err.message, err.cause))
+    } yield content
+  }
+
   override def loadBlogPosts(versionId: String): Either[BlogStorageError, List[BlogPostMeta]] = {
     import cats.instances.list._
     import cats.syntax.traverse._
@@ -139,8 +151,22 @@ class GitBlogStorage(config: GitStorageConfig,
           .leftMap(err => BlogStorageError(err.message, err.cause))
       } yield blogPost
     }) getOrElse Nil).toList.sequenceU
-    // IntelliJ Idea will highlight an error here, but the code is compilable and working,
-    // issue is reported here: https://youtrack.jetbrains.com/issue/SCL-9752
+  }
+
+  override def loadPages(versionId: String): Either[BlogStorageError, Seq[StaticPageMeta]] = {
+    import cats.instances.list._
+    import cats.syntax.traverse._
+
+    ((for (files <- allFilesInPath(versionId, PagesDirName)) yield files map { file =>
+      val path = s"$PagesDirName/$file"
+      val Some(stream) = loadStream(versionId, path)
+      for {
+        pageRecord <- parsePageRecord(file)
+        formatSupport <- selectFormatSupport(pageRecord.formatName)
+        staticPage <- formatSupport.extractPageMetadata(stream.stream, pageRecord)
+          .leftMap(err => BlogStorageError(err.message, err.cause))
+      } yield staticPage
+    }) getOrElse Nil).toList.sequenceU
   }
 
   override def loadAsset(versionId: String, path: String): Either[BlogStorageError, ContentStream] = {
@@ -185,6 +211,7 @@ class GitBlogStorage(config: GitStorageConfig,
       case FilenameExtractor(filename, extension) => Right((filename, extension))
       case _ => Left(BlogStorageError(s"cannot parse extension for file '$path'"))
     }
+
     def parseDateAndTitle(filename: String, extension: String): Either[BlogStorageError, BlogPostRecord] =
       filename match {
         case DateAndTitleExtractor(AsInt(year), AsInt(month), AsInt(day), title) =>
@@ -201,6 +228,15 @@ class GitBlogStorage(config: GitStorageConfig,
     } yield postRecord
   }
 
+  private def parsePageRecord(path: String): Either[BlogStorageError, StaticPageRecord] = {
+    path match {
+      case FilenameExtractor(filename, extension) =>
+        val id = s"$filename.$extension"
+        Right(StaticPageRecord(id, filename, extension))
+      case _ => Left(BlogStorageError(s"cannot parse filename and extension for file '$path'"))
+    }
+  }
+
   private def allFilesInPath(versionId: String, path: String): Option[Seq[String]] = {
     val prefixedPath = config.blogPath + path
     scanFiles(versionId, PathFilter.create(prefixedPath)) { treeWalk =>
@@ -209,6 +245,7 @@ class GitBlogStorage(config: GitStorageConfig,
           list
         else extract(treeWalk.getPathString.drop(prefixedPath.length + 1) :: list)
       }
+
       Some(extract(Nil))
     }
   }

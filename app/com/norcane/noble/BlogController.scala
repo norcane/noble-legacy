@@ -24,9 +24,9 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.stream.scaladsl.StreamConverters
 import akka.util.Timeout
-import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, ReloadBlog, RenderPostContent}
-import com.norcane.noble.api.models.dates.{Day, Month}
+import com.norcane.noble.actors.BlogActor._
 import com.norcane.noble.api.models._
+import com.norcane.noble.api.models.dates.{Day, Month}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
 import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -55,6 +55,20 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
 
           case Some(blogPost) =>
             Ok(themeByName(req.blog.info.themeName).blogPost(req.blog, router, blogPost))
+          case None => notFoundResp(req.blog)
+        }
+      case None => Future.successful(notFoundResp(req.blog))
+    }
+  }
+
+  def page(permalink: String) = BlogAction.async { implicit req =>
+    req.blog.page(permalink) match {
+      case Some(pageMeta) =>
+        (blogActor ? RenderPageContent(req.blog, pageMeta, placeholders))
+          .mapTo[Option[String]].map(createStaticPage(pageMeta, _)) map {
+
+          case Some(staticPage) =>
+            Ok(themeByName(req.blog.info.themeName).page(req.blog, router, staticPage))
           case None => notFoundResp(req.blog)
         }
       case None => Future.successful(notFoundResp(req.blog))
@@ -138,6 +152,11 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     content <- contentOpt
     author <- blog.info.authors.find(_.nickname == meta.author)
   } yield BlogPost(meta, author, content)
+
+  private def createStaticPage(meta: StaticPageMeta,
+                               contentOpt: Option[String]): Option[StaticPage] = {
+    for (content <- contentOpt) yield StaticPage(meta, content)
+  }
 
   private def paged[A](allPosts: Seq[BlogPostMeta], page: Page, title: Option[String])
                       (route: Page => Call)(implicit req: BlogRequest[A]): Future[Result] = {

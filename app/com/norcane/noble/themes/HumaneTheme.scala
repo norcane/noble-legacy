@@ -20,7 +20,7 @@ package com.norcane.noble.themes
 
 import javax.inject.Singleton
 
-import com.norcane.noble.api.models.{Blog, BlogAuthor, BlogPost, Pagination}
+import com.norcane.noble.api.models._
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
 import com.norcane.noble.themes.HumaneTheme.{HumaneProps, Toolbar}
 import play.api.i18n.Messages
@@ -55,6 +55,14 @@ class HumaneTheme extends BlogTheme {
 
     com.norcane.noble.themes.humane.html.blogPost(blog, router, post,
       HumaneProps(Some(post.author), Toolbar(displayOnBottom = false)))
+  }
+
+
+  override def page(blog: Blog, router: BlogReverseRouter, page: StaticPage)
+                   (implicit header: RequestHeader, messages: Messages): Html = {
+
+    com.norcane.noble.themes.humane.html.page(blog, router, page,
+      HumaneProps(None, Toolbar(displayOnBottom = false)))
   }
 
   override def notFound(blog: Blog, router: BlogReverseRouter)

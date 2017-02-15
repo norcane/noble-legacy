@@ -20,7 +20,7 @@ package com.norcane.noble.api
 
 import java.io.InputStream
 
-import com.norcane.noble.api.models.{BlogInfo, BlogPostMeta, StorageConfig}
+import com.norcane.noble.api.models.{BlogInfo, BlogPostMeta, StaticPageMeta, StorageConfig}
 
 /**
   * Factory class for the concrete implementation of [[BlogStorage]]. This factory class is used to
@@ -99,6 +99,9 @@ trait BlogStorage {
   def loadPostContent(versionId: String, post: BlogPostMeta,
                       placeholders: Map[String, Any]): Either[BlogStorageError, String]
 
+  def loadPageContent(versionId: String, page: StaticPageMeta,
+                            placeholders: Map[String, Any]): Either[BlogStorageError, String]
+
   /**
     * Loads the collection of all blog posts (metadata only), using the `versionId` parameter as
     * the ID of the content version.
@@ -107,6 +110,9 @@ trait BlogStorage {
     * @return collection of all blog posts (metadata only)
     */
   def loadBlogPosts(versionId: String): Either[BlogStorageError, Seq[BlogPostMeta]]
+
+  def loadPages(versionId: String): Either[BlogStorageError, Seq[StaticPageMeta]]
+
 
   /**
     * Loads the blog asset, specified by its path, using the `versionId` parameter as

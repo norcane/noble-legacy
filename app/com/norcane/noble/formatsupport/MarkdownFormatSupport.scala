@@ -25,8 +25,8 @@ import javax.inject.Singleton
 
 import cats.syntax.either._
 import com.norcane.noble.api.astral.{Astral, AstralType}
-import com.norcane.noble.api.models.BlogPostMeta
-import com.norcane.noble.api.{BlogPostRecord, FormatSupport, FormatSupportError, FormatSupportFactory}
+import com.norcane.noble.api.models.{BlogPostMeta, StaticPageMeta}
+import com.norcane.noble.api._
 import com.norcane.noble.astral.{RawYaml, YamlParser}
 
 import scala.io.Source
@@ -64,6 +64,22 @@ class MarkdownFormatSupport extends FormatSupport {
       yield markdownToHtml(replaceIn(content, placeholders))
   }
 
+
+
+  override def extractPageMetadata(is: InputStream, record: StaticPageRecord
+                                  ): Either[FormatSupportError, StaticPageMeta] = {
+    for {
+      frontMatter <- extractFrontMatter(is, record.permalink)
+      staticPage <- extractStaticPage(frontMatter, record)
+    } yield staticPage
+  }
+
+  override def extractPageContent(is: InputStream, page: StaticPageMeta,
+                                  placeholders: Map[String, Any]): Either[FormatSupportError, String] = {
+    for (content <- extractContent(is, page.title))
+      yield markdownToHtml(replaceIn(content, placeholders))
+  }
+
   private def replaceIn(input: String, placeholders: Map[String, Any]): String = {
     placeholders.foldLeft(input) {
       case (tmp, (key, value)) => tmp.replaceAll(placeholder(key), value.toString)
@@ -79,7 +95,7 @@ class MarkdownFormatSupport extends FormatSupport {
     lines.nextOption match {
       case Some(FrontMatterSeparator) =>
         Right(lines.dropWhile(_ != FrontMatterSeparator).drop(1).mkString("\n"))
-      case _ => Left(FormatSupportError(s"Cannot extract content for blog post '$title'"))
+      case _ => Left(FormatSupportError(s"Cannot extract content for document '$title'"))
     }
   }
 
@@ -102,6 +118,17 @@ class MarkdownFormatSupport extends FormatSupport {
       date, tags, properties)
   }
 
+  private def extractStaticPage(frontMatter: Astral,
+                                record: StaticPageRecord): Either[FormatSupportError, StaticPageMeta] = {
+    import Astral.Defaults._
+
+    val properties = Astral(frontMatter.underlying -- Seq("author", "permalink", "title"))
+    val title = frontMatter.get[String]("title").getOrElse(record.permalink)
+    val permalink = frontMatter.get[String]("permalink").getOrElse(record.permalink)
+
+    Right(StaticPageMeta(record.id, permalink, title, record.formatName, properties))
+  }
+
   private def extractFrontMatter(is: InputStream, title: String
                                 ): Either[FormatSupportError, Astral] = {
 
@@ -116,7 +143,7 @@ class MarkdownFormatSupport extends FormatSupport {
           case Success(yaml) => Right(yaml)
           case Failure(th) => Left(FormatSupportError("Cannot parse YAML front matter", Some(th)))
         }
-      case _ => Left(FormatSupportError(s"Missing YAML front matter in blog post '$title'"))
+      case _ => Left(FormatSupportError(s"Missing YAML front matter in document '$title'"))
     }
   }
 }

@@ -36,7 +36,7 @@ import scala.collection.immutable.SortedMap
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
 class Blog(val name: String, val versionId: String, val info: BlogInfo,
-           blogPosts: Seq[BlogPostMeta]) {
+           blogPosts: Seq[BlogPostMeta], val pages: Seq[StaticPageMeta]) {
 
   /**
     * Sorted collection of all blog posts (metadata only).
@@ -101,4 +101,12 @@ class Blog(val name: String, val versionId: String, val info: BlogInfo,
     * @return collection of all blog posts for specified tag
     */
   def forTag(name: String): Option[Seq[BlogPostMeta]] = tags.get(name)
+
+  /**
+    * Returns the static page for the specified permanent link.
+    *
+    * @param permalink permanent link of the static page
+    * @return static page metadata (if any found)
+    */
+  def page(permalink: String): Option[StaticPageMeta] = pages.find(_.permalink == permalink)
 }

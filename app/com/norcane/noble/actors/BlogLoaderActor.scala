@@ -59,8 +59,9 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
     for {
       blogInfo <- wrapErr(storage.loadInfo(versionId))
       blogPosts <- wrapErr(storage.loadBlogPosts(versionId))
+      pages <- wrapErr(storage.loadPages(versionId))
       validatedBlogPosts <- validateBlogPosts(blogPosts, blogInfo)
-    } yield new Blog(config.name, versionId, blogInfo, validatedBlogPosts)
+    } yield new Blog(config.name, versionId, blogInfo, validatedBlogPosts, pages)
   }
 
   private def validateBlogPosts(posts: Seq[BlogPostMeta], blogInfo: BlogInfo
@@ -71,7 +72,7 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
 
     val validated: Seq[Either[BlogLoadingFailed, BlogPostMeta]] = posts map { post =>
       blogInfo.authors find (_.nickname == post.author) match {
-        case Some(author) => Right(post)
+        case Some(_) => Right(post)
         case None => Left(BlogLoadingFailed(s"Cannot find author definition for nickname " +
           s"'${post.author}' mentioned in blog post '${post.id}'"))
       }

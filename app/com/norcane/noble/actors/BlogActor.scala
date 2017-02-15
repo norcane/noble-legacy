@@ -21,9 +21,9 @@ package com.norcane.noble.actors
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.routing.SmallestMailboxPool
 import com.norcane.noble.Keys
-import com.norcane.noble.actors.BlogActor.{GetBlog, LoadAsset, ReloadBlog, RenderPostContent}
+import com.norcane.noble.actors.BlogActor._
 import com.norcane.noble.actors.BlogLoaderActor.{BlogLoaded, BlogLoadingFailed, LoadBlog}
-import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPostMeta}
+import com.norcane.noble.api.models.{Blog, BlogConfig, BlogPostMeta, StaticPageMeta}
 import com.norcane.noble.api.{BlogStorage, FormatSupport}
 
 class BlogActor(storage: BlogStorage,
@@ -65,6 +65,7 @@ class BlogActor(storage: BlogStorage,
     case BlogLoaded(newBlog) => context.become(loaded(newBlog))
     case req: ReloadBlog => blogLoaderActor ! req
     case req: RenderPostContent => contentLoaderActors.tell(req, sender())
+    case req: RenderPageContent => contentLoaderActors.tell(req, sender())
     case req: LoadAsset => contentLoaderActors.tell(req, sender())
   }
 
@@ -81,6 +82,8 @@ object BlogActor {
   case class ReloadBlog(lastUsedHash: String)
 
   case class RenderPostContent(blog: Blog, post: BlogPostMeta, placeholders: Map[String, Any])
+
+  case class RenderPageContent(blog: Blog, page: StaticPageMeta, placeholders: Map[String, Any])
 
   case class LoadAsset(blog: Blog, path: String)
 

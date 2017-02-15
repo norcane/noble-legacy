@@ -106,8 +106,12 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
     case POST(p"/reload/$reloadToken") =>
       controller.reload(reloadToken)
 
+    // static page
+    case GET(p"/$page*") =>
+      controller.page(page)
+
     // in case that none of routes match, return 404 not found
-    case other =>
+    case _ =>
       controller.notFound
   }
 

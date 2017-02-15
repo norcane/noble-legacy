@@ -1,0 +1,17 @@
+@(
+        blog: com.norcane.noble.api.models.Blog,
+        router: com.norcane.noble.api.BlogReverseRouter,
+        page: com.norcane.noble.api.models.StaticPage,
+        humaneProps: com.norcane.noble.themes.HumaneTheme.HumaneProps
+)(implicit m: Messages)
+
+@com.norcane.noble.themes.humane.html.main(blog, router, Some(page.meta.title), None, humaneProps) {
+
+  <div class="page">
+    <article>
+      <h1>@page.meta.title</h1>
+      <div class="content">@Html(page.content)</div>
+    </article>
+  </div>
+
+}

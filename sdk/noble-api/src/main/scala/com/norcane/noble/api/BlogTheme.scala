@@ -18,7 +18,7 @@
 
 package com.norcane.noble.api
 
-import com.norcane.noble.api.models.{Blog, BlogPost, Pagination}
+import com.norcane.noble.api.models.{Blog, BlogPost, Pagination, StaticPage}
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
@@ -95,6 +95,19 @@ trait BlogTheme {
     */
   def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost)
               (implicit header: RequestHeader, messages: Messages): Html
+
+  /**
+    * Renders HTML content for selected static page.
+    *
+    * @param blog     blog instance
+    * @param router   blog reverse router
+    * @param page     static page to render
+    * @param header   request header
+    * @param messages localization messages
+    * @return HTML content
+    */
+  def page(blog: Blog, router: BlogReverseRouter, page: StaticPage)
+          (implicit header: RequestHeader, messages: Messages): Html
 
   /**
     * Renders HTML content for ''404 not found'' page.
