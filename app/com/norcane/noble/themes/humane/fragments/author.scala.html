@@ -1,9 +1,10 @@
 @(
         author: com.norcane.noble.api.models.BlogAuthor,
+        aboutPageOpt: Option[String],
         router: com.norcane.noble.api.BlogReverseRouter
 )(implicit m: Messages)
 
-<div class="module">
+<div class="module about-author">
   <div class="content">
     <h1><span>@Messages("noble.humane.about-the-author")</span></h1>
     @for(avatar <- author.avatar) {
@@ -11,6 +12,11 @@
     }
     @for(biography <- author.biography) {
       <p>@Html(biography)</p>
+    }
+    @for(aboutPage <- aboutPageOpt) {
+      <p class="more-info">
+        <a href="@router.page(aboutPage)">@Messages("noble.humane.about-author-page")</a>
+      </p>
     }
   </div>
 </div>

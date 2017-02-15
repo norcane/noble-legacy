@@ -42,7 +42,7 @@
 
           @** render the 'about author' sidebar module if required **@
           @for(singleAuthor <- humaneProps.singleAuthor) {
-            @com.norcane.noble.themes.humane.fragments.html.author(singleAuthor, router)
+            @com.norcane.noble.themes.humane.fragments.html.author(singleAuthor, humaneProps.aboutPage, router)
           }
 
           @** render the tag cloud **@

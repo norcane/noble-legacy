@@ -4,6 +4,7 @@ noble.posts-by-month = All posts for {1} {0,number,####}
 noble.posts-by-day = All posts for {2,number,#} {1} {0,number,####}
 
 noble.humane.about-the-author = about the author
+noble.humane.about-author-page = more about the author
 noble.humane.home = Home
 noble.humane.navigation = navigation
 noble.humane.not-found = Page not found

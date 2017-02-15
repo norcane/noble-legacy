@@ -22,6 +22,9 @@ authors:
     ## Path to the author avatar/portrait image (optional)
     avatar: images/avatars/john-smith.jpg
 
+    ## Path to the static page with more info about author (optional, Humane theme specific)
+    about-page: john-smith
+
     ## Short biography of the author (optional)
     biography: >
       Here belongs short author biography. Some themes may provide support for some formatting

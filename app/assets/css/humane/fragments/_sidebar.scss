@@ -50,24 +50,36 @@ aside .module > .content > p {
 }
 
 aside .module > .content > h1 > span {
+  // Positioning
   position: relative;
 }
 
 aside .module > .content > h1 > span::before,
 aside .module > .content > h1 > span::after {
   content: "";
+
+  // Positioning
   position: absolute;
   top: 50%;
-  border-bottom: 1px solid;
-  border-color: $color_gray;
   width: 410px;
   margin: 0 14px;
+
+  // Appearance
+  border-bottom: 1px solid;
+  border-color: $color_gray;
 }
 
 aside .module > .content > h1 > span::after {
+  // Positioning
   left: 100%;
 }
 
 aside .module > .content > h1 > span::before {
+  // Positioning
   right: 100%;
+}
+
+aside .module.about-author .more-info {
+  // Appearance
+  text-align: right;
 }

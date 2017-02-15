@@ -26,6 +26,7 @@ import com.norcane.noble.themes.HumaneTheme.{HumaneProps, Toolbar}
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
+import com.norcane.noble.api.astral.Astral
 
 @Singleton
 class HumaneThemeFactory extends BlogThemeFactory {
@@ -45,16 +46,17 @@ class HumaneTheme extends BlogTheme {
                          posts: Seq[BlogPost], pagination: Pagination)
                         (implicit header: RequestHeader, messages: Messages): Html = {
 
+    val author = singleAuthor(blog)
     com.norcane.noble.themes.humane.html.blogPosts(
       blog, router, title, posts, pagination,
-      HumaneProps(singleAuthor(blog), Toolbar()))
+      HumaneProps(author, author.flatMap(aboutPage), Toolbar()))
   }
 
   override def blogPost(blog: Blog, router: BlogReverseRouter, post: BlogPost)
                        (implicit header: RequestHeader, messages: Messages): Html = {
 
     com.norcane.noble.themes.humane.html.blogPost(blog, router, post,
-      HumaneProps(Some(post.author), Toolbar(displayOnBottom = false)))
+      HumaneProps(Some(post.author), aboutPage(post.author), Toolbar(displayOnBottom = false)))
   }
 
 
@@ -62,26 +64,34 @@ class HumaneTheme extends BlogTheme {
                    (implicit header: RequestHeader, messages: Messages): Html = {
 
     com.norcane.noble.themes.humane.html.page(blog, router, page,
-      HumaneProps(None, Toolbar(displayOnBottom = false)))
+      HumaneProps(None, None, Toolbar(displayOnBottom = false)))
   }
 
   override def notFound(blog: Blog, router: BlogReverseRouter)
                        (implicit header: RequestHeader, messages: Messages): Html = {
 
+    val author = singleAuthor(blog)
     com.norcane.noble.themes.humane.html.notFound(blog, router,
-      HumaneProps(singleAuthor(blog), Toolbar(displayOnBottom = false)))
+      HumaneProps(author, author.flatMap(aboutPage), Toolbar(displayOnBottom = false)))
   }
 
   private def singleAuthor(blog: Blog): Option[BlogAuthor] = for {
     author <- blog.info.authors.headOption if blog.info.authors.size == 1
   } yield author.copy(biography = author.biography map md2html)
+
+  private def aboutPage(author: BlogAuthor): Option[String] = {
+    import Astral.Defaults._
+
+    author.properties.get[String]("about-page")
+  }
+
 }
 
 object HumaneTheme {
 
   val ThemeName: String = "humane"
 
-  case class HumaneProps(singleAuthor: Option[BlogAuthor], toolbar: Toolbar)
+  case class HumaneProps(singleAuthor: Option[BlogAuthor], aboutPage: Option[String], toolbar: Toolbar)
 
   case class Toolbar(displayOnTop: Boolean = true, displayOnBottom: Boolean = true)
 
