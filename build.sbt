@@ -11,7 +11,7 @@ organization := "com.norcane.noble"
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-scalaVersion in Global := "2.11.8"
+scalaVersion in Global := "2.11.11"
 
 autoAPIMappings := true
 
@@ -19,8 +19,8 @@ autoAPIMappings := true
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
   "org.typelevel" %% "cats" % "0.9.0",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.6.0.201612231935-r",
-  "org.yaml" % "snakeyaml" % "1.17",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.7.0.201704051617-r",
+  "org.yaml" % "snakeyaml" % "1.18",
   "org.pegdown" % "pegdown" % "1.6.0"
 )
 
@@ -36,7 +36,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "net.codingwell" %% "scala-guice" % "4.0.1",
       "com.typesafe" % "config" % "1.3.1",
       "org.typelevel" %% "cats" % "0.9.0",
-      "com.typesafe.play" %% "play" % "2.5.12"
+      "com.typesafe.play" %% "play" % "2.5.14"
     )
   )
 
