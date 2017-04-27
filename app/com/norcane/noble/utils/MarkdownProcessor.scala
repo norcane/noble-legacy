@@ -18,15 +18,23 @@
 
 package com.norcane.noble.utils
 
-import org.pegdown.{Extensions, PegDownProcessor}
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.util.options.{MutableDataHolder, MutableDataSet}
 
 /**
   * Simple utility object, providing support for parsing the ''Markdown'' text into the ''HTML''
-  * output. Based on the [[https://github.com/sirthias/pegdown Pegdown]] library.
+  * output. Based on the [[https://github.com/vsch/flexmark-java flexmark-java]] library.
   *
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
 object MarkdownProcessor {
+
+  val options: MutableDataHolder = new MutableDataSet()
+    .set[java.lang.Boolean](Parser.FENCED_CODE_BLOCK_PARSER, true)
+  val parser: Parser = Parser.builder(options).build()
+  val htmlRenderer: HtmlRenderer = HtmlRenderer.builder(options).build()
+
 
   /**
     * Takes the input ''Markdown'' text and processes resulting ''HTML'' output.
@@ -34,8 +42,7 @@ object MarkdownProcessor {
     * @param input input ''Markdown'' text
     * @return ''HTML'' output
     */
-  def md2html(input: String): String = new PegDownProcessor(
-    Extensions.FENCED_CODE_BLOCKS
-  ).markdownToHtml(input)
-
+  def md2html(input: String): String = {
+    htmlRenderer.render(parser.parse(input))
+  }
 }
