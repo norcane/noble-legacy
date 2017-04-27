@@ -1,4 +1,4 @@
-package com.norcane.noble.api.services
+package com.norcane.noble.services
 
 /**
   * Represents service allowing to parse ''Markdown'' text into various formats. The default

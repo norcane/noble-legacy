@@ -27,8 +27,8 @@ import cats.syntax.either._
 import com.norcane.noble.api._
 import com.norcane.noble.api.astral.{Astral, AstralType}
 import com.norcane.noble.api.models.{BlogPostMeta, StaticPageMeta}
-import com.norcane.noble.api.services.MarkdownService
 import com.norcane.noble.astral.{RawYaml, YamlParser}
+import com.norcane.noble.services.MarkdownService
 
 import scala.io.Source
 import scala.util.{Failure, Success}

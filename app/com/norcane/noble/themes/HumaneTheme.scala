@@ -22,8 +22,8 @@ import javax.inject.{Inject, Singleton}
 
 import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models._
-import com.norcane.noble.api.services.MarkdownService
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
+import com.norcane.noble.services.MarkdownService
 import com.norcane.noble.themes.HumaneTheme.{HumaneProps, Toolbar}
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
