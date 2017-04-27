@@ -18,27 +18,28 @@
 
 package com.norcane.noble.themes
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
+import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models._
+import com.norcane.noble.api.services.MarkdownService
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, BlogThemeFactory}
 import com.norcane.noble.themes.HumaneTheme.{HumaneProps, Toolbar}
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
-import com.norcane.noble.api.astral.Astral
 
 @Singleton
-class HumaneThemeFactory extends BlogThemeFactory {
+class HumaneThemeFactory @Inject()(markdownService: MarkdownService) extends BlogThemeFactory {
   override def name: String = HumaneTheme.ThemeName
 
-  override def create: BlogTheme = new HumaneTheme
+  override def create: BlogTheme = new HumaneTheme(markdownService)
 }
 
 
-class HumaneTheme extends BlogTheme {
+class HumaneTheme(markdownService: MarkdownService) extends BlogTheme {
 
-  import com.norcane.noble.utils.MarkdownProcessor.md2html
+  //import com.norcane.noble.utils.MarkdownProcessor.md2html
 
   override def name: String = HumaneTheme.ThemeName
 
@@ -77,7 +78,7 @@ class HumaneTheme extends BlogTheme {
 
   private def singleAuthor(blog: Blog): Option[BlogAuthor] = for {
     author <- blog.info.authors.headOption if blog.info.authors.size == 1
-  } yield author.copy(biography = author.biography map md2html)
+  } yield author.copy(biography = author.biography map markdownService.parseToHtml)
 
   private def aboutPage(author: BlogAuthor): Option[String] = {
     import Astral.Defaults._

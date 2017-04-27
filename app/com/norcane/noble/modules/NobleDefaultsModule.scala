@@ -19,7 +19,9 @@
 package com.norcane.noble.modules
 
 import com.norcane.noble.api.NobleModule
+import com.norcane.noble.api.services.MarkdownService
 import com.norcane.noble.formatsupport.MarkdownFormatSupportFactory
+import com.norcane.noble.services.DefaultMarkdownService
 import com.norcane.noble.storages.GitBlogStorageFactory
 import com.norcane.noble.themes.HumaneThemeFactory
 
@@ -34,5 +36,8 @@ class NobleDefaultsModule extends NobleModule {
 
     // registers the default theme 'Humane'
     registerBlogTheme[HumaneThemeFactory]()
+
+    // default services bindings (can be override in client blog)
+    defaultBinding[MarkdownService].to[DefaultMarkdownService]
   }
 }

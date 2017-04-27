@@ -21,28 +21,30 @@ package com.norcane.noble.formatsupport
 import java.io.InputStream
 import java.time.{ZoneId, ZonedDateTime}
 import java.util.Date
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
 import cats.syntax.either._
+import com.norcane.noble.api._
 import com.norcane.noble.api.astral.{Astral, AstralType}
 import com.norcane.noble.api.models.{BlogPostMeta, StaticPageMeta}
-import com.norcane.noble.api._
+import com.norcane.noble.api.services.MarkdownService
 import com.norcane.noble.astral.{RawYaml, YamlParser}
 
 import scala.io.Source
 import scala.util.{Failure, Success}
 
 @Singleton
-class MarkdownFormatSupportFactory extends FormatSupportFactory {
+class MarkdownFormatSupportFactory @Inject()(markdownService: MarkdownService)
+  extends FormatSupportFactory {
 
   override def formatName: String = "md"
 
-  override def create: FormatSupport = new MarkdownFormatSupport()
+  override def create: FormatSupport = new MarkdownFormatSupport(markdownService)
 }
 
-class MarkdownFormatSupport extends FormatSupport {
+class MarkdownFormatSupport(markdownService: MarkdownService) extends FormatSupport {
 
-  import com.norcane.noble.utils.MarkdownProcessor.md2html
+  //import com.norcane.noble.utils.MarkdownProcessor.md2html
 
   private val FrontMatterSeparator: String = "---"
 
@@ -63,7 +65,6 @@ class MarkdownFormatSupport extends FormatSupport {
     for (content <- extractContent(is, post.title))
       yield markdownToHtml(replaceIn(content, placeholders))
   }
-
 
 
   override def extractPageMetadata(is: InputStream, record: StaticPageRecord
@@ -88,7 +89,7 @@ class MarkdownFormatSupport extends FormatSupport {
 
   private def placeholder(name: String): String = s"@@$name@@"
 
-  private def markdownToHtml(input: String): String = md2html(input)
+  private def markdownToHtml(input: String): String = markdownService.parseToHtml(input)
 
   private def extractContent(is: InputStream, title: String): Either[FormatSupportError, String] = {
     val lines = Source.fromInputStream(is).getLines().dropWhile(_.trim.isEmpty)
