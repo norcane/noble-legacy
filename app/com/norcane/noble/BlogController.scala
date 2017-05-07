@@ -80,6 +80,16 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
       Some(message("noble.posts-by-tag", name)))(router.tag(name, _))
   }
 
+  def author(authorId: String, page: Page) = BlogAction.async { implicit req =>
+    req.blog.info.authors.find(_.authorId == authorId) match {
+      case Some(author) =>
+        paged(req.blog.byAuthor(authorId).getOrElse(Nil), page,
+          Some(message("noble.posts-by-author", author.name)))(router.author(authorId, _))
+      case None =>
+        Future.successful(notFoundResp(req.blog))
+    }
+  }
+
   def year(year: Int, page: Page) = BlogAction.async { implicit req =>
     paged(req.blog.forYear(year).posts, page,
       Some(message("noble.posts-by-year", year)))(router.year(year, _))
@@ -150,7 +160,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   private def createBlogPost(meta: BlogPostMeta, contentOpt: Option[String],
                              blog: Blog): Option[BlogPost] = for {
     content <- contentOpt
-    author <- blog.info.authors.find(_.nickname == meta.author)
+    author <- blog.info.authors.find(_.authorId == meta.author)
   } yield BlogPost(meta, author, content)
 
   private def createStaticPage(meta: StaticPageMeta,

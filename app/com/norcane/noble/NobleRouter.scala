@@ -90,6 +90,10 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
     case GET(p"""/${int(year)}<\d{4}>/${int(month)}<\d{2}>/${int(day)}<\d{2}>""" ? Page(page)) =>
       controller.day(year, month, day, page)
 
+    // blog posts by author
+    case GET(p"/author/$authorId" ? Page(page)) =>
+      controller.author(authorId, page)
+
     // blog posts for specific tag
     case GET(p"/tags/$name" ? Page(page)) =>
       controller.tag(name, page)

@@ -179,16 +179,16 @@ class GitBlogStorage(config: GitStorageConfig,
     import cats.syntax.traverse._
 
     if (authors.keys.nonEmpty) {
-      (authors.keys map { nickname =>
-        val authorAst = Either.fromOption(authors.get[Astral](nickname),
-          s"invalid configuration for author with nickname '$nickname'")
+      (authors.keys map { authorId =>
+        val authorAst = Either.fromOption(authors.get[Astral](authorId),
+          s"invalid configuration for author with ID '$authorId'")
 
         val authorE = for {
           author <- authorAst
           name <- Either.fromOption(author.get[String]("name"),
-            s"missing name for author with nickname '$nickname")
+            s"missing name for author with ID '$authorId")
         } yield BlogAuthor(
-          nickname = nickname,
+          authorId = authorId,
           name = name,
           biography = author.get[String]("biography"),
           avatar = author.get[String]("avatar"),

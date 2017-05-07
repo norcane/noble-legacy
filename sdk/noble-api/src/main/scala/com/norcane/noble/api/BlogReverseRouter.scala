@@ -72,6 +72,19 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
     Call("GET", withPaging(s"$path/tags/${encode(name)}", page))
 
   /**
+    * Creates call to page, which displays all blog posts published by author, specified by his/her
+    * `ID` (paginated). If no `page` param specifying the pagination settings is provided,
+    * [[defaultPage]] is used.
+    *
+    * @param authorId unique ID of the author (i.e. nickname)
+    * @param page     page specifying the pagination settings (e.g. page number and number of blog posts
+    *                 per page)
+    * @return call to page displaying all blog posts by author
+    */
+  def author(authorId: String, page: Page = defaultPage): Call =
+    Call("GET", withPaging(s"$path/author/${encode(authorId)}", page))
+
+  /**
     * Creates call to page, which displays all blog posts published in specified year (paginated).
     * If no `page` param specifying the pagination settings is provided, [[defaultPage]] is used.
     *

@@ -2,6 +2,7 @@ noble.posts-by-tag = All posts for tag {0}
 noble.posts-by-year = All posts for {0,number,####}
 noble.posts-by-month = All posts for {1} {0,number,####}
 noble.posts-by-day = All posts for {2,number,#} {1} {0,number,####}
+noble.posts-by-author = All posts by {0}
 
 noble.humane.about-the-author = about the author
 noble.humane.about-author-page = more about the author

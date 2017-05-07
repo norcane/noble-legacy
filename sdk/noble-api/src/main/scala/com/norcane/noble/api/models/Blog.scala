@@ -66,6 +66,8 @@ class Blog(val name: String, val versionId: String, val info: BlogInfo,
     Year(year, months, yearPosts)
   }.toSeq.sorted
 
+  val authors: Map[String, Seq[BlogPostMeta]] = posts.groupBy(_.author)
+
   /**
     * Represents the map of tags, where key is the tag name and value collection of blog posts
     * for the tag.
@@ -93,6 +95,14 @@ class Blog(val name: String, val versionId: String, val info: BlogInfo,
     * @return collection of all blog posts, published in the specified year
     */
   def forYear(year: Int): Year = years.find(_.year == year).getOrElse(Year.empty(year))
+
+  /**
+    * Returns collection of all blog posts, published by the specified author.
+    *
+    * @param authorId unique ID of the author
+    * @return collection of all blog posts, published by the specified author
+    */
+  def byAuthor(authorId: String): Option[Seq[BlogPostMeta]] = authors.get(authorId)
 
   /**
     * Returns collection of all blog posts for specified tag.

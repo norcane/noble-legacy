@@ -71,7 +71,7 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
     import cats.syntax.traverse._
 
     val validated: Seq[Either[BlogLoadingFailed, BlogPostMeta]] = posts map { post =>
-      blogInfo.authors find (_.nickname == post.author) match {
+      blogInfo.authors find (_.authorId == post.author) match {
         case Some(_) => Right(post)
         case None => Left(BlogLoadingFailed(s"Cannot find author definition for nickname " +
           s"'${post.author}' mentioned in blog post '${post.id}'"))

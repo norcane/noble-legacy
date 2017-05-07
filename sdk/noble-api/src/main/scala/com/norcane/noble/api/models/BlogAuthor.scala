@@ -21,15 +21,15 @@ package com.norcane.noble.api.models
 import com.norcane.noble.api.astral.Astral
 
 /**
-  * Represents the blog author. Each author must be uniquely distinguishable by his/her `nickname`.
-  * As the nickname may be used in some ''URL'' parts, ''URL''-friendly form is recommended.
+  * Represents the blog author. Each author must be uniquely distinguishable by his/her `ID`.
+  * As the ID may be used in some ''URL'' parts, ''URL''-friendly form is recommended.
   *
-  * @param nickname   unique nickname of the blog author
+  * @param authorId   unique ID of the blog author
   * @param name       name (first name + last name) of the blog author
   * @param biography  optional short author biography
   * @param avatar     optional path to the author avatar/portrait image
   * @param properties other author properties
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-case class BlogAuthor(nickname: String, name: String, biography: Option[String],
+case class BlogAuthor(authorId: String, name: String, biography: Option[String],
                       avatar: Option[String], properties: Astral)
