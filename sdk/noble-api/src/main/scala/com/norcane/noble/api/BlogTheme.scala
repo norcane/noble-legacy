@@ -18,7 +18,7 @@
 
 package com.norcane.noble.api
 
-import com.norcane.noble.api.models.{Blog, BlogPost, Pagination, StaticPage}
+import com.norcane.noble.api.models._
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
@@ -75,12 +75,13 @@ trait BlogTheme {
     * @param title      page title (optional)
     * @param posts      collection of blog posts
     * @param pagination pagination object allowing simple navigation in available pages
+    * @param filter     filter that is applied to current blog posts collection
     * @param header     request header
     * @param messages   localization messages
     * @return HTML content
     */
   def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
-                posts: Seq[BlogPost], pagination: Pagination)
+                posts: Seq[BlogPost], pagination: Pagination, filter: Option[PostsFilter])
                (implicit header: RequestHeader, messages: Messages): Html
 
   /**

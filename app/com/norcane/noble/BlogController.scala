@@ -44,7 +44,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   private implicit val defaultTimeout = Timeout(10.seconds)
 
   def index(page: Page) = BlogAction.async { implicit req =>
-    paged(req.blog.posts, page, None)(router.index)
+    paged(req.blog.posts, page, None, None)(router.index)
   }
 
   def post(year: Int, month: Int, day: Int, permalink: String) = BlogAction.async { implicit req =>
@@ -76,36 +76,41 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   }
 
   def tag(name: String, page: Page) = BlogAction.async { implicit req =>
+    val filter = PostsFilter.Tag(name)
     paged(req.blog.forTag(name).getOrElse(Nil), page,
-      Some(message("noble.posts-by-tag", name)))(router.tag(name, _))
+      Some(message("noble.posts-by-tag", name)), Some(filter))(router.tag(name, _))
   }
 
   def author(authorId: String, page: Page) = BlogAction.async { implicit req =>
     req.blog.info.authors.find(_.authorId == authorId) match {
       case Some(author) =>
+        val filter = PostsFilter.Author(author)
         paged(req.blog.byAuthor(authorId).getOrElse(Nil), page,
-          Some(message("noble.posts-by-author", author.name)))(router.author(authorId, _))
+          Some(message("noble.posts-by-author", author.name)), Some(filter))(router.author(authorId, _))
       case None =>
         Future.successful(notFoundResp(req.blog))
     }
   }
 
   def year(year: Int, page: Page) = BlogAction.async { implicit req =>
+    val filter = PostsFilter.Year(year)
     paged(req.blog.forYear(year).posts, page,
-      Some(message("noble.posts-by-year", year)))(router.year(year, _))
+      Some(message("noble.posts-by-year", year)), Some(filter))(router.year(year, _))
   }
 
   def month(year: Int, month: Int, page: Page) = BlogAction.async { implicit req =>
     val byMonth: Month = req.blog.forYear(year).forMonth(month)
+    val filter = PostsFilter.Month(year, month)
     paged(byMonth.posts, page,
-      Some(message("noble.posts-by-month", year, byMonth.name)))(router.month(year, month, _))
+      Some(message("noble.posts-by-month", year, byMonth.name)), Some(filter))(router.month(year, month, _))
   }
 
   def day(year: Int, month: Int, day: Int, page: Page) = BlogAction.async { implicit req =>
     val byMonth: Month = req.blog.forYear(year).forMonth(month)
     val byDay: Day = byMonth.forDay(day)
+    val filter = PostsFilter.Day(year, month, day)
     paged(byDay.posts, page,
-      Some(message("noble.posts-by-day", year, byMonth.name, day)))(router.day(year, month, day, _))
+      Some(message("noble.posts-by-day", year, byMonth.name, day)), Some(filter))(router.day(year, month, day, _))
   }
 
   def asset(path: String) = BlogAction.async { implicit req =>
@@ -168,7 +173,8 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     for (content <- contentOpt) yield StaticPage(meta, content)
   }
 
-  private def paged[A](allPosts: Seq[BlogPostMeta], page: Page, title: Option[String])
+  private def paged[A](allPosts: Seq[BlogPostMeta], page: Page, title: Option[String],
+                       filter: Option[PostsFilter])
                       (route: Page => Call)(implicit req: BlogRequest[A]): Future[Result] = {
 
     val pageNo: Int = if (page.pageNo < 1) 1 else page.pageNo
@@ -186,7 +192,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     }).map { loaded =>
       val theme: BlogTheme = themeByName(req.blog.info.themeName)
       val posts: Seq[BlogPost] = loaded flatMap (_.toSeq)
-      Ok(theme.blogPosts(req.blog, router, title, posts, pagination))
+      Ok(theme.blogPosts(req.blog, router, title, posts, pagination, filter))
     }
   }
 

@@ -44,7 +44,7 @@ class HumaneTheme(markdownService: MarkdownService) extends BlogTheme {
   override def name: String = HumaneTheme.ThemeName
 
   override def blogPosts(blog: Blog, router: BlogReverseRouter, title: Option[String],
-                         posts: Seq[BlogPost], pagination: Pagination)
+                         posts: Seq[BlogPost], pagination: Pagination, filter: Option[PostsFilter])
                         (implicit header: RequestHeader, messages: Messages): Html = {
 
     val author = singleAuthor(blog)

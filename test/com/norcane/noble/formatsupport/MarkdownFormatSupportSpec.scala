@@ -24,6 +24,7 @@ import cats.syntax.either._
 import com.norcane.noble.api.astral.Astral
 import com.norcane.noble.api.models.BlogPostMeta
 import com.norcane.noble.api.{BlogPostRecord, FormatSupportError}
+import com.norcane.noble.services.impl.FlexmarkMarkdownService
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
 
@@ -36,7 +37,8 @@ import org.specs2.mutable
 class MarkdownFormatSupportSpec extends mutable.Specification with Matchers {
 
   private val testBlogPostPath: String = "/2016-07-26-test-article.md"
-  private val formatSupport: MarkdownFormatSupport = new MarkdownFormatSupport()
+  private val formatSupport: MarkdownFormatSupport =
+    new MarkdownFormatSupport(new FlexmarkMarkdownService())
   private val testDate: ZonedDateTime = LocalDate.of(2016, 7, 26).atStartOfDay(ZoneId.of("UTC"))
   private val testTitle: String = "test-article"
   private val metadata: Either[FormatSupportError, BlogPostMeta] = formatSupport.extractPostMetadata(
