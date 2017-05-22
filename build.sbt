@@ -19,9 +19,9 @@ autoAPIMappings := true
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
   "org.typelevel" %% "cats" % "0.9.0",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.7.0.201704051617-r",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.8.0.201705170830-rc1",
   "org.yaml" % "snakeyaml" % "1.18",
-  "com.vladsch.flexmark" % "flexmark-all" % "0.19.4"
+  "com.vladsch.flexmark" % "flexmark-all" % "0.19.5"
 )
 
 unmanagedResourceDirectories in Test += baseDirectory(_ / "target/web/public/test").value
@@ -36,7 +36,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "net.codingwell" %% "scala-guice" % "4.0.1",
       "com.typesafe" % "config" % "1.3.1",
       "org.typelevel" %% "cats" % "0.9.0",
-      "com.typesafe.play" %% "play" % "2.5.14"
+      "com.typesafe.play" %% "play" % "2.5.15"
     )
   )
 
