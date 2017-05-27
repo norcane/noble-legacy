@@ -29,6 +29,12 @@ import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 
+/**
+  * Factory for the [[HumaneTheme]]. Used by ''Guice'' to get and create the instance with
+  * all required dependencies.
+  *
+  * @param markdownService ''markdown'' service reference
+  */
 @Singleton
 class HumaneThemeFactory @Inject()(markdownService: MarkdownService) extends BlogThemeFactory {
   override def name: String = HumaneTheme.ThemeName
@@ -36,10 +42,13 @@ class HumaneThemeFactory @Inject()(markdownService: MarkdownService) extends Blo
   override def create: BlogTheme = new HumaneTheme(markdownService)
 }
 
-
+/**
+  * ''Humane'', default theme bundled with ''noble''.
+  *
+  * @param markdownService ''markdown'' service reference
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
 class HumaneTheme(markdownService: MarkdownService) extends BlogTheme {
-
-  //import com.norcane.noble.utils.MarkdownProcessor.md2html
 
   override def name: String = HumaneTheme.ThemeName
 

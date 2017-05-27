@@ -40,7 +40,10 @@ import scala.io.Source
 import scala.util.Try
 import scala.util.matching.Regex
 
-
+/**
+  * Factory for the [[GitBlogStorage]]. Used by ''Guice'' to get and create the instance with
+  * all required dependencies.
+  */
 @Singleton
 class GitBlogStorageFactory extends BlogStorageFactory {
 
@@ -62,6 +65,12 @@ class GitBlogStorageFactory extends BlogStorageFactory {
   }
 }
 
+/**
+  * ''Blog storage'' implementation that support using ''Git'' as the primary storage.
+  *
+  * @param config         storage config
+  * @param formatSupports collection of all available ''format supports''
+  */
 class GitBlogStorage(config: GitStorageConfig,
                      formatSupports: Map[String, FormatSupport]) extends BlogStorage {
 
@@ -252,7 +261,7 @@ class GitBlogStorage(config: GitStorageConfig,
 
   private def loadContent(versionId: String, path: String): Option[String] =
     loadStream(versionId, path) map {
-      case ContentStream(stream, length) => try {
+      case ContentStream(stream, _) => try {
         Source.fromInputStream(stream).mkString
       } finally {
         stream.close()

@@ -33,6 +33,12 @@ import com.norcane.noble.services.MarkdownService
 import scala.io.Source
 import scala.util.{Failure, Success}
 
+/**
+  * Factory for the [[MarkdownFormatSupport]]. Used by ''Guice'' to get and create the instance with
+  * all required dependencies.
+  *
+  * @param markdownService ''markdown'' service reference
+  */
 @Singleton
 class MarkdownFormatSupportFactory @Inject()(markdownService: MarkdownService)
   extends FormatSupportFactory {
@@ -42,14 +48,19 @@ class MarkdownFormatSupportFactory @Inject()(markdownService: MarkdownService)
   override def create: FormatSupport = new MarkdownFormatSupport(markdownService)
 }
 
+/**
+  * Provides ''format support'' for ''Markdown'' documents. By default, this ''format support''
+  * will be used for all files that uses the `md` as their format name.
+  *
+  * @param markdownService ''markdown'' service reference
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
 class MarkdownFormatSupport(markdownService: MarkdownService) extends FormatSupport {
-
-  //import com.norcane.noble.utils.MarkdownProcessor.md2html
 
   private val FrontMatterSeparator: String = "---"
 
   private implicit class IteratorOps[T](iterator: Iterator[T]) {
-    def nextOption = if (iterator.hasNext) Option(iterator.next()) else None
+    def nextOption: Option[T] = if (iterator.hasNext) Option(iterator.next()) else None
   }
 
   override def extractPostMetadata(is: InputStream, record: BlogPostRecord
