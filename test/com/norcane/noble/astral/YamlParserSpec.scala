@@ -22,7 +22,7 @@ import com.norcane.noble.api.astral.Astral
 import org.specs2.matcher.Matchers
 import org.specs2.mutable
 
-import scala.io.Source
+import scala.io.{Codec, Source}
 import scala.util.Try
 
 
@@ -39,7 +39,7 @@ class YamlParserSpec extends mutable.Specification with Matchers {
 
   private val testFile: String = "/testFile.yml"
   private val rawYaml: RawYaml = RawYaml(
-    Source.fromInputStream(getClass.getResourceAsStream(testFile)).mkString)
+    Source.fromInputStream(getClass.getResourceAsStream(testFile))(Codec.UTF8).mkString)
   private val parsedYaml: Try[Astral] = Astral.parse(rawYaml)
 
 

@@ -36,7 +36,7 @@ import org.eclipse.jgit.treewalk.filter.{PathFilter, TreeFilter}
 import play.api.Configuration
 
 import scala.annotation.tailrec
-import scala.io.Source
+import scala.io.{Codec, Source}
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -262,7 +262,7 @@ class GitBlogStorage(config: GitStorageConfig,
   private def loadContent(versionId: String, path: String): Option[String] =
     loadStream(versionId, path) map {
       case ContentStream(stream, _) => try {
-        Source.fromInputStream(stream).mkString
+        Source.fromInputStream(stream)(Codec.UTF8).mkString
       } finally {
         stream.close()
       }

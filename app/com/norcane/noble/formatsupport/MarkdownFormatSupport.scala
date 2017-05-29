@@ -30,7 +30,7 @@ import com.norcane.noble.api.models.{BlogPostMeta, StaticPageMeta}
 import com.norcane.noble.astral.{RawYaml, YamlParser}
 import com.norcane.noble.services.MarkdownService
 
-import scala.io.Source
+import scala.io.{Codec, Source}
 import scala.util.{Failure, Success}
 
 /**
@@ -103,7 +103,7 @@ class MarkdownFormatSupport(markdownService: MarkdownService) extends FormatSupp
   private def markdownToHtml(input: String): String = markdownService.parseToHtml(input)
 
   private def extractContent(is: InputStream, title: String): Either[FormatSupportError, String] = {
-    val lines = Source.fromInputStream(is).getLines().dropWhile(_.trim.isEmpty)
+    val lines = Source.fromInputStream(is)(Codec.UTF8).getLines().dropWhile(_.trim.isEmpty)
     lines.nextOption match {
       case Some(FrontMatterSeparator) =>
         Right(lines.dropWhile(_ != FrontMatterSeparator).drop(1).mkString("\n"))
@@ -146,7 +146,7 @@ class MarkdownFormatSupport(markdownService: MarkdownService) extends FormatSupp
 
     implicit val yamlParser = YamlParser.parser
 
-    val lines = Source.fromInputStream(is).getLines().map(_.trim).dropWhile(_.isEmpty)
+    val lines = Source.fromInputStream(is)(Codec.UTF8).getLines().map(_.trim).dropWhile(_.isEmpty)
 
     lines.nextOption match {
       case Some(FrontMatterSeparator) =>
