@@ -114,8 +114,11 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
   }
 
   def asset(path: String) = BlogAction.async { implicit req =>
-    val safePath: String = new File(s"/$path").getCanonicalPath
-
+    val safePath: String = if (File.separator == "\\") {
+      java.nio.file.Paths.get(s"/$path").normalize().toString.replace("\\", "/")
+    } else {
+      new File(s"/$path").getCanonicalPath
+    }
     (blogActor ? LoadAsset(req.blog, safePath)).mapTo[Option[ContentStream]] flatMap {
       case Some(ContentStream(stream, length)) =>
         Future.successful(Ok.sendEntity(HttpEntity.Streamed(
