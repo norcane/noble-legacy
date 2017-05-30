@@ -18,17 +18,16 @@ and is still under heavy development. It means it's NOT feature complete yet (se
 also not yet released into the *Maven* repository, although this is planned to be done soon.
 
 ## Key features
-- [x] Can be easily embedded into any existing *Play* using few simple steps (see chapter
-  *Embedding in your Play application* below).
-- [x] Modular blog storage support. Default bundled implementation uses *Git* with directory
-  structure similar to [Jekyll](https://jekyllrb.com).
-- [x] Modular blog post format support, your blog posts can use in **multiple blog post formats**
+- Seamless integration into any existing *Play* application.
+- Modular blog storage support. Bundled implementation uses *Git* with directory structure similar
+  to [Jekyll](https://jekyllrb.com).
+- Modular blog post format support, your blog posts can use in **multiple blog post formats**
   within a single blog. Default bundled implementation uses *Markdown* with *YAML*
-  front matter, similar to [Jekyll](https://jekyllrb.com).
-- [x] Completely themeable, with default theme *Humane* bundled.
-- [x] Support for static pages.
-- [x] Single installation can host one or multiple blogs.
-- [x] Built-in, zero-conf support for *Atom* feeds.
+- Modular themes support. Bundled with *Humane* theme, lightweight responsive theme.
+- Support for *static pages*.
+- Supports navigable blog history and tag cloud.
+- Generated *Atom* feed without any further configuration.
+- Single installation can serve one or more blogs, written by one or more authors.
 
 ## Planned features
 - [ ] *XML*/*JSON* API for better integration with client-side code.
