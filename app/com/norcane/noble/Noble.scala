@@ -30,16 +30,27 @@ import play.api.{Configuration, Environment, Logger}
 
 import scala.collection.immutable
 
+/**
+  * Core part of the *noble*, that performs all required bootstrap steps, such as loading blog
+  * definitions, discovers available ''blog storages'', ''format supports'' and ''blog themes''.
+  *
+  * @param actorSystem            Akka actor system
+  * @param configuration          Play's configuration
+  * @param environment            Play's environment
+  * @param storageFactories       set of all available ''blog storage'' factories
+  * @param formatSupportFactories set of all available ''format support'' factories
+  * @param themeFactories         set of all available ''blog theme'' factories
+  */
 @Singleton
 class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
                       environment: Environment, storageFactories: immutable.Set[BlogStorageFactory],
                       formatSupportFactories: immutable.Set[FormatSupportFactory],
                       themeFactories: immutable.Set[BlogThemeFactory]) {
 
-  private val logger: Logger = Logger(getClass)
+  private val logger = Logger(getClass)
 
   lazy val blogs: Seq[BlogDefinition] = loadBlogDefinitions
-  lazy val themes: immutable.Set[BlogTheme] = loadThemes
+  lazy val themes: Set[BlogTheme] = loadThemes
 
   private def loadThemes: immutable.Set[BlogTheme] = themeFactories map (_.create)
 
@@ -68,7 +79,7 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
     }
 
     blogDefinitionsE.fold(error => throw InvalidBlogConfigError(error), definitions => {
-      val blogNames: Seq[String] = definitions map (_.config.name)
+      val blogNames = definitions map (_.config.name)
       logger.info(s"Following blogs were successfully loaded: ${blogNames.mkString(",")}")
       definitions
     })
@@ -87,7 +98,7 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
         factory.create(config, formatSupports).leftMap(_.message)
       case None => Left(
         s"""Cannot find any registered blog storage factory for type
-            |'${config.storageType}' (available types are: $available)"""
+           |'${config.storageType}' (available types are: $available)"""
           .stripMargin.replaceAll("\n", " "))
     }
   }

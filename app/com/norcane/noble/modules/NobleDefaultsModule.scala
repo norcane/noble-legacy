@@ -25,6 +25,12 @@ import com.norcane.noble.services.impl.FlexmarkMarkdownService
 import com.norcane.noble.storages.GitBlogStorageFactory
 import com.norcane.noble.themes.HumaneThemeFactory
 
+/**
+  * This *Noble module* registers the default implementation of various services, bundled with
+  * standard *noble* distribution.
+  *
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
 class NobleDefaultsModule extends NobleModule {
 
   override def configure(): Unit = {

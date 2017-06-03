@@ -43,7 +43,7 @@ class AstralSpec extends mutable.Specification with Matchers {
   "The ASTral object should" >> {
 
     "properly lookup direct value" >> {
-      ast.get[String]("string") should beEqualTo(Some("some text"))
+      ast.get[String]("string") should beSome("some text")
     }
 
     "properly check value existence" >> {
@@ -51,7 +51,7 @@ class AstralSpec extends mutable.Specification with Matchers {
     }
 
     "properly lookup nested ASTral objects" >> {
-      ast.get[Int]("object1/object2/orwell") should beEqualTo(Some(1984))
+      ast.get[Int]("object1/object2/orwell") should beSome(1984)
     }
 
     "properly return keys collection" >> {

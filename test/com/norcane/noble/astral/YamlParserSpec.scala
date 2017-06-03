@@ -50,20 +50,20 @@ class YamlParserSpec extends mutable.Specification with Matchers {
     }
 
     "properly parse string values" >> {
-      parsedYaml.get.get[String]("testString") must beEqualTo(Some("testValue"))
+      parsedYaml.get.get[String]("testString") must beSome("testValue")
     }
 
     "properly parse integer numbers" >> {
-      parsedYaml.get.get[Int]("testInt") must beEqualTo(Some(42))
+      parsedYaml.get.get[Int]("testInt") must beSome(42)
     }
 
     "properly parse string list" >> {
-      parsedYaml.get.get[List[String]]("testList") must beEqualTo(Some(List("first", "second")))
+      parsedYaml.get.get[List[String]]("testList") must beSome(List("first", "second"))
     }
 
     "properly parse nested ASTral object" >> {
       parsedYaml.get.get[Astral]("testMap")
-        .flatMap(yaml => yaml.get[String]("key1")) must beEqualTo(Some("value1"))
+        .flatMap(yaml => yaml.get[String]("key1")) must beSome("value1")
     }
   }
 }

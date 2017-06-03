@@ -22,8 +22,7 @@ import com.norcane.noble.api._
 import net.codingwell.scalaguice.ScalaMultibinder
 
 /**
-  * This Noble module prepares the environment for another 3rd party modules and registers some of
-  * the built-in modules.
+  * Core *Noble module*, prepares the environment for 3rd party modules.
   *
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */

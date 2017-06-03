@@ -27,25 +27,39 @@ import play.api.mvc.{Handler, RequestHeader}
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
 
+/**
+  * This router represents the entry point of the ''noble'' application, that handles all blog
+  * requests. In order to embed the ''noble'' into the ''Play'' application, all requests not
+  * handled by the application routes must be directed to this router using the following syntax:
+  *
+  * {{{
+  *   ->  /<nobleRoot>   com.norcane.noble.NobleRouter
+  * }}}
+  *
+  * Where `nobleRoot` is the *noble* root path.
+  *
+  * @param messages Play's Messages API
+  * @param noble    Noble application singleton
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
 @Singleton
 class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleRouter {
 
   private var prefix: String = ""
 
   override def routes: Routes = {
-    import play.api.routing._
     import play.api.routing.sird._
 
-    val blogRouters: Seq[Router] = noble.blogs map { blog =>
-      val blogPath: String = prefix + blog.config.path
-      val globalAssetsPath: String = s"$prefix/${Keys.Defaults.GlobalAssetsPrefix}"
-      val reverseRouter: BlogReverseRouter = new BlogReverseRouter(blogPath, globalAssetsPath)
-      val controller: BlogController = new BlogController(
+    val blogRouters = noble.blogs map { blog =>
+      val blogPath = prefix + blog.config.path
+      val globalAssetsPath = s"$prefix/${Keys.Defaults.GlobalAssetsPrefix}"
+      val reverseRouter = new BlogReverseRouter(blogPath, globalAssetsPath)
+      val controller = new BlogController(
         blog.actor, blog.config, noble.themes, reverseRouter, blogPath, messages)
       new BlogRouter(controller).withPrefix(blog.config.path)
     }
 
-    val blogRoutes: PartialFunction[RequestHeader, Handler] = blogRouters
+    val blogRoutes = blogRouters
       .map(_.routes)
       .foldLeft(PartialFunction.empty[RequestHeader, Handler])(_ orElse _)
 
@@ -64,6 +78,13 @@ class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleR
 
 }
 
+/**
+  * Represents the router of one particular blog. *Noble* creates own instance for every configured
+  * blog.
+  *
+  * @param controller blog controller
+  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  */
 class BlogRouter(controller: BlogController) extends SimpleRouter {
   self =>
 
@@ -123,7 +144,7 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
     if (prefix == "/") self
     else new Router {
       override def routes: Routes = {
-        val p: String = if (prefix.endsWith("/")) prefix else prefix + "/"
+        val p = if (prefix.endsWith("/")) prefix else prefix + "/"
         val prefixed: PartialFunction[RequestHeader, RequestHeader] = {
           case header: RequestHeader if header.path.startsWith(p) || header.path.equals(prefix) =>
             header.copy(path = header.path.drop(p.length - 1))

@@ -35,7 +35,7 @@ class ConfigParserSpec extends mutable.Specification with Matchers {
   s"The $className should" >> {
     s"properly initialize ${BlogConfig.getClass.getSimpleName} from configuration" >> {
       ConfigParser.parseBlogConfig(testName, initTestConfiguration) must
-        beEqualTo(Right(initTestBlogConfig))
+        beRight(initTestBlogConfig)
     }
   }
 
