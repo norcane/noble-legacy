@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats" % "0.9.0",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.8.0.201705170830-rc1",
   "org.yaml" % "snakeyaml" % "1.18",
-  "com.vladsch.flexmark" % "flexmark-all" % "0.19.5"
+  "com.vladsch.flexmark" % "flexmark-all" % "0.19.6"
 )
 
 unmanagedResourceDirectories in Test += baseDirectory(_ / "target/web/public/test").value
