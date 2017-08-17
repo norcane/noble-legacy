@@ -13,7 +13,7 @@
           <ul class="months">
           @for((no, month) <- year.months) {
             <li>
-              <a href="@router.month(year.year, month.month)">@month.name (@month.posts.size)</a>
+              <a href="@router.month(year.year, month.month)">@month.name(m.lang) (@month.posts.size)</a>
             </li>
           }
           </ul>

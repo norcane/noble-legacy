@@ -23,7 +23,7 @@ import javax.inject.{Inject, Singleton}
 import com.norcane.noble.api.BlogReverseRouter
 import com.norcane.noble.api.models.Page
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Handler, RequestHeader}
+import play.api.mvc.{ControllerComponents, Handler, RequestHeader}
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
 
@@ -43,7 +43,9 @@ import play.api.routing.{Router, SimpleRouter}
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
 @Singleton
-class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleRouter {
+class NobleRouter @Inject()(messages: MessagesApi, noble: Noble, cc: ControllerComponents,
+                            blogActionFactory: BlogActionFactory)
+  extends SimpleRouter {
 
   private var prefix: String = ""
 
@@ -51,11 +53,12 @@ class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleR
     import play.api.routing.sird._
 
     val blogRouters = noble.blogs map { blog =>
+      val blogAction = blogActionFactory.blogAction(blog.actor)
       val blogPath = prefix + blog.config.path
       val globalAssetsPath = s"$prefix/${Keys.Defaults.GlobalAssetsPrefix}"
       val reverseRouter = new BlogReverseRouter(blogPath, globalAssetsPath)
       val controller = new BlogController(
-        blog.actor, blog.config, noble.themes, reverseRouter, blogPath, messages)
+        blog.actor, blog.config, noble.themes, reverseRouter, blogPath, messages, blogAction, cc)
       new BlogRouter(controller).withPrefix(blog.config.path)
     }
 

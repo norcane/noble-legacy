@@ -17,7 +17,7 @@ autoAPIMappings := true
 
 
 libraryDependencies ++= Seq(
-  jdbc, cache, ws, specs2 % Test,
+  guice, jdbc, cache, ws, specs2 % Test,
   "org.typelevel" %% "cats" % "0.9.0",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.8.0.201706111038-r",
   "org.yaml" % "snakeyaml" % "1.18",
@@ -28,6 +28,8 @@ unmanagedResourceDirectories in Test += baseDirectory(_ / "target/web/public/tes
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
+javaOptions := Seq("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")
+
 lazy val nobleApi = (project in file("sdk/noble-api"))
   .settings(
     name := "noble-api",
@@ -36,7 +38,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "net.codingwell" %% "scala-guice" % "4.0.1",
       "com.typesafe" % "config" % "1.3.1",
       "org.typelevel" %% "cats" % "0.9.0",
-      "com.typesafe.play" %% "play" % "2.5.16"
+      "com.typesafe.play" %% "play" % "2.6.3"
     )
   )
 
