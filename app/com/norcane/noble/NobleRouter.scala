@@ -28,6 +28,8 @@ import play.api.mvc.{ControllerComponents, Handler, RequestHeader}
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
 
+import scala.concurrent.ExecutionContext
+
 /**
   * This router represents the entry point of the ''noble'' application, that handles all blog
   * requests. In order to embed the ''noble'' into the ''Play'' application, all requests not
@@ -46,6 +48,7 @@ import play.api.routing.{Router, SimpleRouter}
 @Singleton
 class NobleRouter @Inject()(messages: MessagesApi, assets: Assets, noble: Noble,
                             cc: ControllerComponents, blogActionFactory: BlogActionFactory)
+                           (implicit eCtx: ExecutionContext)
   extends SimpleRouter {
 
   private var prefix: String = ""
@@ -151,7 +154,7 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
         val p = if (prefix.endsWith("/")) prefix else prefix + "/"
         val prefixed: PartialFunction[RequestHeader, RequestHeader] = {
           case header: RequestHeader if header.path.startsWith(p) || header.path.equals(prefix) =>
-            header.copy(path = header.path.drop(p.length - 1))
+            header.withTarget(header.target.withPath(header.path.drop(p.length - 1)))
         }
         Function.unlift(prefixed.lift andThen (_ flatMap self.routes.lift))
       }

@@ -30,10 +30,9 @@ import com.norcane.noble.api.models.dates.{Day, Month}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
 import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, Lang, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 
 /**
@@ -51,6 +50,7 @@ import scala.concurrent.duration._
 class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[BlogTheme],
                      router: BlogReverseRouter, blogPath: String, val messagesApi: MessagesApi,
                      blogAction: BlogAction, cc: ControllerComponents)
+                    (implicit eCtx: ExecutionContext)
   extends I18nSupport with Results {
 
   private implicit val defaultTimeout = Timeout(10.seconds)

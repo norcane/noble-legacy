@@ -15,9 +15,8 @@ scalaVersion in Global := "2.11.11"
 
 autoAPIMappings := true
 
-
 libraryDependencies ++= Seq(
-  guice, jdbc, cache, ws, specs2 % Test,
+  guice, specs2 % Test,
   "org.typelevel" %% "cats" % "0.9.0",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.8.0.201706111038-r",
   "org.yaml" % "snakeyaml" % "1.18",
@@ -25,10 +24,6 @@ libraryDependencies ++= Seq(
 )
 
 unmanagedResourceDirectories in Test += baseDirectory(_ / "target/web/public/test").value
-
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
-
-javaOptions := Seq("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")
 
 lazy val nobleApi = (project in file("sdk/noble-api"))
   .settings(

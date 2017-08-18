@@ -20,6 +20,7 @@ package com.norcane.noble
 
 import cats.syntax.either._
 import com.norcane.noble.api.models.{BlogConfig, StorageConfig}
+import com.norcane.noble.utils.extendedConfiguration._
 import play.api.Configuration
 
 /**
@@ -37,8 +38,8 @@ object ConfigParser {
     * @return instance of `StorageConfig` or error message in case of failure
     */
   def parseStorageConfig(config: Configuration): Either[String, StorageConfig] = {
-    val storageTypeE = Either.fromOption(config.getString("type"), "missing storage type configuration")
-    val storageConfig = config.getConfig("config") map (_.underlying)
+    val storageTypeE = config.getE[String]("type", "missing storage type configuration")
+    val storageConfig = config.getO[Configuration]("config") map (_.underlying)
     storageTypeE map (storageType => StorageConfig(storageType, storageConfig))
   }
 
@@ -50,9 +51,9 @@ object ConfigParser {
     * @return instance of `BlogConfig` or error message in case of failure
     */
   def parseBlogConfig(blogName: String, config: Configuration): Either[String, BlogConfig] = {
-    val path = config.getString("path").getOrElse("/blog")
-    val reloadToken = config.getString("reloadToken")
-    val storageCfgE = Either.fromOption(config.getConfig("storage"), "missing storage configuration")
+    val path = config.getO[String]("path").getOrElse("/blog")
+    val reloadToken = config.getO[String]("reloadToken")
+    val storageCfgE = config.getE[Configuration]("storage", "missing storage configuration")
 
     for {
       storageCfg <- storageCfgE

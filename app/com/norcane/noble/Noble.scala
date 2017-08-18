@@ -26,6 +26,7 @@ import com.norcane.noble.actors.BlogActor
 import com.norcane.noble.api._
 import com.norcane.noble.api.models.StorageConfig
 import com.norcane.noble.models.BlogDefinition
+import com.norcane.noble.utils.extendedConfiguration._
 import play.api.{Configuration, Environment, Logger}
 
 import scala.collection.immutable
@@ -57,12 +58,12 @@ class Noble @Inject()(actorSystem: ActorSystem, configuration: Configuration,
   private def loadBlogDefinitions: Seq[BlogDefinition] = {
     logger.info("Loading blog configurations")
     val blogsConfigKey = s"${Keys.Namespace}.blogs"
-    val blogsConfigE = Either.fromOption(configuration.getConfig(s"${Keys.Namespace}.blogs"),
+    val blogsConfigE = configuration.getE[Configuration](s"${Keys.Namespace}.blogs",
       s"missing blogs configuration under the '$blogsConfigKey'")
 
     val blogDefinitionsE = blogsConfigE map { blogsConfig =>
       blogsConfig.subKeys.toSeq map { blogName =>
-        val blogCfgE = Either.fromOption(blogsConfig.getConfig(blogName),
+        val blogCfgE = blogsConfig.getE[Configuration](blogName,
           s"invalid configuration for blog '$blogName'")
 
         val blogDefinitionE = for {
