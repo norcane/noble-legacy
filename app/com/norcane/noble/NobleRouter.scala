@@ -22,6 +22,7 @@ import javax.inject.{Inject, Singleton}
 
 import com.norcane.noble.api.BlogReverseRouter
 import com.norcane.noble.api.models.Page
+import controllers.Assets
 import play.api.i18n.MessagesApi
 import play.api.mvc.{ControllerComponents, Handler, RequestHeader}
 import play.api.routing.Router.Routes
@@ -43,8 +44,8 @@ import play.api.routing.{Router, SimpleRouter}
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
 @Singleton
-class NobleRouter @Inject()(messages: MessagesApi, noble: Noble, cc: ControllerComponents,
-                            blogActionFactory: BlogActionFactory)
+class NobleRouter @Inject()(messages: MessagesApi, assets: Assets, noble: Noble,
+                            cc: ControllerComponents, blogActionFactory: BlogActionFactory)
   extends SimpleRouter {
 
   private var prefix: String = ""
@@ -68,7 +69,7 @@ class NobleRouter @Inject()(messages: MessagesApi, noble: Noble, cc: ControllerC
 
     val globalRoutes: PartialFunction[RequestHeader, Handler] = {
       case GET(p"/${Keys.Defaults.GlobalAssetsPrefix}/lib/$path*") =>
-        controllers.Assets.versioned("/public/lib", path)
+        assets.versioned("/public/lib", path)
     }
 
     globalRoutes orElse blogRoutes
