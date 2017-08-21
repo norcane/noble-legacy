@@ -13,3 +13,5 @@ addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.3.0")
 
 // allows to list the dependency tree using the 'sbt dependencyTree'
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
+
+addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.1")

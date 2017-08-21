@@ -5,16 +5,19 @@ name := "noble"
 
 description := "norcane blog engine"
 
-version := "0.1.0-SNAPSHOT"
+version in Global := "0.1.0"
 
-organization := "com.norcane.noble"
+organization in Global := "com.norcane.noble"
 
-licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
+licenses in Global += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
 scalaVersion in Global := "2.11.11"
 
 autoAPIMappings := true
 
+bintrayOrganization := Some("norcane")
+
+bintrayRepository := "noble"
 
 libraryDependencies ++= Seq(
   jdbc, cache, ws, specs2 % Test,
@@ -37,7 +40,9 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "com.typesafe" % "config" % "1.3.1",
       "org.typelevel" %% "cats" % "0.9.0",
       "com.typesafe.play" %% "play" % "2.5.16"
-    )
+    ),
+    bintrayOrganization := Some("norcane"),
+    bintrayRepository := "noble"
   )
 
 lazy val minimal = (project in file("examples/minimal"))
