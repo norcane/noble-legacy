@@ -22,10 +22,13 @@ import javax.inject.{Inject, Singleton}
 
 import com.norcane.noble.api.BlogReverseRouter
 import com.norcane.noble.api.models.Page
+import controllers.Assets
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Handler, RequestHeader}
+import play.api.mvc.{ControllerComponents, Handler, RequestHeader}
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
+
+import scala.concurrent.ExecutionContext
 
 /**
   * This router represents the entry point of the ''noble'' application, that handles all blog
@@ -43,7 +46,10 @@ import play.api.routing.{Router, SimpleRouter}
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
 @Singleton
-class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleRouter {
+class NobleRouter @Inject()(messages: MessagesApi, assets: Assets, noble: Noble,
+                            cc: ControllerComponents, blogActionFactory: BlogActionFactory)
+                           (implicit eCtx: ExecutionContext)
+  extends SimpleRouter {
 
   private var prefix: String = ""
 
@@ -51,11 +57,12 @@ class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleR
     import play.api.routing.sird._
 
     val blogRouters = noble.blogs map { blog =>
+      val blogAction = blogActionFactory.blogAction(blog.actor)
       val blogPath = prefix + blog.config.path
       val globalAssetsPath = s"$prefix/${Keys.Defaults.GlobalAssetsPrefix}"
       val reverseRouter = new BlogReverseRouter(blogPath, globalAssetsPath)
       val controller = new BlogController(
-        blog.actor, blog.config, noble.themes, reverseRouter, blogPath, messages)
+        blog.actor, blog.config, noble.themes, reverseRouter, blogPath, messages, blogAction, cc)
       new BlogRouter(controller).withPrefix(blog.config.path)
     }
 
@@ -65,7 +72,7 @@ class NobleRouter @Inject()(messages: MessagesApi, noble: Noble) extends SimpleR
 
     val globalRoutes: PartialFunction[RequestHeader, Handler] = {
       case GET(p"/${Keys.Defaults.GlobalAssetsPrefix}/lib/$path*") =>
-        controllers.Assets.versioned("/public/lib", path)
+        assets.versioned("/public/lib", path)
     }
 
     globalRoutes orElse blogRoutes
@@ -147,7 +154,7 @@ class BlogRouter(controller: BlogController) extends SimpleRouter {
         val p = if (prefix.endsWith("/")) prefix else prefix + "/"
         val prefixed: PartialFunction[RequestHeader, RequestHeader] = {
           case header: RequestHeader if header.path.startsWith(p) || header.path.equals(prefix) =>
-            header.copy(path = header.path.drop(p.length - 1))
+            header.withTarget(header.target.withPath(header.path.drop(p.length - 1)))
         }
         Function.unlift(prefixed.lift andThen (_ flatMap self.routes.lift))
       }

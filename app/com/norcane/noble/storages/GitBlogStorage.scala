@@ -28,6 +28,7 @@ import com.norcane.noble.api._
 import com.norcane.noble.api.astral.{Astral, AstralType}
 import com.norcane.noble.api.models._
 import com.norcane.noble.astral.{RawYaml, YamlParser}
+import com.norcane.noble.utils.extendedConfiguration._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ObjectId, RepositoryBuilder}
 import org.eclipse.jgit.revwalk.RevWalk
@@ -54,13 +55,13 @@ class GitBlogStorageFactory extends BlogStorageFactory {
     (for {
       cfg <- Either.fromOption(config.config.map(Configuration(_)),
         s"no storage config for storage type '${config.storageType}")
-      repoPath <- Either.fromOption(cfg.getString("repoPath"),
+      repoPath <- cfg.getE[String]("repoPath",
         s"no Git repo path found for storage type '${config.storageType}")
     } yield new GitBlogStorage(GitStorageConfig(
       gitRepo = new File(repoPath),
-      blogPath = cfg.getString("blogPath").getOrElse(""),
-      branch = cfg.getString("branch").getOrElse("master"),
-      remote = cfg.getString("remote")
+      blogPath = cfg.getO[String]("blogPath").getOrElse(""),
+      branch = cfg.getO[String]("branch").getOrElse("master"),
+      remote = cfg.getO[String]("remote")
     ), formatSupports)) leftMap (BlogStorageError(_))
   }
 }
@@ -102,7 +103,7 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   override def loadInfo(versionId: String): Either[BlogStorageError, BlogInfo] = {
-    implicit val yamlParser = YamlParser.parser
+    implicit val yamlParser: YamlParser = YamlParser.parser
 
     val info = loadContent(versionId, ConfigFileName)
       .flatMap(content => Astral.parse(RawYaml(content)).toOption).getOrElse(Astral.empty)
@@ -205,8 +206,6 @@ class GitBlogStorage(config: GitStorageConfig,
         )
 
         authorE.leftMap(BlogStorageError(_))
-        // IntelliJ Idea will highlight an error here, but the code is compilable and working,
-        // issue is reported here: https://youtrack.jetbrains.com/issue/SCL-9752
       }).toList.sequenceU
     } else Left(BlogStorageError("At least one author must be defined for each blog"))
   }
