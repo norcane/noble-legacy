@@ -2,9 +2,9 @@ logLevel := Level.Warn
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.3")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.5")
 
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.8")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.11")
 
 // allows to check outdated dependencies using 'sbt dependencyUpdates'
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.3.1")
