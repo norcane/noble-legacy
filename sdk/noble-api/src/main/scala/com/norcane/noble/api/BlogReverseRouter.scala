@@ -19,9 +19,8 @@
 package com.norcane.noble.api
 
 import com.norcane.noble.api.models.{BlogPostMeta, Page}
-import controllers.Assets
+import controllers.AssetsFinder
 import play.api.mvc.Call
-import play.core.routing.ReverseRouteContext
 import play.utils.UriEncoding
 
 /**
@@ -32,7 +31,7 @@ import play.utils.UriEncoding
   * @param globalAssetsPath global assets (i.e. Play's assets) path
   * @author Vaclav Svejcar (v.svejcar@norcane.cz)
   */
-class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
+class BlogReverseRouter(assetsFinder: AssetsFinder, path: => String, globalAssetsPath: => String) {
 
   /**
     * Default page used in paginated routes, if no custom page specified. This one leads to page
@@ -164,10 +163,8 @@ class BlogReverseRouter(path: => String, globalAssetsPath: => String) {
     * @return call to ''WebJAR'' asset file
     */
   def webJarAsset(filePath: String): Call = {
-    val path: String = Assets.Asset
-      .assetPathBindable(ReverseRouteContext(Map("path" -> "/public/lib")))
-      .unbind("file", Assets.Asset(filePath))
-    Call("GET", s"$globalAssetsPath/lib/$path")
+    val assetPath = assetsFinder.findAssetPath("/public/lib", "/public/lib/" + filePath)
+    Call("GET", s"$globalAssetsPath/lib/$assetPath")
   }
 
   private def withPaging(path: String, page: Page) = {
