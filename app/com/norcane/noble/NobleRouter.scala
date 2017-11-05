@@ -23,12 +23,9 @@ import javax.inject.{Inject, Singleton}
 import com.norcane.noble.api.BlogReverseRouter
 import com.norcane.noble.api.models.Page
 import controllers.Assets
-import play.api.i18n.MessagesApi
 import play.api.mvc.{ControllerComponents, Handler, RequestHeader}
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
-
-import scala.concurrent.ExecutionContext
 
 /**
   * This router represents the entry point of the ''noble'' application, that handles all blog
@@ -41,14 +38,14 @@ import scala.concurrent.ExecutionContext
   *
   * Where `nobleRoot` is the *noble* root path.
   *
-  * @param messages Play's Messages API
-  * @param noble    Noble application singleton
-  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  * @param assets Play's assets
+  * @param noble  Noble application singleton
+  * @param cc     Play's Controller components
   */
 @Singleton
-class NobleRouter @Inject()(messages: MessagesApi, assets: Assets, noble: Noble,
-                            cc: ControllerComponents, blogActionFactory: BlogActionFactory)
-                           (implicit eCtx: ExecutionContext)
+class NobleRouter @Inject()(assets: Assets,
+                            noble: Noble,
+                            cc: ControllerComponents)
   extends SimpleRouter {
 
   private var prefix: String = ""
@@ -57,12 +54,11 @@ class NobleRouter @Inject()(messages: MessagesApi, assets: Assets, noble: Noble,
     import play.api.routing.sird._
 
     val blogRouters = noble.blogs map { blog =>
-      val blogAction = blogActionFactory.blogAction(blog.actor)
       val blogPath = prefix + blog.config.path
       val globalAssetsPath = s"$prefix/${Keys.Defaults.GlobalAssetsPrefix}"
       val reverseRouter = new BlogReverseRouter(blogPath, globalAssetsPath)
       val controller = new BlogController(
-        blog.actor, blog.config, noble.themes, reverseRouter, blogPath, messages, blogAction, cc)
+        blog.actor, blog.config, noble.themes, reverseRouter, blogPath, cc)
       new BlogRouter(controller).withPrefix(blog.config.path)
     }
 

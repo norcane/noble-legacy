@@ -32,28 +32,30 @@ import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, Lang, MessagesApi}
 import play.api.mvc._
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Controller processing requests for particular ''noble'' blog.
   *
-  * @param blogActor   blog actor, responsible for loading blog content
-  *                    (see [[com.norcane.noble.actors.BlogActor]])
-  * @param blogConfig  blog configuration
-  * @param themes      set of all available themes
-  * @param router      blog reverse router
-  * @param blogPath    blog path (i.e. blog context root, relative to ''noble'' root)
-  * @param messagesApi Play's Messages API
-  * @author Vaclav Svejcar (v.svejcar@norcane.cz)
+  * @param blogActor  blog actor, responsible for loading blog content
+  *                   (see [[com.norcane.noble.actors.BlogActor]])
+  * @param blogConfig blog configuration
+  * @param themes     set of all available themes
+  * @param router     blog reverse router
+  * @param blogPath   blog path (i.e. blog context root, relative to ''noble'' root)
+  * @param cc         Play's Controller components
   */
-class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[BlogTheme],
-                     router: BlogReverseRouter, blogPath: String, val messagesApi: MessagesApi,
-                     blogAction: BlogAction, cc: ControllerComponents)
-                    (implicit eCtx: ExecutionContext)
-  extends I18nSupport with Results {
+class BlogController(blogActor: ActorRef,
+                     blogConfig: BlogConfig,
+                     themes: Set[BlogTheme],
+                     router: BlogReverseRouter,
+                     blogPath: String,
+                     cc: ControllerComponents)
+  extends AbstractController(cc) with I18nSupport with Results {
 
-  private implicit val defaultTimeout = Timeout(10.seconds)
+  private implicit val defaultTimeout: Timeout = Timeout(10.seconds)
+  private implicit val eCtx: ExecutionContext = cc.executionContext
   private implicit val ma: MessagesApi = messagesApi
 
   /**
@@ -62,7 +64,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param page selected page to paginate the list of blog posts
     * @return blog action
     */
-  def index(page: Page): Action[AnyContent] = blogAction.async { implicit req =>
+  def index(page: Page): Action[Unit] = BlogAction.async { implicit req =>
     paged(req.blog.posts, page, None, None)(router.index)
   }
 
@@ -75,8 +77,8 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param permalink blog post permalink
     * @return blog action
     */
-  def post(year: Int, month: Int, day: Int, permalink: String): Action[AnyContent] =
-    blogAction.async { implicit req =>
+  def post(year: Int, month: Int, day: Int, permalink: String): Action[Unit] =
+    BlogAction.async { implicit req =>
       req.blog.forYear(year).forMonth(month).forDay(day).forPermalink(permalink) match {
         case Some(postMeta) =>
           (blogActor ? RenderPostContent(req.blog, postMeta, placeholders))
@@ -96,7 +98,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param permalink static page permalink
     * @return blog action
     */
-  def page(permalink: String): Action[AnyContent] = blogAction.async { implicit req =>
+  def page(permalink: String): Action[Unit] = BlogAction.async { implicit req =>
     req.blog.page(permalink) match {
       case Some(pageMeta) =>
         (blogActor ? RenderPageContent(req.blog, pageMeta, placeholders))
@@ -117,7 +119,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param page selected page to paginate the list of blog posts
     * @return blog action
     */
-  def tag(name: String, page: Page): Action[AnyContent] = blogAction.async { implicit req =>
+  def tag(name: String, page: Page): Action[Unit] = BlogAction.async { implicit req =>
     val filter = PostsFilter.Tag(name)
     paged(req.blog.forTag(name).getOrElse(Nil), page,
       Some(message("noble.posts-by-tag", name)), Some(filter))(router.tag(name, _))
@@ -130,7 +132,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param page     selected page to paginate the list of blog posts
     * @return blog action
     */
-  def author(authorId: String, page: Page): Action[AnyContent] = blogAction.async { implicit req =>
+  def author(authorId: String, page: Page): Action[Unit] = BlogAction.async { implicit req =>
     req.blog.info.authors.find(_.authorId == authorId) match {
       case Some(author) =>
         val filter = PostsFilter.Author(author)
@@ -148,7 +150,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param page selected page to paginate the list of blog posts
     * @return blog action
     */
-  def year(year: Int, page: Page): Action[AnyContent] = blogAction.async { implicit req =>
+  def year(year: Int, page: Page): Action[Unit] = BlogAction.async { implicit req =>
     val filter = PostsFilter.Year(year)
     paged(req.blog.forYear(year).posts, page,
       Some(message("noble.posts-by-year", year)), Some(filter))(router.year(year, _))
@@ -162,8 +164,8 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param page  selected page to paginate the list of blog posts
     * @return blog action
     */
-  def month(year: Int, month: Int, page: Page): Action[AnyContent] =
-    blogAction.async { implicit req =>
+  def month(year: Int, month: Int, page: Page): Action[Unit] =
+    BlogAction.async { implicit req =>
       implicit val lang: Lang = req.lang
       val byMonth = req.blog.forYear(year).forMonth(month)
       val filter = PostsFilter.Month(year, month)
@@ -182,8 +184,8 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param page  selected page to paginate the list of blog posts
     * @return blog action
     */
-  def day(year: Int, month: Int, day: Int, page: Page): Action[AnyContent] =
-    blogAction.async { implicit req =>
+  def day(year: Int, month: Int, day: Int, page: Page): Action[Unit] =
+    BlogAction.async { implicit req =>
       implicit val lang: Lang = req.lang
       val byMonth: Month = req.blog.forYear(year).forMonth(month)
       val byDay: Day = byMonth.forDay(day)
@@ -199,7 +201,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param path path of the asset, under which can be located in selected ''blog storage''
     * @return blog action
     */
-  def asset(path: String): Action[AnyContent] = blogAction.async { implicit req =>
+  def asset(path: String): Action[Unit] = BlogAction.async { implicit req =>
     val safePath: String = if (File.separator == "\\") {
       java.nio.file.Paths.get(s"/$path").normalize().toString.replace("\\", "/")
     } else {
@@ -221,7 +223,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     *
     * @return blog action
     */
-  def atom: Action[AnyContent] = blogAction.async { implicit req =>
+  def atom: Action[Unit] = BlogAction.async { implicit req =>
     val posts: Seq[BlogPostMeta] = req.blog.posts.take(5)
 
     Future.sequence(posts map { postMeta =>
@@ -240,7 +242,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     * @param reloadToken reload token to authorize the request
     * @return blog action
     */
-  def reload(reloadToken: String) = blogAction { implicit req =>
+  def reload(reloadToken: String): Action[Unit] = BlogAction { implicit req =>
     blogConfig.reloadToken match {
       case Some(token) if token == reloadToken =>
         blogActor ! ReloadBlog(req.blog.versionId)
@@ -254,7 +256,7 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
     *
     * @return blog action
     */
-  def notFound = blogAction { implicit req =>
+  def notFound: Action[Unit] = BlogAction { implicit req =>
     notFoundResp(req.blog)
   }
 
@@ -313,6 +315,27 @@ class BlogController(blogActor: ActorRef, blogConfig: BlogConfig, themes: Set[Bl
 
   case class ThemeNotFoundError(message: String, cause: Option[Throwable] = None)
     extends Error(message, cause.orNull)
+
+  object BlogAction extends ActionBuilder[BlogRequest, Unit] {
+
+    override val parser: BodyParser[Unit] = cc.parsers.empty
+
+    override def invokeBlock[A](request: Request[A],
+                                block: BlogRequest[A] => Future[Result]): Future[Result] = {
+      (blogActor ? GetBlog).mapTo[Blog] flatMap { blog =>
+        val eTag = eTagFor(blog)
+        if (request.headers.get(IF_NONE_MATCH).contains(eTag))
+          Future.successful(play.api.mvc.Results.NotModified)
+        else
+          block(new BlogRequest(request, blog)).map(_.withHeaders(ETAG -> eTag))
+      }
+    }
+
+    override protected def executionContext: ExecutionContext = cc.executionContext
+
+    private def eTagFor(blog: Blog): String =
+      blog.versionId.take(8) + blog.info.themeName.take(8)
+  }
 
 }
 
