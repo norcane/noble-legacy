@@ -88,12 +88,16 @@ object Page {
 
   import play.api.routing.sird._
 
+  val DefaultPageNo = 1
+  val DefaultPageSize = 5
+  val Default = Page(DefaultPageNo, DefaultPageSize)
+
   def unapply(header: RequestHeader): Option[Page] = {
     // TODO separate query param names into constants
     header.queryString match {
       case q_o"page=${int(page)}" & q_o"per-page=${int(perPage)}" =>
-        Some(Page(page.getOrElse(1), perPage.getOrElse(5)))
-      case _ => None
+        Some(Page(page.getOrElse(DefaultPageNo), perPage.getOrElse(DefaultPageSize)))
+      case _ => Some(Default)
     }
   }
 }

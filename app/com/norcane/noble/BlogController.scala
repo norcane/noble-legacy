@@ -224,7 +224,7 @@ class BlogController(blogActor: ActorRef,
     * @return blog action
     */
   def atom: Action[Unit] = BlogAction.async { implicit req =>
-    val posts: Seq[BlogPostMeta] = req.blog.posts.take(5)
+    val posts: Seq[BlogPostMeta] = req.blog.posts.take(Page.DefaultPageSize)
 
     Future.sequence(posts map { postMeta =>
       (blogActor ? RenderPostContent(req.blog, postMeta, placeholders)).mapTo[Option[String]]
@@ -308,8 +308,7 @@ class BlogController(blogActor: ActorRef,
   private def themeByName(name: String): BlogTheme = themes.find(_.name == name) match {
     case Some(theme) => theme
     case None =>
-      val available =
-        if (themes.nonEmpty) themes.map(_.name).mkString(",") else "<no themes available>"
+      val available = if (themes.nonEmpty) themes.map(_.name).mkString(",") else "<no themes available>"
       throw ThemeNotFoundError(s"Cannot find theme for name '$name' (available themes: $available)")
   }
 

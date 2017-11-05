@@ -34,20 +34,15 @@ import play.utils.UriEncoding
 class BlogReverseRouter(assetsFinder: AssetsFinder, path: => String, globalAssetsPath: => String) {
 
   /**
-    * Default page used in paginated routes, if no custom page specified. This one leads to page
-    * no. 1 with blog posts per page set to 5.
-    */
-  val defaultPage = Page(1, 5)
-
-  /**
     * Creates call to blog index page, which displays all published blogposts (paginated). If no
-    * `page` param specifying the pagination settings is provided, [[defaultPage]] is used.
+    * `page` param specifying the pagination settings is provided,
+    * [[com.norcane.noble.api.models.Page.Default]] is used.
     *
     * @param page page specifying the pagination settings (e.g. page number and number of blog posts
     *             per page)
     * @return call to blog index page
     */
-  def index(page: Page = defaultPage): Call = Call("GET", withPaging(s"$path/", page))
+  def index(page: Page = Page.Default): Call = Call("GET", withPaging(s"$path/", page))
 
   /**
     * Creates call to blog post page, which displays the full content for blog posts specified by
@@ -60,45 +55,47 @@ class BlogReverseRouter(assetsFinder: AssetsFinder, path: => String, globalAsset
 
   /**
     * Creates call to page, which displays all blog posts for specified tag (paginated). If no
-    * `page` param specifying the pagination settings is provided, [[defaultPage]] is used.
+    * `page` param specifying the pagination settings is provided,
+    * [[com.norcane.noble.api.models.Page.Default]] is used.
     *
     * @param name name of the tag
     * @param page page specifying the pagination settings (e.g. page number and number of blog posts
     *             per page)
     * @return call to page displaying all blog posts for specified tag
     */
-  def tag(name: String, page: Page = defaultPage): Call =
+  def tag(name: String, page: Page = Page.Default): Call =
     Call("GET", withPaging(s"$path/tags/${encode(name)}", page))
 
   /**
     * Creates call to page, which displays all blog posts published by author, specified by his/her
     * `ID` (paginated). If no `page` param specifying the pagination settings is provided,
-    * [[defaultPage]] is used.
+    * [[com.norcane.noble.api.models.Page.Default]] is used.
     *
     * @param authorId unique ID of the author (i.e. nickname)
-    * @param page     page specifying the pagination settings (e.g. page number and number of blog posts
-    *                 per page)
+    * @param page     page specifying the pagination settings (e.g. page number and number of blog
+    *                 posts per page)
     * @return call to page displaying all blog posts by author
     */
-  def author(authorId: String, page: Page = defaultPage): Call =
+  def author(authorId: String, page: Page = Page.Default): Call =
     Call("GET", withPaging(s"$path/author/${encode(authorId)}", page))
 
   /**
     * Creates call to page, which displays all blog posts published in specified year (paginated).
-    * If no `page` param specifying the pagination settings is provided, [[defaultPage]] is used.
+    * If no `page` param specifying the pagination settings is provided,
+    * [[com.norcane.noble.api.models.Page.Default]] is used.
     *
     * @param year year (e.g. 1984)
     * @param page page specifying the pagination settings (e.g. page number and number of blog posts
     *             per page)
     * @return call to page displaying all blog posts published in specified year
     */
-  def year(year: Int, page: Page = defaultPage): Call =
+  def year(year: Int, page: Page = Page.Default): Call =
     Call("GET", withPaging(s"$path/$year", page))
 
   /**
     * Creates call to page, which displays all blog posts published in specified month and year
     * (paginated). If no `page` param specifying the pagination settings is provided,
-    * [[defaultPage]] is used.
+    * [[com.norcane.noble.api.models.Page.Default]] is used.
     *
     * @param year  year (e.g. 1984)
     * @param month month (as number from 1 to 12)
@@ -106,13 +103,13 @@ class BlogReverseRouter(assetsFinder: AssetsFinder, path: => String, globalAsset
     *              posts per page)
     * @return call to page displaying all blog posts published in specified year
     */
-  def month(year: Int, month: Int, page: Page = defaultPage) =
+  def month(year: Int, month: Int, page: Page = Page.Default) =
     Call("GET", withPaging(f"$path%s/$year%d/$month%02d", page))
 
   /**
     * Creates call to page, which displays all blog posts published in specified day, month and year
     * (paginated). If no `page` param specifying the pagination settings is provided,
-    * [[defaultPage]] is used.
+    * [[com.norcane.noble.api.models.Page.Default]] is used.
     *
     * @param year  year (e.g. 1984)
     * @param month month (as number from 1 to 12)
@@ -121,7 +118,7 @@ class BlogReverseRouter(assetsFinder: AssetsFinder, path: => String, globalAsset
     *              posts per page)
     * @return call to page displaying all blog posts published in specified year
     */
-  def day(year: Int, month: Int, day: Int, page: Page = defaultPage) =
+  def day(year: Int, month: Int, day: Int, page: Page = Page.Default) =
     Call("GET", withPaging(f"$path%s/$year%d/$month%02d/$day%02d", page))
 
   /**
@@ -169,8 +166,8 @@ class BlogReverseRouter(assetsFinder: AssetsFinder, path: => String, globalAsset
 
   private def withPaging(path: String, page: Page) = {
     val queryString: String = (Nil ++
-      (if (page.pageNo != 1) Seq("page=" + page.pageNo) else Nil) ++
-      (if (page.perPage != 5) Seq("per-page=" + page.perPage) else Nil)).mkString("&")
+      (if (page.pageNo != Page.DefaultPageNo) Seq("page=" + page.pageNo) else Nil) ++
+      (if (page.perPage != Page.DefaultPageSize) Seq("per-page=" + page.perPage) else Nil)).mkString("&")
     if (queryString.isEmpty) path else path + "?" + queryString
   }
 
