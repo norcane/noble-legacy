@@ -26,7 +26,6 @@ import akka.stream.scaladsl.StreamConverters
 import akka.util.Timeout
 import com.norcane.noble.actors.BlogActor._
 import com.norcane.noble.api.models._
-import com.norcane.noble.api.models.dates.{Day, Month}
 import com.norcane.noble.api.{BlogReverseRouter, BlogTheme, ContentStream}
 import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, Lang, MessagesApi}
@@ -187,8 +186,8 @@ class BlogController(blogActor: ActorRef,
   def day(year: Int, month: Int, day: Int, page: Page): Action[Unit] =
     BlogAction.async { implicit req =>
       implicit val lang: Lang = req.lang
-      val byMonth: Month = req.blog.forYear(year).forMonth(month)
-      val byDay: Day = byMonth.forDay(day)
+      val byMonth = req.blog.forYear(year).forMonth(month)
+      val byDay = byMonth.forDay(day)
       val filter = PostsFilter.Day(year, month, day)
       paged(byDay.posts, page,
         Some(message("noble.posts-by-day", year, byMonth.name, day)),
@@ -202,7 +201,7 @@ class BlogController(blogActor: ActorRef,
     * @return blog action
     */
   def asset(path: String): Action[Unit] = BlogAction.async { implicit req =>
-    val safePath: String = if (File.separator == "\\") {
+    val safePath = if (File.separator == "\\") {
       java.nio.file.Paths.get(s"/$path").normalize().toString.replace("\\", "/")
     } else {
       new File(s"/$path").getCanonicalPath
@@ -224,14 +223,14 @@ class BlogController(blogActor: ActorRef,
     * @return blog action
     */
   def atom: Action[Unit] = BlogAction.async { implicit req =>
-    val posts: Seq[BlogPostMeta] = req.blog.posts.take(Page.DefaultPageSize)
+    val posts = req.blog.posts.take(Page.DefaultPageSize)
 
     Future.sequence(posts map { postMeta =>
       (blogActor ? RenderPostContent(req.blog, postMeta, placeholders)).mapTo[Option[String]]
         .map(createBlogPost(postMeta, _, req.blog))
     }).map { loaded =>
-      val posts: Seq[BlogPost] = loaded flatMap (_.toSeq)
-      Ok(com.norcane.noble.atom.xml.atom(req.blog, router, posts))
+      val loadedPosts = loaded flatMap (_.toSeq)
+      Ok(com.norcane.noble.atom.xml.atom(req.blog, router, loadedPosts))
     }
   }
 
