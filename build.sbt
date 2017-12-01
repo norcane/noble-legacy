@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats" % "0.9.0",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.9.0.201710071750-r",
   "org.yaml" % "snakeyaml" % "1.19",
-  "com.vladsch.flexmark" % "flexmark-all" % "0.28.10"
+  "com.vladsch.flexmark" % "flexmark-all" % "0.28.14"
 )
 
 unmanagedResourceDirectories in Test += baseDirectory(_ / "target/web/public/test").value
@@ -36,7 +36,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
     name := "noble-api",
     libraryDependencies ++= Seq(
       specs2 % Test,
-      "net.codingwell" %% "scala-guice" % "4.1.0",
+      "net.codingwell" %% "scala-guice" % "4.1.1",
       "com.typesafe" % "config" % "1.3.2",
       "org.typelevel" %% "cats" % "0.9.0",
       "com.typesafe.play" %% "play" % "2.6.7"
