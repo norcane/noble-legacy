@@ -24,9 +24,9 @@ bintrayRepository := "noble"
 libraryDependencies ++= Seq(
   guice, specs2 % Test,
   "org.typelevel" %% "cats" % "0.9.0",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.9.1.201712030800-r",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.10.0.201712302008-r",
   "org.yaml" % "snakeyaml" % "1.19",
-  "com.vladsch.flexmark" % "flexmark-all" % "0.28.16"
+  "com.vladsch.flexmark" % "flexmark-all" % "0.28.28"
 )
 
 unmanagedResourceDirectories in Test += baseDirectory(_ / "target/web/public/test").value
@@ -39,7 +39,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "net.codingwell" %% "scala-guice" % "4.1.1",
       "com.typesafe" % "config" % "1.3.2",
       "org.typelevel" %% "cats" % "0.9.0",
-      "com.typesafe.play" %% "play" % "2.6.9"
+      "com.typesafe.play" %% "play" % "2.6.10"
     ),
     bintrayOrganization := Some("norcane"),
     bintrayRepository := "noble"
