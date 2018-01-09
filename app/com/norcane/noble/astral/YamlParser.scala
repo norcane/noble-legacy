@@ -37,7 +37,7 @@ class YamlParser extends AstralParser[RawYaml] {
   override def parse(input: RawYaml): Try[Astral] = Try {
     process(new org.yaml.snakeyaml.Yaml().load(input.yaml)) match {
       case astral: Astral => astral
-      case other =>
+      case _ =>
         log.warn("parsed YAML is not object, is the YAML content valid?")
         Astral.empty
     }

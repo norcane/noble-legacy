@@ -45,7 +45,7 @@ case class Year(year: Int, months: SortedMap[Int, Month], posts: Seq[BlogPostMet
   * Companion object for the [[Year]] class.
   */
 object Year {
-  implicit val ordering = Ordering.by((year: Year) => year.year)
+  implicit val ordering: Ordering[Year] = Ordering.by((year: Year) => year.year)
 
   /**
     * Returns new instance of [[Year]] class with no blog posts set.

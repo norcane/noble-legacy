@@ -54,5 +54,6 @@ case class BlogPostMeta(id: String, author: String, format: String, title: Strin
   * Companion object for the [[BlogPostMeta]] class.
   */
 object BlogPostMeta {
-  implicit val ordering = Ordering.by((post: BlogPostMeta) => post.date.toEpochSecond)
+  implicit val ordering: Ordering[BlogPostMeta] =
+    Ordering.by((post: BlogPostMeta) => post.date.toEpochSecond)
 }

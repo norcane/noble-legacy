@@ -86,7 +86,7 @@ class HumaneTheme(markdownService: MarkdownService) extends BlogTheme {
   }
 
   private def singleAuthor(blog: Blog): Option[BlogAuthor] = for {
-    author <- blog.info.authors.headOption if blog.info.authors.size == 1
+    author <- blog.info.authors.headOption if blog.info.authors.lengthCompare(1) == 0
   } yield author.copy(biography = author.biography map markdownService.parseToHtml)
 
   private def aboutPage(author: BlogAuthor): Option[String] = {

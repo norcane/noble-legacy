@@ -36,7 +36,7 @@ import scala.util.Try
   */
 case class Astral(underlying: Map[String, Any]) {
 
-  private implicit val astralValue = Astral.Defaults.astral
+  private implicit val astralValue: AstralType[Astral] = Astral.Defaults.astral
 
   /**
     * Returns the value of type `T` for the given `key`. For each used value type an instance of the
@@ -204,8 +204,5 @@ object AstralType {
     * @tparam T type of the value the new instance of [[AstralType]] is for
     * @return instance of [[AstralType]] class
     */
-  def apply[T](f: PartialFunction[Any, T]): AstralType[T] = new AstralType[T] {
-
-    override def read(value: Any): Option[T] = f.lift(value)
-  }
+  def apply[T](f: PartialFunction[Any, T]): AstralType[T] = (value: Any) => f.lift(value)
 }

@@ -144,7 +144,7 @@ class MarkdownFormatSupport(markdownService: MarkdownService) extends FormatSupp
   private def extractFrontMatter(is: InputStream, title: String
                                 ): Either[FormatSupportError, Astral] = {
 
-    implicit val yamlParser = YamlParser.parser
+    implicit val yamlParser: YamlParser = YamlParser.parser
 
     val lines = Source.fromInputStream(is)(Codec.UTF8).getLines().map(_.trim).dropWhile(_.isEmpty)
 
