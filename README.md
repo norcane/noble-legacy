@@ -15,8 +15,7 @@ that uses the *Wiki* syntax? No problem, just write your own.
 
 > Please note that despite our best efforts, *noble* was primarily written for our internal purposes
 and is still under heavy development. It means it's NOT feature complete yet (see the
-*Planned features* chapter below) and its API may change until it reaches the *1.0.0* version. It is
-also not yet released into the *Maven* repository, although this is planned to be done soon.
+*Planned features* chapter below) and its API may change until it reaches the final version.
 
 ## Key features
 - Seamless integration into any existing *Play* application.
@@ -49,6 +48,15 @@ try out using the following steps:
 
    At this moment, *Example* blog should be accessible by your browser at
    [http://localhost:9000](http://localhost:9000).
+
+## Add it to your SBT project
+Stable *Noble* releases are available via the [Bintray Repo](https://bintray.com/norcane), to use it
+as a SBT dependency, paste this code to your *build.sbt*:
+
+```
+resolvers += Resolver.bintrayRepo("norcane", "noble")
+libraryDependencies += "com.norcane.noble" %% "noble" % "<release_version>"
+```
 
 ## Documentation
 The [noble wiki](https://github.com/norcane/noble/wiki) serves as the main project documentation and
