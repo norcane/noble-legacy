@@ -1,4 +1,5 @@
-# noble. The norcane blog engine.
+<p align="center"><img src ="http://static.norcane.cz/noble/noble-logo.png" width="400" /></p>
+
 *Norcane blog engine (noble)* is the blog engine written **by developers for developers**. It's
 built using the [Play Framework](https://www.playframework.com), so it can be seamlessly embedded
 into your existing *Play* applications. But the main idea is to **keep it simple**. No obscure ways
