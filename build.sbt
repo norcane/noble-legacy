@@ -50,3 +50,12 @@ lazy val minimal = (project in file("examples/minimal"))
   .dependsOn(noble).aggregate(noble)
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.5")
+
+scalacOptions in Global := Seq(
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-language:implicitConversions",
+  "-language:higherKinds",
+  "-Ypartial-unification"
+)
