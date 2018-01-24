@@ -48,10 +48,12 @@ import scala.util.matching.Regex
 @Singleton
 class GitBlogStorageFactory extends BlogStorageFactory {
 
+  import GitBlogStorage.OpResult
+
   override def storageType: String = "git"
 
   override def create(config: StorageConfig,
-                      formatSupports: Map[String, FormatSupport]): Either[BlogStorageError, BlogStorage] = {
+                      formatSupports: Map[String, FormatSupport]): OpResult[GitBlogStorage] = {
     (for {
       cfg <- Either.fromOption(config.config.map(Configuration(_)),
         s"no storage config for storage type '${config.storageType}")
@@ -76,14 +78,15 @@ class GitBlogStorage(config: GitStorageConfig,
                      formatSupports: Map[String, FormatSupport]) extends BlogStorage {
 
   import Astral.Defaults._
+  import GitBlogStorage.OpResult
 
   val ConfigFileName: String = "_config.yml"
   val PostsDirName: String = "_posts"
   val PagesDirName: String = "_pages"
   val AssetsDirName: String = "_assets"
 
-  private val FilenameExtractor: Regex = """(.+)\.([^\.]+)""".r
-  private val DateAndTitleExtractor: Regex = """(\d{4})-(\d{1,2})-(\d{1,2})-(.+)""".r
+  private val FilenameExtractor = """(.+)\.([^\.]+)""".r
+  private val DateAndTitleExtractor = """(\d{4})-(\d{1,2})-(\d{1,2})-(.+)""".r
 
   private object AsInt {
     def unapply(string: String): Option[Int] = Try(string.toInt).toOption
@@ -102,13 +105,13 @@ class GitBlogStorage(config: GitStorageConfig,
       throw new RuntimeException(s"Cannot find ref '$ref' in repository '${config.gitRepo}'"))
   }
 
-  override def loadInfo(versionId: String): Either[BlogStorageError, BlogInfo] = {
+  override def loadInfo(versionId: String): OpResult[BlogInfo] = {
     implicit val yamlParser: YamlParser = YamlParser.parser
 
     val info = loadContent(versionId, ConfigFileName)
       .flatMap(content => Astral.parse(RawYaml(content)).toOption).getOrElse(Astral.empty)
 
-    def asEither[T: AstralType](key: String, errMsg: String): Either[BlogStorageError, T] =
+    def asEither[T: AstralType](key: String, errMsg: String): OpResult[T] =
       Either.fromOption(info.get[T](key), BlogStorageError(errMsg))
 
     for {
@@ -128,7 +131,7 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   override def loadPostContent(versionId: String, post: BlogPostMeta,
-                               placeholders: Map[String, Any]): Either[BlogStorageError, String] = {
+                               placeholders: Map[String, Any]): OpResult[String] = {
     val Some(stream) = loadStream(versionId, s"$PostsDirName/${post.id}")
     for {
       formatSupport <- selectFormatSupport(post.format)
@@ -138,7 +141,7 @@ class GitBlogStorage(config: GitStorageConfig,
   }
 
   override def loadPageContent(versionId: String, page: StaticPageMeta,
-                               placeholders: Map[String, Any]): Either[BlogStorageError, String] = {
+                               placeholders: Map[String, Any]): OpResult[String] = {
     val Some(stream) = loadStream(versionId, s"$PagesDirName/${page.id}")
     for {
       formatSupport <- selectFormatSupport(page.format)
@@ -147,7 +150,7 @@ class GitBlogStorage(config: GitStorageConfig,
     } yield content
   }
 
-  override def loadBlogPosts(versionId: String): Either[BlogStorageError, List[BlogPostMeta]] = {
+  override def loadBlogPosts(versionId: String): OpResult[List[BlogPostMeta]] = {
     import cats.instances.list._
     import cats.syntax.traverse._
 
@@ -160,10 +163,10 @@ class GitBlogStorage(config: GitStorageConfig,
         blogPost <- formatSupport.extractPostMetadata(stream.stream, postRecord)
           .leftMap(err => BlogStorageError(err.message, err.cause))
       } yield blogPost
-    }) getOrElse Nil).toList.sequenceU
+    }) getOrElse Nil).toList.sequence[OpResult[?], BlogPostMeta]
   }
 
-  override def loadPages(versionId: String): Either[BlogStorageError, Seq[StaticPageMeta]] = {
+  override def loadPages(versionId: String): OpResult[Seq[StaticPageMeta]] = {
     import cats.instances.list._
     import cats.syntax.traverse._
 
@@ -176,15 +179,15 @@ class GitBlogStorage(config: GitStorageConfig,
         staticPage <- formatSupport.extractPageMetadata(stream.stream, pageRecord)
           .leftMap(err => BlogStorageError(err.message, err.cause))
       } yield staticPage
-    }) getOrElse Nil).toList.sequenceU
+    }) getOrElse Nil).toList.sequence[OpResult[?], StaticPageMeta]
   }
 
-  override def loadAsset(versionId: String, path: String): Either[BlogStorageError, ContentStream] = {
+  override def loadAsset(versionId: String, path: String): OpResult[ContentStream] = {
     Either.fromOption(loadStream(versionId, AssetsDirName + path),
       BlogStorageError(s"Cannot load asset for path '$path'"))
   }
 
-  private def parseAuthors(authors: Astral): Either[BlogStorageError, Seq[BlogAuthor]] = {
+  private def parseAuthors(authors: Astral): OpResult[Seq[BlogAuthor]] = {
     import cats.instances.list._
     import cats.syntax.traverse._
 
@@ -206,21 +209,21 @@ class GitBlogStorage(config: GitStorageConfig,
         )
 
         authorE.leftMap(BlogStorageError(_))
-      }).toList.sequenceU
+      }).toList.sequence[OpResult[?], BlogAuthor]
     } else Left(BlogStorageError("At least one author must be defined for each blog"))
   }
 
-  private def selectFormatSupport(formatName: String): Either[BlogStorageError, FormatSupport] =
+  private def selectFormatSupport(formatName: String): OpResult[FormatSupport] =
     Either.fromOption(formatSupports.get(formatName),
       BlogStorageError(s"no format support available for type '$formatName'"))
 
-  private def parsePostRecord(path: String): Either[BlogStorageError, BlogPostRecord] = {
-    def parseFilename: Either[BlogStorageError, (String, String)] = path match {
+  private def parsePostRecord(path: String): OpResult[BlogPostRecord] = {
+    def parseFilename: OpResult[(String, String)] = path match {
       case FilenameExtractor(filename, extension) => Right((filename, extension))
       case _ => Left(BlogStorageError(s"cannot parse extension for file '$path'"))
     }
 
-    def parseDateAndTitle(filename: String, extension: String): Either[BlogStorageError, BlogPostRecord] =
+    def parseDateAndTitle(filename: String, extension: String): OpResult[BlogPostRecord] =
       filename match {
         case DateAndTitleExtractor(AsInt(year), AsInt(month), AsInt(day), title) =>
           val id: String = s"$filename.$extension"
@@ -236,7 +239,7 @@ class GitBlogStorage(config: GitStorageConfig,
     } yield postRecord
   }
 
-  private def parsePageRecord(path: String): Either[BlogStorageError, StaticPageRecord] = {
+  private def parsePageRecord(path: String): OpResult[StaticPageRecord] = {
     path match {
       case FilenameExtractor(filename, extension) =>
         val id = s"$filename.$extension"
@@ -297,6 +300,10 @@ class GitBlogStorage(config: GitStorageConfig,
       revWalk.dispose()
     }
   }
+}
+
+object GitBlogStorage {
+  type OpResult[T] = Either[BlogStorageError, T]
 }
 
 case class GitStorageConfig(gitRepo: File, blogPath: String, branch: String, remote: Option[String])

@@ -19,7 +19,6 @@
 package com.norcane.noble.actors
 
 import akka.actor.{Actor, ActorLogging, Props}
-import cats.instances.either._
 import cats.syntax.either._
 import com.norcane.noble.actors.BlogActor.ReloadBlog
 import com.norcane.noble.api.models.{Blog, BlogConfig, BlogInfo, BlogPostMeta}
@@ -50,10 +49,10 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
     }
   }
 
-  private def loadBlog: Either[BlogLoadingFailed, Blog] = {
+  private def loadBlog: OpResult[Blog] = {
     val versionId: String = storage.currentVersionId
 
-    def wrapErr[T](either: Either[BlogStorageError, T]): Either[BlogLoadingFailed, T] =
+    def wrapErr[T](either: Either[BlogStorageError, T]): OpResult[T] =
       either.leftMap(err => BlogLoadingFailed(err.message, err.cause))
 
     for {
@@ -64,13 +63,12 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
     } yield new Blog(config.name, versionId, blogInfo, validatedBlogPosts, pages)
   }
 
-  private def validateBlogPosts(posts: Seq[BlogPostMeta], blogInfo: BlogInfo
-                               ): Either[BlogLoadingFailed, Seq[BlogPostMeta]] = {
+  private def validateBlogPosts(posts: Seq[BlogPostMeta],
+                                blogInfo: BlogInfo): OpResult[Seq[BlogPostMeta]] = {
 
-    import cats.instances.list._
-    import cats.syntax.traverse._
+    import cats.implicits._
 
-    val validated: Seq[Either[BlogLoadingFailed, BlogPostMeta]] = posts map { post =>
+    val validated = posts map { post =>
       blogInfo.authors find (_.authorId == post.author) match {
         case Some(_) => Right(post)
         case None => Left(BlogLoadingFailed(s"Cannot find author definition for nickname " +
@@ -78,11 +76,13 @@ class BlogLoaderActor(config: BlogConfig, storage: BlogStorage,
       }
     }
 
-    validated.toList.sequenceU
+    validated.toList.sequence[OpResult[?], BlogPostMeta]
   }
 }
 
 object BlogLoaderActor {
+
+  type OpResult[T] = Either[BlogLoadingFailed, T]
 
   def props(config: BlogConfig, storage: BlogStorage,
             formatSupports: Map[String, FormatSupport]): Props =
