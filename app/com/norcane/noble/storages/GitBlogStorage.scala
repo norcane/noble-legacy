@@ -39,7 +39,6 @@ import play.api.Configuration
 import scala.annotation.tailrec
 import scala.io.{Codec, Source}
 import scala.util.Try
-import scala.util.matching.Regex
 
 /**
   * Factory for the [[GitBlogStorage]]. Used by ''Guice'' to get and create the instance with
