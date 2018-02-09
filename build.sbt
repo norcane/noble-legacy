@@ -70,7 +70,7 @@ lazy val minimal = (project in file("examples/minimal"))
   .dependsOn(noble).aggregate(noble)
 
 // We're using kind projector in order to reduce some boilerplate code
-addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.5")
+addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6" cross CrossVersion.binary)
 
 scalacOptions in Global := Seq(
   "-deprecation",
