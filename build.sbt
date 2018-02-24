@@ -44,7 +44,7 @@ lazy val noble = (project in file(".")).enablePlugins(PlayScala)
       "org.typelevel" %% "cats-core" % "1.0.1",
       "org.eclipse.jgit" % "org.eclipse.jgit" % "4.10.0.201712302008-r",
       "org.yaml" % "snakeyaml" % "1.19",
-      "com.vladsch.flexmark" % "flexmark-all" % "0.30.0"
+      "com.vladsch.flexmark" % "flexmark-all" % "0.32.4"
     )
   )
   .dependsOn(nobleApi).aggregate(nobleApi)
@@ -56,7 +56,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
     libraryDependencies ++= Seq(
       specs2 % Test,
       "net.codingwell" %% "scala-guice" % "4.1.1",
-      "com.typesafe" % "config" % "1.3.2",
+      "com.typesafe" % "config" % "1.3.3",
       "org.typelevel" %% "cats-core" % "1.0.1",
       "com.typesafe.play" %% "play" % "2.6.11"
     ),
