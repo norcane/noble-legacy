@@ -1,7 +1,7 @@
 
 // Scala version used
-scalaVersion in Global := "2.12.4"
-crossScalaVersions in Global := Seq("2.12.4", "2.11.11")
+scalaVersion in Global := "2.12.5"
+crossScalaVersions in Global := Seq("2.12.5", "2.11.11")
 
 // Project details
 name := "noble"
@@ -44,7 +44,7 @@ lazy val noble = (project in file(".")).enablePlugins(PlayScala)
       "org.typelevel" %% "cats-core" % "1.1.0",
       "org.eclipse.jgit" % "org.eclipse.jgit" % "4.11.0.201803080745-r",
       "org.yaml" % "snakeyaml" % "1.20",
-      "com.vladsch.flexmark" % "flexmark-all" % "0.32.16"
+      "com.vladsch.flexmark" % "flexmark-all" % "0.32.18"
     )
   )
   .dependsOn(nobleApi).aggregate(nobleApi)

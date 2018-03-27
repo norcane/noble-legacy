@@ -4,12 +4,12 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.12")
 
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.11")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.12")
 
 // allows to check outdated dependencies using 'sbt dependencyUpdates'
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.3.1")
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.3.4")
 
 // allows to list the dependency tree using the 'sbt dependencyTree'
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.0")
 
-addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.1")
+addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.3")
