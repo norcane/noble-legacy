@@ -43,7 +43,7 @@ lazy val noble = (project in file(".")).enablePlugins(PlayScala)
       guice, specs2 % Test,
       "org.typelevel" %% "cats-core" % "1.1.0",
       "org.eclipse.jgit" % "org.eclipse.jgit" % "4.11.0.201803080745-r",
-      "org.yaml" % "snakeyaml" % "1.20",
+      "org.yaml" % "snakeyaml" % "1.21",
       "com.vladsch.flexmark" % "flexmark-all" % "0.32.18"
     )
   )
@@ -58,7 +58,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "net.codingwell" %% "scala-guice" % "4.2.0",
       "com.typesafe" % "config" % "1.3.3",
       "org.typelevel" %% "cats-core" % "1.1.0",
-      "com.typesafe.play" %% "play" % "2.6.12"
+      "com.typesafe.play" %% "play" % "2.6.13"
     ),
     bintrayOrganization := Some("norcane"),
     bintrayRepository := "noble"
