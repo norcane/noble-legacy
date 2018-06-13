@@ -1,7 +1,7 @@
 
 // Scala version used
-scalaVersion in Global := "2.12.5"
-crossScalaVersions in Global := Seq("2.12.5", "2.11.11")
+scalaVersion in Global := "2.12.6"
+crossScalaVersions in Global := Seq("2.12.6", "2.11.11")
 
 // Project details
 name := "noble"
@@ -42,9 +42,9 @@ lazy val noble = (project in file(".")).enablePlugins(PlayScala)
     libraryDependencies ++= Seq(
       guice, specs2 % Test,
       "org.typelevel" %% "cats-core" % "1.1.0",
-      "org.eclipse.jgit" % "org.eclipse.jgit" % "4.11.0.201803080745-r",
+      "org.eclipse.jgit" % "org.eclipse.jgit" % "5.0.0.201805301535-rc2",
       "org.yaml" % "snakeyaml" % "1.21",
-      "com.vladsch.flexmark" % "flexmark-all" % "0.32.18"
+      "com.vladsch.flexmark" % "flexmark-all" % "0.34.0"
     )
   )
   .dependsOn(nobleApi).aggregate(nobleApi)
@@ -58,7 +58,7 @@ lazy val nobleApi = (project in file("sdk/noble-api"))
       "net.codingwell" %% "scala-guice" % "4.2.0",
       "com.typesafe" % "config" % "1.3.3",
       "org.typelevel" %% "cats-core" % "1.1.0",
-      "com.typesafe.play" %% "play" % "2.6.13"
+      "com.typesafe.play" %% "play" % "2.6.15"
     ),
     bintrayOrganization := Some("norcane"),
     bintrayRepository := "noble"
@@ -70,7 +70,7 @@ lazy val minimal = (project in file("examples/minimal"))
   .dependsOn(noble).aggregate(noble)
 
 // We're using kind projector in order to reduce some boilerplate code
-addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6" cross CrossVersion.binary)
+addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.7" cross CrossVersion.binary)
 
 scalacOptions in Global := Seq(
   "-deprecation",
